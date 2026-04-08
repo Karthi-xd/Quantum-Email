@@ -15,6 +15,7 @@ import {
   ToastContainer,
   ShortcutsModal,
   CommandPalette,
+  QuantumParticles,
 } from './components';
 import type { Account } from './types';
 
@@ -24,6 +25,7 @@ function EmailApp() {
   return (
     <div className="app-wrap">
       <Background />
+      <QuantumParticles />
 
       <div className="app">
         <Sidebar />
