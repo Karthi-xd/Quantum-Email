@@ -78,6 +78,30 @@ body {
   );
 }
 
+.micro-particle {
+  position: absolute;
+  background: var(--accent);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: microDrift linear infinite;
+  box-shadow: 0 0 4px var(--accent);
+}
+
+@keyframes microDrift {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(20px, -15px) scale(1.1);
+  }
+  50% {
+    transform: translate(-10px, -30px) scale(0.9);
+  }
+  75% {
+    transform: translate(-25px, -15px) scale(1.05);
+  }
+}
+
 /* ── MATRIX RAIN ── */
 .matrix-rain {
   position: fixed;
