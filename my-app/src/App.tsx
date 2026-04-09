@@ -16,6 +16,7 @@ import {
   ShortcutsModal,
   CommandPalette,
   QuantumParticles,
+  AboutQP,
 } from './components';
 import type { Account } from './types';
 
@@ -39,6 +40,7 @@ function EmailApp() {
       <ToastContainer />
       <ShortcutsModal />
       <CommandPalette />
+      <AboutQP />
     </div>
   );
 }

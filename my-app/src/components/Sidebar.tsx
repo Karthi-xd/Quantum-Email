@@ -2,11 +2,11 @@ import { useEmailStore, getUnreadCount } from '../store/emailStore';
 import { NAV_ITEMS } from '../types';
 
 export function Sidebar() {
-  const { activeCategory, setActiveCategory, setComposing, emails } = useEmailStore();
+  const { activeCategory, setActiveCategory, setComposing, emails, setShowAboutQP } = useEmailStore();
 
   return (
     <aside className="sidebar glass">
-      <div className="sb-brand">
+      <div className="sb-brand" onClick={() => setShowAboutQP(true)} style={{ cursor: 'pointer' }}>
         <span className="brand-q">Q</span>P
       </div>
       <button className="compose-btn" onClick={() => setComposing(true)}>

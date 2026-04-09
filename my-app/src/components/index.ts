@@ -12,3 +12,4 @@ export { ToastContainer } from './Toast';
 export { ShortcutsModal } from './ShortcutsModal';
 export { CommandPalette } from './CommandPalette';
 export { EmailListSkeleton, EmailDetailSkeleton } from './LoadingSkeleton';
+export { AboutQP } from './AboutQP';
