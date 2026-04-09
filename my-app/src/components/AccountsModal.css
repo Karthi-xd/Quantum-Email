@@ -1,0 +1,330 @@
+.accounts-list {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.account-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: rgba(0, 170, 255, 0.03);
+  border: 1px solid rgba(0, 170, 255, 0.1);
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.account-item:hover {
+  background: rgba(0, 170, 255, 0.06);
+}
+
+.account-item.active {
+  border-color: var(--accent);
+  background: rgba(0, 170, 255, 0.08);
+}
+
+.account-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  flex: 1;
+}
+
+.account-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), rgba(0, 200, 255, 0.7));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.account-email {
+  font-size: 0.85rem;
+  color: var(--text);
+}
+
+.account-remove {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  transition: all 0.2s;
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.account-remove:hover {
+  color: var(--pink);
+  background: rgba(255, 45, 120, 0.1);
+}
+.account-remove:focus-visible {
+  outline: 2px solid var(--pink);
+  outline-offset: 2px;
+}
+
+.add-account-section {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.add-account-section .compose-input {
+  flex: 1;
+}
+
+.add-account-section .btn-prime {
+  flex-shrink: 0;
+}
+
+.account-switcher-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 8, 16, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 1rem;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.account-switcher {
+  width: 320px;
+  border-radius: 12px;
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  animation: slideIn 0.25s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.switcher-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.2rem;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.switcher-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+
+.switcher-accounts {
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.switcher-account {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+
+.switcher-account:hover {
+  background: rgba(0, 170, 255, 0.06);
+}
+
+.switcher-account:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.switcher-account.active {
+  background: rgba(0, 170, 255, 0.1);
+}
+
+.switcher-account .account-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.switcher-account .account-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.switcher-account .account-email {
+  font-size: 0.85rem;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.switcher-account .account-name {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.active-check {
+  color: var(--accent);
+  font-size: 0.9rem;
+  margin-left: auto;
+}
+
+.manage-accounts-btn {
+  width: calc(100% - 1rem);
+  margin: 0.5rem;
+  padding: 0.7rem;
+  background: transparent;
+  border: 1px dashed rgba(0, 170, 255, 0.25);
+  border-radius: 8px;
+  color: var(--muted);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  min-height: 44px;
+}
+.manage-accounts-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(0, 170, 255, 0.05);
+}
+.manage-accounts-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.add-account-form {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  border-top: 1px solid var(--glass-border);
+  margin-top: 0.5rem;
+}
+
+.add-account-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.add-account-btn {
+  width: calc(100% - 2rem);
+  margin: 1rem;
+  padding: 0.75rem;
+  background: transparent;
+  border: 1px dashed rgba(0, 170, 255, 0.25);
+  border-radius: 8px;
+  color: var(--accent);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  min-height: 44px;
+}
+.add-account-btn:hover {
+  border-color: var(--accent);
+  background: rgba(0, 170, 255, 0.05);
+  box-shadow: 0 0 15px rgba(0, 170, 255, 0.1);
+}
+.add-account-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.account-details {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.account-name {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.active-indicator {
+  color: var(--accent);
+  font-size: 0.6rem;
+  margin-left: auto;
+}
+
+@media (max-width: 768px) {
+  .accounts-list {
+    padding: 0.75rem;
+  }
+
+  .account-item {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .account-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
+  }
+
+  .account-email {
+    font-size: 0.75rem;
+  }
+
+  .add-account-section {
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .account-switcher-overlay,
+  .account-switcher {
+    animation: none;
+  }
+}

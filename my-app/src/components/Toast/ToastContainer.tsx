@@ -1,5 +1,6 @@
 import { useToastStore } from '../../store/toastStore';
 import type { ToastType } from '../../store/toastStore';
+import './Toast.css';
 
 const icons: Record<ToastType, string> = {
   success: '◈',
@@ -14,10 +15,10 @@ export function ToastContainer() {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="toast-container">
+    <div className="toast-container" role="region" aria-label="Notifications" aria-live="polite">
       {toasts.map((t) => (
-        <div key={t.id} className={`toast toast-${t.type}`}>
-          <div className="toast-icon">{icons[t.type]}</div>
+        <div key={t.id} className={`toast toast-${t.type}`} role="alert">
+          <div className="toast-icon" aria-hidden="true">{icons[t.type]}</div>
           <div className="toast-content">
             <p className="toast-message">{t.message}</p>
             {t.action && (
@@ -26,7 +27,7 @@ export function ToastContainer() {
               </button>
             )}
           </div>
-          <button className="toast-close" onClick={() => removeToast(t.id)}>
+          <button className="toast-close" onClick={() => removeToast(t.id)} aria-label="Dismiss notification">
             ×
           </button>
           <div className="toast-progress" />

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useEmailStore } from '../../store/emailStore';
+import './CommandPalette.css';
 
 interface Command {
   id: string;
@@ -169,10 +170,10 @@ export function CommandPalette() {
   let flatIndex = 0;
 
   return (
-    <div className="command-overlay" onClick={() => setShowCommandPalette(false)}>
+    <div className="command-overlay" onClick={() => setShowCommandPalette(false)} role="dialog" aria-modal="true" aria-label="Command palette">
       <div className="command-palette glass" onClick={(e) => e.stopPropagation()}>
         <div className="command-input-wrapper">
-          <span className="command-icon">◈</span>
+          <span className="command-icon" aria-hidden="true">◈</span>
           <input
             ref={inputRef}
             type="text"
@@ -181,17 +182,21 @@ export function CommandPalette() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
+            aria-label="Search commands"
+            role="combobox"
+            aria-expanded="true"
+            aria-controls="command-list"
           />
           <kbd className="command-esc">ESC</kbd>
         </div>
 
-        <div className="command-list">
+        <div className="command-list" id="command-list" role="listbox" aria-label="Available commands">
           {filteredCommands.length === 0 ? (
-            <div className="command-empty">No commands found</div>
+            <div className="command-empty" role="status">No commands found</div>
           ) : (
             Object.entries(groupedCommands).map(([category, cmds]) => (
               <div key={category} className="command-group">
-                <div className="command-category">{category}</div>
+                <div className="command-category" role="presentation">{category}</div>
                 {cmds.map((cmd) => {
                   const currentIndex = flatIndex++;
                   return (
@@ -200,11 +205,19 @@ export function CommandPalette() {
                       className={`command-item ${currentIndex === selectedIndex ? 'selected' : ''}`}
                       onClick={() => cmd.action()}
                       onMouseEnter={() => setSelectedIndex(currentIndex)}
+                      role="option"
+                      aria-selected={currentIndex === selectedIndex}
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          cmd.action();
+                        }
+                      }}
                     >
-                      <span className="command-item-icon">{cmd.icon}</span>
+                      <span className="command-item-icon" aria-hidden="true">{cmd.icon}</span>
                       <span className="command-item-label">{cmd.label}</span>
                       {cmd.shortcut && (
-                        <kbd className="command-item-shortcut">{cmd.shortcut}</kbd>
+                        <kbd className="command-item-shortcut" aria-label={`Shortcut: ${cmd.shortcut}`}>{cmd.shortcut}</kbd>
                       )}
                     </div>
                   );
@@ -214,7 +227,7 @@ export function CommandPalette() {
           )}
         </div>
 
-        <div className="command-footer">
+        <div className="command-footer" aria-hidden="true">
           <span>
             <kbd>↑↓</kbd> Navigate
           </span>

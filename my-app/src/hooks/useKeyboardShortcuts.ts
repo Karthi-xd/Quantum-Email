@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { useEmailStore } from '../store/emailStore';
 import { toast } from '../store/toastStore';
 
@@ -12,7 +12,54 @@ export function useKeyboardShortcuts() {
     setComposing,
     deleteEmail,
     setActiveCategory,
+    setComposeData,
   } = useEmailStore();
+
+  const pendingGRef = useRef(false);
+  const gTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleReply = useCallback(() => {
+    if (selectedEmail) {
+      const originalBody = selectedEmail.body || selectedEmail.preview;
+      setComposeData({
+        to: selectedEmail.from,
+        subject: selectedEmail.subject.startsWith('Re:')
+          ? selectedEmail.subject
+          : `Re: ${selectedEmail.subject}`,
+        body: `\n\n--- Original Message ---\nFrom: ${selectedEmail.from}\nDate: ${selectedEmail.time}\n\n${originalBody}`,
+      });
+      setComposing(true);
+    }
+  }, [selectedEmail, setComposeData, setComposing]);
+
+  const handleReplyAll = useCallback(() => {
+    if (selectedEmail) {
+      const originalBody = selectedEmail.body || selectedEmail.preview;
+      setComposeData({
+        to: selectedEmail.from,
+        subject: selectedEmail.subject.startsWith('Re:')
+          ? selectedEmail.subject
+          : `Re: ${selectedEmail.subject}`,
+        body: `\n\n--- Original Message ---\nFrom: ${selectedEmail.from}\nDate: ${selectedEmail.time}\n\n${originalBody}`,
+      });
+      setComposing(true);
+      toast.info('Reply to all initiated');
+    }
+  }, [selectedEmail, setComposeData, setComposing]);
+
+  const handleForward = useCallback(() => {
+    if (selectedEmail) {
+      const originalBody = selectedEmail.body || selectedEmail.preview;
+      setComposeData({
+        to: '',
+        subject: selectedEmail.subject.startsWith('Fwd:')
+          ? selectedEmail.subject
+          : `Fwd: ${selectedEmail.subject}`,
+        body: `\n\n--- Forwarded Message ---\nFrom: ${selectedEmail.from}\nDate: ${selectedEmail.time}\nSubject: ${selectedEmail.subject}\n\n${originalBody}`,
+      });
+      setComposing(true);
+    }
+  }, [selectedEmail, setComposeData, setComposing]);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -78,32 +125,17 @@ export function useKeyboardShortcuts() {
 
         case 'r':
           e.preventDefault();
-          if (selectedEmail) {
-            const originalBody = selectedEmail.body || selectedEmail.preview;
-            useEmailStore.getState().setComposeData({
-              to: selectedEmail.from,
-              subject: selectedEmail.subject.startsWith('Re:')
-                ? selectedEmail.subject
-                : `Re: ${selectedEmail.subject}`,
-              body: `\n\n--- Original Message ---\nFrom: ${selectedEmail.from}\nDate: ${selectedEmail.time}\n\n${originalBody}`,
-            });
-            setComposing(true);
-          }
+          handleReply();
+          break;
+
+        case 'a':
+          e.preventDefault();
+          handleReplyAll();
           break;
 
         case 'f':
           e.preventDefault();
-          if (selectedEmail) {
-            const originalBody = selectedEmail.body || selectedEmail.preview;
-            useEmailStore.getState().setComposeData({
-              to: '',
-              subject: selectedEmail.subject.startsWith('Fwd:')
-                ? selectedEmail.subject
-                : `Fwd: ${selectedEmail.subject}`,
-              body: `\n\n--- Forwarded Message ---\nFrom: ${selectedEmail.from}\nDate: ${selectedEmail.time}\nSubject: ${selectedEmail.subject}\n\n${originalBody}`,
-            });
-            setComposing(true);
-          }
+          handleForward();
           break;
 
         case 'd':
@@ -136,26 +168,31 @@ export function useKeyboardShortcuts() {
       setSelectedEmail,
       setComposing,
       deleteEmail,
+      handleReply,
+      handleReplyAll,
+      handleForward,
     ]
   );
 
   useEffect(() => {
-    let pendingG = false;
-    let gTimeout: ReturnType<typeof setTimeout>;
-
     const handleGShortcuts = (e: KeyboardEvent) => {
-      if (!pendingG) {
+      const target = e.target as HTMLElement;
+      const isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
+      if (isInput) return;
+
+      if (!pendingGRef.current) {
         if (e.key.toLowerCase() === 'g') {
-          pendingG = true;
-          gTimeout = setTimeout(() => {
-            pendingG = false;
+          pendingGRef.current = true;
+          if (gTimeoutRef.current) clearTimeout(gTimeoutRef.current);
+          gTimeoutRef.current = setTimeout(() => {
+            pendingGRef.current = false;
           }, 500);
         }
         return;
       }
 
-      pendingG = false;
-      clearTimeout(gTimeout);
+      pendingGRef.current = false;
+      if (gTimeoutRef.current) clearTimeout(gTimeoutRef.current);
 
       switch (e.key.toLowerCase()) {
         case 'i':
@@ -179,7 +216,7 @@ export function useKeyboardShortcuts() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleGShortcuts);
-      clearTimeout(gTimeout);
+      if (gTimeoutRef.current) clearTimeout(gTimeoutRef.current);
     };
   }, [handleKeyDown, setActiveCategory]);
 }

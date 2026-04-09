@@ -19,6 +19,7 @@ export const generateMockEmails = (): Record<string, Email[]> => {
       time: '08:15 AM',
       read: true,
       body: 'The wave function collapse was intentional. Let me explain the reasoning behind our decision to observe the qubits before measurement.',
+      attachment: true,
     },
     {
       id: 3,
@@ -28,6 +29,7 @@ export const generateMockEmails = (): Record<string, Email[]> => {
       time: 'Yesterday',
       read: false,
       body: 'Anomalous interference patterns observed in sector 7 of the relay network. Recommend immediate investigation.',
+      encrypted: true,
     },
     {
       id: 4,
@@ -37,6 +39,7 @@ export const generateMockEmails = (): Record<string, Email[]> => {
       time: 'Yesterday',
       read: true,
       body: 'Weekly summary of your quantum communication activity and node health metrics.',
+      attachment: true,
     },
   ];
 
@@ -50,6 +53,7 @@ export const generateMockEmails = (): Record<string, Email[]> => {
       time: '07:30 AM',
       read: true,
       body: 'Sending the phase-shifted coordinates as requested by the council. All transmissions are encrypted.',
+      attachment: true,
     },
     {
       id: 6,

@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { useEmailStore } from '../store/emailStore';
 import type { Account } from '../types';
+import './AccountsModal.css';
+import './Compose.css';
+import './Buttons.css';
 
 export function AccountsModal() {
   const {
@@ -47,21 +50,22 @@ export function AccountsModal() {
   };
 
   return (
-    <div className="compose-modal glass">
+    <div className="compose-modal glass" role="dialog" aria-modal="true" aria-labelledby="accounts-title">
       <div className="compose-head">
-        <h3>Accounts</h3>
-        <button className="close-btn" onClick={() => setShowAccounts(false)}>
+        <h3 id="accounts-title">Accounts</h3>
+        <button className="close-btn" onClick={() => setShowAccounts(false)} aria-label="Close">
           ×
         </button>
       </div>
 
-      <div className="accounts-list">
+      <div className="accounts-list" role="list">
         {accounts.map((acc) => (
           <div
             key={acc.id}
             className={`account-item ${activeAccount?.id === acc.id ? 'active' : ''}`}
+            role="listitem"
           >
-            <div className="account-info" onClick={() => switchAccount(acc)}>
+            <div className="account-info" onClick={() => switchAccount(acc)} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && switchAccount(acc)}>
               <span className="account-avatar" style={{ background: acc.color }}>
                 {acc.email[0].toUpperCase()}
               </span>
@@ -72,7 +76,7 @@ export function AccountsModal() {
                 )}
               </div>
               {activeAccount?.id === acc.id && (
-                <span className="active-indicator">●</span>
+                <span className="active-indicator" aria-label="Currently active">●</span>
               )}
             </div>
             {accounts.length > 1 && (
@@ -82,6 +86,7 @@ export function AccountsModal() {
                   e.stopPropagation();
                   handleRemoveAccount(acc.id);
                 }}
+                aria-label={`Remove account ${acc.email}`}
               >
                 ×
               </button>
@@ -99,6 +104,7 @@ export function AccountsModal() {
                 setAddFormData((prev) => ({ ...prev, displayName: e.target.value }))
               }
               className="compose-input"
+              aria-label="Display name"
             />
             <input
               type="email"
@@ -108,6 +114,7 @@ export function AccountsModal() {
                 setAddFormData((prev) => ({ ...prev, email: e.target.value }))
               }
               className="compose-input"
+              aria-label="Email address"
             />
             <input
               type="password"
@@ -117,6 +124,7 @@ export function AccountsModal() {
                 setAddFormData((prev) => ({ ...prev, password: e.target.value }))
               }
               className="compose-input"
+              aria-label="Password"
             />
             <div className="add-account-actions">
               <button className="btn-prime" onClick={handleAddAccount}>
@@ -167,18 +175,19 @@ export function AccountSwitcher() {
   if (!showAccountSwitcher) return null;
 
   return (
-    <div className="account-switcher-overlay" onClick={() => setShowAccountSwitcher(false)}>
+    <div className="account-switcher-overlay" onClick={() => setShowAccountSwitcher(false)} role="dialog" aria-modal="true" aria-label="Account switcher">
       <div className="account-switcher glass" onClick={(e) => e.stopPropagation()}>
         <div className="switcher-header">
           <span className="switcher-title">Switch Account</span>
           <button
             className="close-btn"
             onClick={() => setShowAccountSwitcher(false)}
+            aria-label="Close"
           >
             ×
           </button>
         </div>
-        <div className="switcher-accounts">
+        <div className="switcher-accounts" role="listbox" aria-label="Select account">
           {accounts.map((acc) => (
             <div
               key={acc.id}
@@ -187,6 +196,15 @@ export function AccountSwitcher() {
                 switchAccount(acc);
                 setShowAccountSwitcher(false);
               }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  switchAccount(acc);
+                  setShowAccountSwitcher(false);
+                }
+              }}
+              role="option"
+              tabIndex={0}
+              aria-selected={activeAccount?.id === acc.id}
             >
               <span className="account-avatar" style={{ background: acc.color }}>
                 {acc.email[0].toUpperCase()}
@@ -198,7 +216,7 @@ export function AccountSwitcher() {
                 )}
               </div>
               {activeAccount?.id === acc.id && (
-                <span className="active-check">✓</span>
+                <span className="active-check" aria-hidden="true">✓</span>
               )}
             </div>
           ))}

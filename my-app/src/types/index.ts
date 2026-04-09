@@ -9,6 +9,7 @@ export interface Email {
   encrypted?: boolean;
   key?: string;
   body?: string;
+  attachment?: boolean;
 }
 
 export interface Account {

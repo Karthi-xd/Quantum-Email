@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Background } from './Background';
 import { MatrixRain } from './MatrixRain';
+import './Login.css';
 
 interface LoginProps {
   onLogin: (email: string, password: string) => void;
@@ -45,36 +46,41 @@ export function Login({ onLogin }: LoginProps) {
           <p className="login-subtitle">Initialize your entangled state</p>
         </div>
 
-        <form className="login-form glass" onSubmit={handleSubmit}>
+        <form className="login-form glass" onSubmit={handleSubmit} aria-label="Login form">
           <div className="form-group">
-            <label className="form-label">Entangled Address</label>
+            <label className="form-label" htmlFor="email">Entangled Address</label>
             <input
               type="email"
+              id="email"
               name="email"
               className="form-input"
               placeholder="your@quantum.node"
               value={formData.email}
               onChange={handleChange}
               autoComplete="email"
+              aria-required="true"
             />
           </div>
 
           <div className="form-group">
-            <label className="form-label">Decoherence Key</label>
+            <label className="form-label" htmlFor="password">Decoherence Key</label>
             <div className="password-wrapper">
               <input
                 type={showPassword ? 'text' : 'password'}
+                id="password"
                 name="password"
                 className="form-input"
                 placeholder="Access token"
                 value={formData.password}
                 onChange={handleChange}
                 autoComplete="current-password"
+                aria-required="true"
               />
               <button
                 type="button"
                 className="password-toggle"
                 onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
                 {showPassword ? '◉' : '◎'}
               </button>
@@ -82,7 +88,7 @@ export function Login({ onLogin }: LoginProps) {
           </div>
 
           {error && (
-            <div className="error-message">
+            <div className="error-message" role="alert">
               <span className="error-icon">⚠</span>
               {error}
             </div>
@@ -92,10 +98,11 @@ export function Login({ onLogin }: LoginProps) {
             type="submit"
             className={`login-btn ${authenticating ? 'authenticating' : ''}`}
             disabled={authenticating}
+            aria-busy={authenticating}
           >
             {authenticating ? (
               <>
-                <span className="sync-spinner" />
+                <span className="sync-spinner" aria-hidden="true" />
                 Synchronizing...
               </>
             ) : (
@@ -103,7 +110,7 @@ export function Login({ onLogin }: LoginProps) {
             )}
           </button>
 
-          <div className="login-footer">
+          <div className="login-footer" aria-hidden="true">
             <span className="pulse-dot sm" />
             <span>256-qubit entangled connection</span>
           </div>
