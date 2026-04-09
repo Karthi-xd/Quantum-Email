@@ -21,7 +21,6 @@ import {
 import type { Account } from './types';
 
 function EmailApp() {
-  // Testing new git email config
   useKeyboardShortcuts();
 
   return (
