@@ -1,9 +1,18 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useEmailStore } from '../store/emailStore';
 
 export function AboutQP() {
   const { showAboutQP, setShowAboutQP } = useEmailStore();
   const modalRef = useRef<HTMLDivElement>(null);
+  const [isClosing, setIsClosing] = useState(false);
+
+  const handleClose = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setShowAboutQP(false);
+      setIsClosing(false);
+    }, 400);
+  };
 
   useEffect(() => {
     if (showAboutQP) {
@@ -17,18 +26,18 @@ export function AboutQP() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && showAboutQP) {
-        setShowAboutQP(false);
+        handleClose();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [showAboutQP, setShowAboutQP]);
+  }, [showAboutQP, handleClose]);
 
   if (!showAboutQP) return null;
 
   return (
-    <div className="about-qp-overlay" onClick={(e) => {
-      if (e.target === e.currentTarget) setShowAboutQP(false);
+    <div className={`about-qp-overlay ${isClosing ? 'closing' : ''}`} onClick={(e) => {
+      if (e.target === e.currentTarget) handleClose();
     }}>
       <div className="about-qp-modal" ref={modalRef}>
         <div className="about-qp-particles">
@@ -49,7 +58,7 @@ export function AboutQP() {
             <div className="about-logo-ring" />
             <div className="about-logo-ring ring-2" />
           </div>
-          <button className="about-qp-close" onClick={() => setShowAboutQP(false)}>
+          <button className="about-qp-close" onClick={handleClose}>
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
               <path d="M15 5L5 15M5 5l10 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
             </svg>
@@ -67,12 +76,6 @@ export function AboutQP() {
             <span className="title-letter" style={{'--i': 6} as React.CSSProperties}>M</span>
           </h1>
           <p className="about-subtitle">QUANTUM PROTOCOL</p>
-
-          <div className="about-divider">
-            <span className="divider-line" />
-            <span className="divider-icon">◈</span>
-            <span className="divider-line" />
-          </div>
 
           <div className="about-description">
             <p>

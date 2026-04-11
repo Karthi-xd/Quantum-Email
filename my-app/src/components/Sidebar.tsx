@@ -1,13 +1,28 @@
+import { useState, CSSProperties } from 'react';
 import { useEmailStore, getUnreadCount } from '../store/emailStore';
 import { NAV_ITEMS } from '../types';
 import './Sidebar.css';
 
 export function Sidebar() {
   const { activeCategory, setActiveCategory, setComposing, emails, setShowAboutQP } = useEmailStore();
+  const [brandStyle, setBrandStyle] = useState<CSSProperties>({});
+  const [isClicked, setIsClicked] = useState(false);
+
+  const handleBrandClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    setBrandStyle({ '--click-x': `${x}%`, '--click-y': `${y}%` } as CSSProperties);
+    setIsClicked(true);
+    setTimeout(() => {
+      setShowAboutQP(true);
+      setTimeout(() => setIsClicked(false), 600);
+    }, 100);
+  };
 
   return (
     <aside className="sidebar glass" role="navigation" aria-label="Email navigation">
-      <div className="sb-brand" onClick={() => setShowAboutQP(true)} style={{ cursor: 'pointer' }} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && setShowAboutQP(true)} aria-label="About Quantum Privacy">
+      <div className={`sb-brand ${isClicked ? 'clicked' : ''}`} onClick={handleBrandClick} style={{ ...brandStyle }} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && setShowAboutQP(true)} aria-label="About Quantum Privacy">
         <span className="brand-q">Q</span>P
       </div>
       <button className="compose-btn" onClick={() => setComposing(true)} aria-label="Compose new email">
