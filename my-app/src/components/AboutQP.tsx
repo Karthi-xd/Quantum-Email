@@ -50,22 +50,22 @@ export function AboutQP() {
             } as React.CSSProperties} />
           ))}
         </div>
-        
-        <div className="about-qp-header">
-          <div className="about-qp-logo">
-            <span className="about-logo-q">Q</span>
-            <span className="about-logo-p">P</span>
-            <div className="about-logo-ring" />
-            <div className="about-logo-ring ring-2" />
-          </div>
-          <button className="about-qp-close" onClick={handleClose}>
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <path d="M15 5L5 15M5 5l10 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
-          </button>
-        </div>
 
         <div className="about-qp-content">
+          <div className="about-qp-header">
+            <div className="about-qp-logo">
+              <span className="about-logo-q">Q</span>
+              <span className="about-logo-p">P</span>
+              <div className="about-logo-ring" />
+              <div className="about-logo-ring ring-2" />
+            </div>
+            <button className="about-qp-close" onClick={handleClose}>
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M15 5L5 15M5 5l10 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+            </button>
+          </div>
+
           <h1 className="about-title">
             <span className="title-letter" style={{'--i': 0} as React.CSSProperties}>Q</span>
             <span className="title-letter" style={{'--i': 1} as React.CSSProperties}>U</span>
@@ -122,10 +122,10 @@ export function AboutQP() {
             <span className="version-number">1.0.0</span>
             <span className="version-status">BETA</span>
           </div>
-        </div>
 
-        <div className="about-qp-footer">
-          <p>"The future of communication is quantum."</p>
+          <div className="about-qp-footer">
+            <p>"The future of communication is quantum."</p>
+          </div>
         </div>
       </div>
     </div>
