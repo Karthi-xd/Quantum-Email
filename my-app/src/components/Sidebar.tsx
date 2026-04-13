@@ -23,7 +23,7 @@ export function Sidebar() {
   return (
     <aside className="sidebar glass" role="navigation" aria-label="Email navigation">
       <div className={`sb-brand ${isClicked ? 'clicked' : ''}`} onClick={handleBrandClick} style={{ ...brandStyle }} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && setShowAboutQP(true)} aria-label="About Quantum Privacy">
-        <span className="brand-q">Q</span>P
+        <span className="brand-q">Q</span><span className="brand-p">P</span>
       </div>
       <button className="compose-btn" onClick={() => setComposing(true)} aria-label="Compose new email">
         + <span>Compose</span>

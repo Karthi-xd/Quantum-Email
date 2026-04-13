@@ -1,5 +1,13 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { useEmailStore } from '../store/emailStore';
+
+const PARTICLE_COUNT = 12;
+const particleStyles = Array.from({ length: PARTICLE_COUNT }).map((_, i) => ({
+  '--delay': `${i * 0.15}s`,
+  '--x': `${Math.random() * 100}%`,
+  '--y': `${Math.random() * 100}%`,
+  '--size': `${3 + Math.random() * 4}px`,
+} as React.CSSProperties));
 
 export function AboutQP() {
   const { showAboutQP, setShowAboutQP } = useEmailStore();
@@ -33,6 +41,71 @@ export function AboutQP() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [showAboutQP, handleClose]);
 
+  useEffect(() => {
+    const modal = modalRef.current;
+    if (!modal) return;
+
+    let isDragging = false;
+    let startY = 0;
+    let startScrollTop = 0;
+
+    const headerHeight = 80;
+    const footerHeight = 30;
+    const trackHeight = modal.clientHeight - headerHeight - footerHeight;
+    const thumbHeight = Math.min(Math.max(60, trackHeight * 0.25), 100);
+    const maxTop = trackHeight - thumbHeight;
+    const scrollableHeight = modal.scrollHeight - modal.clientHeight;
+
+    const updateScrollbar = () => {
+      if (scrollableHeight <= 0) return;
+      const scrollPercent = modal.scrollTop / scrollableHeight;
+      const thumbTop = scrollPercent * maxTop;
+      modal.style.setProperty('--scroll-thumb-top-offset', `${thumbTop}px`);
+      modal.style.setProperty('--scroll-thumb-height', `${thumbHeight}px`);
+    };
+
+    const handleThumbMouseDown = (e: MouseEvent) => {
+      isDragging = true;
+      startY = e.clientY;
+      startScrollTop = modal.scrollTop;
+      modal.style.cursor = 'grabbing';
+      modal.style.userSelect = 'none';
+      e.preventDefault();
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging) return;
+      const deltaY = e.clientY - startY;
+      const deltaScroll = (deltaY / maxTop) * scrollableHeight;
+      modal.scrollTop = Math.max(0, Math.min(scrollableHeight, startScrollTop + deltaScroll));
+    };
+
+    const handleMouseUp = () => {
+      isDragging = false;
+      modal.style.cursor = '';
+      modal.style.userSelect = '';
+    };
+
+    const thumbEl = modal.querySelector('.scroll-thumb') as HTMLElement;
+    if (thumbEl) {
+      thumbEl.addEventListener('mousedown', handleThumbMouseDown);
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
+
+    modal.addEventListener('scroll', updateScrollbar);
+    updateScrollbar();
+
+    return () => {
+      modal.removeEventListener('scroll', updateScrollbar);
+      if (thumbEl) {
+        thumbEl.removeEventListener('mousedown', handleThumbMouseDown);
+      }
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [showAboutQP]);
+
   if (!showAboutQP) return null;
 
   return (
@@ -41,14 +114,13 @@ export function AboutQP() {
     }}>
       <div className="about-qp-modal" ref={modalRef}>
         <div className="about-qp-particles">
-          {Array.from({ length: 20 }).map((_, i) => (
-            <div key={i} className="about-particle" style={{
-              '--delay': `${i * 0.15}s`,
-              '--x': `${Math.random() * 100}%`,
-              '--y': `${Math.random() * 100}%`,
-              '--size': `${3 + Math.random() * 4}px`,
-            } as React.CSSProperties} />
+          {particleStyles.map((style, i) => (
+            <div key={i} className="about-particle" style={style} />
           ))}
+        </div>
+
+        <div className="scroll-track">
+          <div className="scroll-thumb" />
         </div>
 
         <div className="about-qp-content">

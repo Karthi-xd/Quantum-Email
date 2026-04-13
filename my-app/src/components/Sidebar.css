@@ -18,49 +18,143 @@
   border-bottom: 1px solid var(--glass-border);
   text-align: center;
   position: relative;
-  overflow: hidden;
   cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.sb-brand::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at var(--click-x, 50%) var(--click-y, 50%), rgba(0, 170, 255, 0.5) 0%, transparent 70%);
-  opacity: 0;
-  transition: opacity 0.2s;
-  pointer-events: none;
+.brand-q {
+  color: var(--accent);
+  text-shadow: 0 0 10px rgba(0, 170, 255, 0.4);
+  transition: all 0.15s ease;
+  display: inline-block;
+  position: relative;
 }
 
-.sb-brand::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  background: radial-gradient(circle, rgba(0, 170, 255, 0.6) 0%, transparent 70%);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), height 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.6s;
-  opacity: 0;
+.brand-p {
+  color: var(--text);
+  text-shadow: none;
+  transition: all 0.15s ease;
+  display: inline-block;
+  position: relative;
 }
 
-.sb-brand:hover::before {
-  opacity: 1;
+.sb-brand:hover .brand-q {
+  animation: glitchQ 0.6s ease-out forwards;
 }
 
-.sb-brand:hover {
-  text-shadow: 0 0 20px rgba(0, 170, 255, 0.8), 0 0 40px rgba(0, 170, 255, 0.4), 0 0 60px rgba(0, 170, 255, 0.2);
-  color: rgba(0, 170, 255, 1);
+.sb-brand:hover .brand-p {
+  animation: glitchP 0.6s ease-out 0.08s forwards;
 }
 
-.sb-brand.clicked::after {
-  width: 300px;
-  height: 300px;
-  opacity: 0;
+@keyframes glitchQ {
+  0% { 
+    color: var(--accent);
+    text-shadow: 0 0 10px rgba(0, 170, 255, 0.4);
+    transform: translateX(0);
+  }
+  10% { 
+    color: #ff0066;
+    text-shadow: -3px 0 #00ffff, 3px 0 #ff0066;
+    transform: translateX(-2px);
+  }
+  20% { 
+    color: #00ffff;
+    text-shadow: 3px 0 #ff0066, -3px 0 #00ffff;
+    transform: translateX(2px);
+  }
+  30% { 
+    color: var(--accent);
+    text-shadow: -2px 0 #00ffff, 2px 0 #ff0066;
+    transform: translateX(-1px);
+  }
+  40% { 
+    color: #00ffff;
+    text-shadow: 2px 0 #ff0066, -2px 0 #00ffff;
+    transform: translateX(1px);
+  }
+  50% { 
+    color: #ff0066;
+    text-shadow: -3px 0 #00ffff, 3px 0 #ff0066;
+    transform: translateX(-2px);
+  }
+  60% {
+    color: var(--accent);
+    text-shadow: 0 0 20px rgba(0, 170, 255, 1), 0 0 40px rgba(0, 170, 255, 0.6);
+    transform: translateX(0) scale(1.05);
+  }
+  80% {
+    text-shadow: 0 0 15px rgba(0, 170, 255, 1), 0 0 30px rgba(0, 170, 255, 0.5), 0 0 45px rgba(0, 255, 136, 0.3);
+    transform: scale(1.02);
+  }
+  100% {
+    color: #fff;
+    text-shadow: 0 0 12px rgba(0, 170, 255, 1), 0 0 25px rgba(0, 170, 255, 0.6), 0 0 40px rgba(0, 255, 136, 0.2);
+    transform: scale(1);
+  }
+}
+
+@keyframes glitchP {
+  0% { 
+    color: var(--text);
+    text-shadow: none;
+    transform: translateX(0);
+  }
+  10% { 
+    color: #00ffff;
+    text-shadow: 3px 0 #ff0066, -3px 0 #00ffff;
+    transform: translateX(2px);
+  }
+  20% { 
+    color: #ff0066;
+    text-shadow: -3px 0 #00ffff, 3px 0 #ff0066;
+    transform: translateX(-2px);
+  }
+  30% { 
+    color: #00ffff;
+    text-shadow: 2px 0 #ff0066, -2px 0 #00ffff;
+    transform: translateX(1px);
+  }
+  40% { 
+    color: var(--text);
+    text-shadow: -2px 0 #00ffff, 2px 0 #ff0066;
+    transform: translateX(-1px);
+  }
+  50% { 
+    color: #ff0066;
+    text-shadow: 3px 0 #00ffff, -3px 0 #ff0066;
+    transform: translateX(2px);
+  }
+  60% {
+    color: var(--accent);
+    text-shadow: 0 0 15px rgba(0, 170, 255, 0.8);
+    transform: translateX(0) scale(1.05);
+  }
+  80% {
+    text-shadow: 0 0 12px rgba(0, 170, 255, 0.9), 0 0 24px rgba(0, 170, 255, 0.5);
+    transform: scale(1.02);
+  }
+  100% {
+    color: var(--accent);
+    text-shadow: 0 0 10px rgba(0, 170, 255, 1), 0 0 20px rgba(0, 170, 255, 0.5);
+    transform: scale(1);
+  }
+}
+
+.sb-brand.clicked .brand-q {
+  animation: clickFlash 0.3s ease-out forwards;
+}
+
+.sb-brand.clicked .brand-p {
+  animation: clickFlashP 0.3s ease-out 0.05s forwards;
+}
+
+@keyframes clickFlash {
+  0% { filter: brightness(2); transform: scale(1.1); }
+  100% { filter: brightness(1); transform: scale(1); }
+}
+
+@keyframes clickFlashP {
+  0% { filter: brightness(2); transform: scale(1.1); color: #fff; }
+  100% { filter: brightness(1); transform: scale(1); color: var(--accent); }
 }
 
 .compose-btn {
