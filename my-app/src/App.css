@@ -706,20 +706,39 @@ body {
 }
 
 .about-logo-q:hover {
-  animation: logoHover 0.6s ease-out forwards;
+  animation: logoQHover 0.6s ease-out forwards;
   filter: brightness(1.3);
 }
 
-@keyframes logoHover {
+@keyframes logoQHover {
   0% { transform: scale(1) rotate(0deg); }
   30% { transform: scale(1.2) rotate(-5deg); }
   60% { transform: scale(1.15) rotate(3deg); }
   100% { transform: scale(1.1) rotate(0deg); text-shadow: 0 0 40px rgba(0, 170, 255, 1), 0 0 80px rgba(0, 170, 255, 0.7), 0 0 120px rgba(0, 170, 255, 0.4); }
 }
 
-.about-logo-p { color: var(--text); transition: color 0.3s ease; }
+.about-logo-p {
+  color: var(--text);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: inline-block;
+}
 
-.about-qp-logo:hover .about-logo-p { color: var(--accent); }
+.about-logo-p:hover {
+  animation: logoPHover 0.6s ease-out forwards;
+  filter: brightness(1.3);
+}
+
+.about-qp-logo:hover .about-logo-p {
+  color: var(--accent);
+  text-shadow: 0 0 20px rgba(0, 170, 255, 0.6), 0 0 40px rgba(0, 170, 255, 0.3);
+}
+
+@keyframes logoPHover {
+  0% { transform: scale(1) rotate(0deg); }
+  30% { transform: scale(1.2) rotate(5deg); }
+  60% { transform: scale(1.15) rotate(-3deg); }
+  100% { transform: scale(1.1) rotate(0deg); text-shadow: 0 0 30px rgba(0, 170, 255, 0.8), 0 0 60px rgba(0, 170, 255, 0.4); }
+}
 
 .about-logo-ring {
   position: absolute;
