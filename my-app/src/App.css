@@ -28,8 +28,14 @@ body {
   cursor: none;
 }
 
-a, button {
-  cursor: pointer;
+*, *::before, *::after {
+  cursor: none !important;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  body, *, *::before, *::after {
+    cursor: auto !important;
+  }
 }
 
 @media (hover: none) and (pointer: coarse) {

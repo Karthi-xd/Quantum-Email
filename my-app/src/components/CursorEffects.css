@@ -1,73 +1,56 @@
 .custom-cursor {
   position: fixed;
-  width: 32px;
-  height: 32px;
-  border: 1.5px solid rgba(0, 170, 255, 0.6);
-  border-radius: 50%;
   pointer-events: none;
   z-index: 10000;
   opacity: 0;
-  transition: opacity 0.2s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: opacity 0.15s ease;
   left: 0;
   top: 0;
   transform: translate(-50%, -50%);
-  mix-blend-mode: screen;
 }
 
 .custom-cursor.visible {
   opacity: 1;
 }
 
-.custom-cursor.hover {
-  border-color: rgba(0, 255, 136, 0.7);
-  box-shadow: 0 0 15px rgba(0, 255, 136, 0.25), inset 0 0 10px rgba(0, 255, 136, 0.05);
+.cursor-ring {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border: 1px solid rgba(0, 170, 255, 0.6);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
 }
 
 .cursor-dot {
-  position: fixed;
-  width: 6px;
-  height: 6px;
-  background: radial-gradient(circle, #00aaff 0%, rgba(0, 170, 255, 0.9) 100%);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 10001;
-  opacity: 0;
-  transition: opacity 0.2s ease, background 0.15s ease, box-shadow 0.15s ease;
-  left: 0;
-  top: 0;
-  transform: translate(-50%, -50%);
-  box-shadow: 0 0 8px rgba(0, 170, 255, 0.8), 0 0 15px rgba(0, 170, 255, 0.4);
-}
-
-.cursor-dot.visible {
-  opacity: 1;
-}
-
-.cursor-dot.hover {
-  background: radial-gradient(circle, #00ff88 0%, rgba(0, 255, 136, 0.9) 100%);
-  box-shadow: 0 0 12px rgba(0, 255, 136, 0.9), 0 0 25px rgba(0, 255, 136, 0.5);
-}
-
-.cursor-particles {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 9999;
-  overflow: hidden;
-}
-
-.cursor-particle {
   position: absolute;
-  background: radial-gradient(circle, rgba(0, 170, 255, 0.8) 0%, rgba(0, 170, 255, 0.3) 60%, transparent 100%);
+  width: 4px;
+  height: 4px;
+  background: #00aaff;
   border-radius: 50%;
-  box-shadow: 0 0 4px rgba(0, 170, 255, 0.5);
+  top: 50%;
+  left: 50%;
   transform: translate(-50%, -50%);
+  box-shadow: 0 0 6px #00aaff;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.custom-cursor.hover .cursor-ring {
+  border-color: rgba(0, 255, 136, 0.8);
+  box-shadow: 0 0 8px rgba(0, 255, 136, 0.4);
+  transform: translate(-50%, -50%) scale(1.2);
+}
+
+.custom-cursor.hover .cursor-dot {
+  background: #00ff88;
+  box-shadow: 0 0 8px #00ff88;
 }
 
 @media (hover: none) and (pointer: coarse) {
-  .custom-cursor,
-  .cursor-dot,
-  .cursor-particles {
+  .custom-cursor {
     display: none;
   }
 }
