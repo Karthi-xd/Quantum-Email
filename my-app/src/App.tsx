@@ -26,10 +26,6 @@ function EmailApp() {
 
   return (
     <div className="app-wrap">
-      <Background />
-      <QuantumParticles />
-      <CustomCursor />
-
       <div className="app">
         <Sidebar />
         <EmailList />
@@ -79,13 +75,18 @@ export default function Root() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  if (page === 'landing') {
-    return <Landing onEnter={() => setPage('login')} />;
-  }
-
-  if (page === 'login') {
-    return <Login onLogin={handleLogin} />;
-  }
-
-  return <EmailApp />;
+  return (
+    <>
+      <CustomCursor />
+      {page === 'landing' && <Landing onEnter={() => setPage('login')} />}
+      {page === 'login' && <Login onLogin={handleLogin} />}
+      {page === 'app' && (
+        <>
+          <Background />
+          <QuantumParticles />
+          <EmailApp />
+        </>
+      )}
+    </>
+  );
 }

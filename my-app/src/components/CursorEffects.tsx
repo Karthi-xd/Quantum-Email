@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import './CursorEffects.css';
 
 interface Particle {
@@ -19,50 +19,57 @@ export function CustomCursor() {
   const [isVisible, setIsVisible] = useState(false);
   const particleIdRef = useRef(0);
   const lastParticleTime = useRef(0);
+  const posRef = useRef({ x: 0, y: 0 });
+
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    const x = e.clientX;
+    const y = e.clientY;
+    posRef.current = { x, y };
+    
+    if (cursorRef.current && dotRef.current) {
+      cursorRef.current.style.left = `${x}px`;
+      cursorRef.current.style.top = `${y}px`;
+      dotRef.current.style.left = `${x}px`;
+      dotRef.current.style.top = `${y}px`;
+    }
+    
+    setIsVisible(true);
+
+    const now = Date.now();
+    if (now - lastParticleTime.current > 80 && particles.length < 12) {
+      lastParticleTime.current = now;
+      const newParticle: Particle = {
+        id: particleIdRef.current++,
+        x,
+        y,
+        vx: (Math.random() - 0.5) * 0.8,
+        vy: (Math.random() - 0.5) * 0.8,
+        life: 1,
+        size: 2 + Math.random() * 2,
+      };
+      setParticles(prev => [...prev, newParticle]);
+    }
+  }, [particles.length]);
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (cursorRef.current && dotRef.current) {
-        const x = e.clientX;
-        const y = e.clientY;
-        
-        cursorRef.current.style.transform = `translate(${x}px, ${y}px)`;
-        dotRef.current.style.transform = `translate(${x}px, ${y}px)`;
-        
-        setIsVisible(true);
-
-        const now = Date.now();
-        if (now - lastParticleTime.current > 30 && particles.length < 20) {
-          lastParticleTime.current = now;
-          const newParticle: Particle = {
-            id: particleIdRef.current++,
-            x: x,
-            y: y,
-            vx: (Math.random() - 0.5) * 2,
-            vy: (Math.random() - 0.5) * 2 - 1,
-            life: 1,
-            size: 2 + Math.random() * 4,
-          };
-          setParticles(prev => [...prev, newParticle]);
-        }
-      }
-    };
-
     const handleMouseLeave = () => setIsVisible(false);
     const handleMouseEnter = () => setIsVisible(true);
 
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      if (target.tagName === 'BUTTON' || target.tagName === 'A' || 
-          target.closest('button') || target.closest('a') ||
-          target.classList.contains('nav-btn') || target.classList.contains('compose-btn') ||
-          target.classList.contains('erow') || target.classList.contains('avatar') ||
-          target.classList.contains('sb-brand') || target.classList.contains('init-btn') ||
-          target.closest('[role="button"]') || target.closest('[role="dialog"]')) {
-        setIsHovering(true);
-      } else {
-        setIsHovering(false);
-      }
+      const interactive = !!(target.tagName === 'BUTTON' || 
+          target.tagName === 'A' || 
+          target.closest('button') || 
+          target.closest('a') ||
+          target.classList.contains('nav-btn') || 
+          target.classList.contains('compose-btn') ||
+          target.classList.contains('erow') || 
+          target.classList.contains('avatar') ||
+          target.classList.contains('sb-brand') || 
+          target.classList.contains('init-btn') ||
+          target.closest('[role="button"]'));
+      
+      setIsHovering(interactive);
     };
 
     window.addEventListener('mousemove', handleMouseMove);
@@ -76,9 +83,10 @@ export function CustomCursor() {
       window.removeEventListener('mouseleave', handleMouseLeave);
       window.removeEventListener('mouseover', handleMouseOver);
     };
-  }, []);
+  }, [handleMouseMove]);
 
   useEffect(() => {
+    let frameId: number;
     const animate = () => {
       setParticles(prev => 
         prev
@@ -86,14 +94,14 @@ export function CustomCursor() {
             ...p,
             x: p.x + p.vx,
             y: p.y + p.vy,
-            life: p.life - 0.02,
-            size: p.size * 0.98,
+            life: p.life - 0.015,
+            size: p.size * 0.99,
           }))
           .filter(p => p.life > 0)
       );
-      requestAnimationFrame(animate);
+      frameId = requestAnimationFrame(animate);
     };
-    const frameId = requestAnimationFrame(animate);
+    frameId = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(frameId);
   }, []);
 

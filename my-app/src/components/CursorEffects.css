@@ -1,15 +1,16 @@
 .custom-cursor {
   position: fixed;
-  width: 40px;
-  height: 40px;
-  border: 2px solid rgba(0, 170, 255, 0.6);
+  width: 32px;
+  height: 32px;
+  border: 1.5px solid rgba(0, 170, 255, 0.6);
   border-radius: 50%;
   pointer-events: none;
   z-index: 10000;
   opacity: 0;
-  transition: opacity 0.3s, width 0.2s, height 0.2s, border-color 0.2s, background 0.2s;
-  margin-left: -20px;
-  margin-top: -20px;
+  transition: opacity 0.2s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%);
   mix-blend-mode: screen;
 }
 
@@ -18,28 +19,24 @@
 }
 
 .custom-cursor.hover {
-  width: 60px;
-  height: 60px;
-  margin-left: -30px;
-  margin-top: -30px;
-  border-color: rgba(0, 255, 136, 0.8);
-  background: rgba(0, 255, 136, 0.05);
-  box-shadow: 0 0 20px rgba(0, 255, 136, 0.3), inset 0 0 15px rgba(0, 255, 136, 0.1);
+  border-color: rgba(0, 255, 136, 0.7);
+  box-shadow: 0 0 15px rgba(0, 255, 136, 0.25), inset 0 0 10px rgba(0, 255, 136, 0.05);
 }
 
 .cursor-dot {
   position: fixed;
-  width: 8px;
-  height: 8px;
-  background: radial-gradient(circle, #00aaff 0%, rgba(0, 170, 255, 0.8) 50%, transparent 100%);
+  width: 6px;
+  height: 6px;
+  background: radial-gradient(circle, #00aaff 0%, rgba(0, 170, 255, 0.9) 100%);
   border-radius: 50%;
   pointer-events: none;
   z-index: 10001;
   opacity: 0;
-  transition: opacity 0.3s, width 0.2s, height 0.2s, box-shadow 0.2s;
-  margin-left: -4px;
-  margin-top: -4px;
-  box-shadow: 0 0 10px rgba(0, 170, 255, 0.8), 0 0 20px rgba(0, 170, 255, 0.4);
+  transition: opacity 0.2s ease, background 0.15s ease, box-shadow 0.15s ease;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 8px rgba(0, 170, 255, 0.8), 0 0 15px rgba(0, 170, 255, 0.4);
 }
 
 .cursor-dot.visible {
@@ -47,12 +44,8 @@
 }
 
 .cursor-dot.hover {
-  width: 12px;
-  height: 12px;
-  margin-left: -6px;
-  margin-top: -6px;
-  background: radial-gradient(circle, #00ff88 0%, rgba(0, 255, 136, 0.8) 50%, transparent 100%);
-  box-shadow: 0 0 15px rgba(0, 255, 136, 1), 0 0 30px rgba(0, 255, 136, 0.5);
+  background: radial-gradient(circle, #00ff88 0%, rgba(0, 255, 136, 0.9) 100%);
+  box-shadow: 0 0 12px rgba(0, 255, 136, 0.9), 0 0 25px rgba(0, 255, 136, 0.5);
 }
 
 .cursor-particles {
@@ -65,16 +58,10 @@
 
 .cursor-particle {
   position: absolute;
-  background: radial-gradient(circle, rgba(0, 170, 255, 0.9) 0%, rgba(0, 170, 255, 0.4) 50%, transparent 100%);
+  background: radial-gradient(circle, rgba(0, 170, 255, 0.8) 0%, rgba(0, 170, 255, 0.3) 60%, transparent 100%);
   border-radius: 50%;
-  box-shadow: 0 0 6px rgba(0, 170, 255, 0.6);
+  box-shadow: 0 0 4px rgba(0, 170, 255, 0.5);
   transform: translate(-50%, -50%);
-  transition: background 0.2s;
-}
-
-.cursor-particle:hover {
-  background: radial-gradient(circle, rgba(0, 255, 136, 0.9) 0%, rgba(0, 255, 136, 0.4) 50%, transparent 100%);
-  box-shadow: 0 0 6px rgba(0, 255, 136, 0.6);
 }
 
 @media (hover: none) and (pointer: coarse) {
