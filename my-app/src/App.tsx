@@ -17,6 +17,7 @@ import {
   CommandPalette,
   QuantumParticles,
   AboutQP,
+  CustomCursor,
 } from './components';
 import type { Account } from './types';
 
@@ -27,6 +28,7 @@ function EmailApp() {
     <div className="app-wrap">
       <Background />
       <QuantumParticles />
+      <CustomCursor />
 
       <div className="app">
         <Sidebar />

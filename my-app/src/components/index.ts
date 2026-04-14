@@ -1,6 +1,7 @@
 export { Background } from './Background';
 export { MatrixRain } from './MatrixRain';
 export { QuantumParticles } from './QuantumParticles';
+export { CustomCursor } from './CursorEffects';
 export { Landing } from './Landing';
 export { Login } from './Login';
 export { Sidebar } from './Sidebar';

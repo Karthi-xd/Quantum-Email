@@ -1,4 +1,4 @@
-import { useState, CSSProperties } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { useEmailStore, getUnreadCount } from '../store/emailStore';
 import { NAV_ITEMS } from '../types';
 import './Sidebar.css';

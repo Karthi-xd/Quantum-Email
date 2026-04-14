@@ -11,6 +11,9 @@ const particles = Array.from({ length: 15 }, (_, i) => ({
 export function Background() {
   return (
     <div className="bg" aria-hidden="true">
+      <div className="aurora" />
+      <div className="aurora aurora-2" />
+      <div className="aurora aurora-3" />
       <div className="orb o1" />
       <div className="orb o2" />
       <div className="orb o3" />
