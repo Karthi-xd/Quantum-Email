@@ -47,7 +47,7 @@ export function EmailList() {
           onKeyDown={(e) => e.key === 'Enter' && setShowAccountSwitcher(true)}
           aria-label={`Switch account${activeAccount?.email ? `, current: ${activeAccount.email}` : ''}`}
         >
-          {activeAccount?.email[0].toUpperCase() || 'QP'}
+          <span className="avatar-letter">{activeAccount?.email[0].toUpperCase() || 'Q'}</span>
         </div>
       </header>
       <div className="email-list" role="listbox" aria-label="Email list">
