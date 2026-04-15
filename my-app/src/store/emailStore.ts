@@ -21,6 +21,23 @@ interface EmailStore {
   activeAccount: Account | null;
   composeData: { to: string; subject: string; body: string };
   searchQuery: string;
+  preferences: {
+    notifications: boolean;
+    soundEffects: boolean;
+    compactMode: boolean;
+    quantumAnimations: boolean;
+    autoSave: boolean;
+    confirmDelete: boolean;
+    previewPane: boolean;
+    fontSize: 'small' | 'medium' | 'large';
+    theme: 'quantum' | 'classic' | 'minimal';
+  };
+  security: {
+    quantumEncryption: boolean;
+    twoFactor: boolean;
+    autoLock: boolean;
+    autoLockTime: number;
+  };
   
   setPage: (page: Page) => void;
   setActiveCategory: (category: string) => void;
@@ -36,6 +53,9 @@ interface EmailStore {
   setShowAboutQP: (show: boolean) => void;
   setShowPreferences: (show: boolean) => void;
   setShowSecurity: (show: boolean) => void;
+  setPreference: <K extends keyof EmailStore['preferences']>(key: K, value: EmailStore['preferences'][K]) => void;
+  setSecurity: <K extends keyof EmailStore['security']>(key: K, value: EmailStore['security'][K]) => void;
+  updatePassword: (currentPassword: string, newPassword: string) => boolean;
   addAccount: (account: Account) => void;
   removeAccount: (accountId: string) => void;
   switchAccount: (account: Account) => void;
@@ -45,6 +65,7 @@ interface EmailStore {
   addSentEmail: (email: Email) => void;
   setSearchQuery: (query: string) => void;
   logout: () => void;
+  clearAllData: () => void;
 }
 
 const AVATAR_COLORS = [
@@ -75,6 +96,23 @@ export const useEmailStore = create<EmailStore>()(
       activeAccount: null,
       composeData: { to: '', subject: '', body: '' },
       searchQuery: '',
+      preferences: {
+        notifications: true,
+        soundEffects: false,
+        compactMode: false,
+        quantumAnimations: true,
+        autoSave: true,
+        confirmDelete: true,
+        previewPane: true,
+        fontSize: 'medium',
+        theme: 'quantum',
+      },
+      security: {
+        quantumEncryption: true,
+        twoFactor: false,
+        autoLock: true,
+        autoLockTime: 5,
+      },
 
       setPage: (page) => set({ page }),
 
@@ -128,6 +166,28 @@ export const useEmailStore = create<EmailStore>()(
       setShowPreferences: (show) => set({ showPreferences: show }),
 
       setShowSecurity: (show) => set({ showSecurity: show }),
+
+      setPreference: (key, value) =>
+        set((state) => ({
+          preferences: { ...state.preferences, [key]: value },
+        })),
+
+      setSecurity: (key, value) =>
+        set((state) => ({
+          security: { ...state.security, [key]: value },
+        })),
+
+      updatePassword: (currentPassword, newPassword) => {
+        const state = get();
+        if (!state.activeAccount) return false;
+        if (currentPassword !== state.activeAccount.password) return false;
+        const updatedAccount = { ...state.activeAccount, password: newPassword };
+        const updatedAccounts = state.accounts.map(a =>
+          a.id === updatedAccount.id ? updatedAccount : a
+        );
+        set({ activeAccount: updatedAccount, accounts: updatedAccounts });
+        return true;
+      },
 
       addAccount: (account) => {
         const colorIndex = get().accounts.length % AVATAR_COLORS.length;
@@ -187,9 +247,16 @@ export const useEmailStore = create<EmailStore>()(
           composing: false,
           showAccounts: false,
           showAccountSwitcher: false,
+          showPreferences: false,
+          showSecurity: false,
           composeData: { to: '', subject: '', body: '' },
           searchQuery: '',
         }),
+
+      clearAllData: () => {
+        localStorage.clear();
+        window.location.reload();
+      },
     }),
     {
       name: 'qmail-storage',
@@ -197,6 +264,8 @@ export const useEmailStore = create<EmailStore>()(
         accounts: state.accounts,
         activeAccount: state.activeAccount,
         emails: state.emails,
+        preferences: state.preferences,
+        security: state.security,
       }),
     }
   )

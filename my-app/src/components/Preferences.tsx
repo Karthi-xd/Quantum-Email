@@ -1,18 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useEmailStore } from '../store/emailStore';
 import './Preferences.css';
 
 export function Preferences() {
-  const { showPreferences, setShowPreferences, activeAccount } = useEmailStore();
-  const [notifications, setNotifications] = useState(true);
-  const [soundEffects, setSoundEffects] = useState(false);
-  const [compactMode, setCompactMode] = useState(false);
-  const [quantumAnimations, setQuantumAnimations] = useState(true);
-  const [autoSave, setAutoSave] = useState(true);
-  const [confirmDelete, setConfirmDelete] = useState(true);
-  const [previewPane, setPreviewPane] = useState(true);
-  const [fontSize, setFontSize] = useState('medium');
-  const [theme, setTheme] = useState('quantum');
+  const {
+    showPreferences,
+    setShowPreferences,
+    preferences,
+    setPreference,
+    activeAccount,
+  } = useEmailStore();
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -53,11 +50,11 @@ export function Preferences() {
                   <span className="pref-item-desc">Choose your visual experience</span>
                 </div>
                 <div className="pref-toggle-group">
-                  {['quantum', 'classic', 'minimal'].map(t => (
+                  {(['quantum', 'classic', 'minimal'] as const).map(t => (
                     <button
                       key={t}
-                      className={`pref-theme-btn ${theme === t ? 'active' : ''}`}
-                      onClick={() => setTheme(t)}
+                      className={`pref-theme-btn ${preferences.theme === t ? 'active' : ''}`}
+                      onClick={() => setPreference('theme', t)}
                     >
                       {t.charAt(0).toUpperCase() + t.slice(1)}
                     </button>
@@ -71,11 +68,11 @@ export function Preferences() {
                   <span className="pref-item-desc">Adjust text readability</span>
                 </div>
                 <div className="pref-toggle-group">
-                  {['small', 'medium', 'large'].map(s => (
+                  {(['small', 'medium', 'large'] as const).map(s => (
                     <button
                       key={s}
-                      className={`pref-size-btn ${fontSize === s ? 'active' : ''}`}
-                      onClick={() => setFontSize(s)}
+                      className={`pref-size-btn ${preferences.fontSize === s ? 'active' : ''}`}
+                      onClick={() => setPreference('fontSize', s)}
                     >
                       {s.charAt(0).toUpperCase() + s.slice(1)}
                     </button>
@@ -89,10 +86,10 @@ export function Preferences() {
                   <span className="pref-item-desc">Reduce spacing for more content</span>
                 </div>
                 <button
-                  className={`pref-switch ${compactMode ? 'on' : ''}`}
-                  onClick={() => setCompactMode(!compactMode)}
+                  className={`pref-switch ${preferences.compactMode ? 'on' : ''}`}
+                  onClick={() => setPreference('compactMode', !preferences.compactMode)}
                   role="switch"
-                  aria-checked={compactMode}
+                  aria-checked={preferences.compactMode}
                 >
                   <span className="switch-thumb" />
                 </button>
@@ -104,10 +101,10 @@ export function Preferences() {
                   <span className="pref-item-desc">Show email content alongside list</span>
                 </div>
                 <button
-                  className={`pref-switch ${previewPane ? 'on' : ''}`}
-                  onClick={() => setPreviewPane(!previewPane)}
+                  className={`pref-switch ${preferences.previewPane ? 'on' : ''}`}
+                  onClick={() => setPreference('previewPane', !preferences.previewPane)}
                   role="switch"
-                  aria-checked={previewPane}
+                  aria-checked={preferences.previewPane}
                 >
                   <span className="switch-thumb" />
                 </button>
@@ -128,10 +125,10 @@ export function Preferences() {
                   <span className="pref-item-desc">Particle effects and transitions</span>
                 </div>
                 <button
-                  className={`pref-switch ${quantumAnimations ? 'on' : ''}`}
-                  onClick={() => setQuantumAnimations(!quantumAnimations)}
+                  className={`pref-switch ${preferences.quantumAnimations ? 'on' : ''}`}
+                  onClick={() => setPreference('quantumAnimations', !preferences.quantumAnimations)}
                   role="switch"
-                  aria-checked={quantumAnimations}
+                  aria-checked={preferences.quantumAnimations}
                 >
                   <span className="switch-thumb" />
                 </button>
@@ -143,10 +140,10 @@ export function Preferences() {
                   <span className="pref-item-desc">Audio feedback on actions</span>
                 </div>
                 <button
-                  className={`pref-switch ${soundEffects ? 'on' : ''}`}
-                  onClick={() => setSoundEffects(!soundEffects)}
+                  className={`pref-switch ${preferences.soundEffects ? 'on' : ''}`}
+                  onClick={() => setPreference('soundEffects', !preferences.soundEffects)}
                   role="switch"
-                  aria-checked={soundEffects}
+                  aria-checked={preferences.soundEffects}
                 >
                   <span className="switch-thumb" />
                 </button>
@@ -167,10 +164,10 @@ export function Preferences() {
                   <span className="pref-item-desc">Alert for new transmissions</span>
                 </div>
                 <button
-                  className={`pref-switch ${notifications ? 'on' : ''}`}
-                  onClick={() => setNotifications(!notifications)}
+                  className={`pref-switch ${preferences.notifications ? 'on' : ''}`}
+                  onClick={() => setPreference('notifications', !preferences.notifications)}
                   role="switch"
-                  aria-checked={notifications}
+                  aria-checked={preferences.notifications}
                 >
                   <span className="switch-thumb" />
                 </button>
@@ -182,10 +179,10 @@ export function Preferences() {
                   <span className="pref-item-desc">Save compositions automatically</span>
                 </div>
                 <button
-                  className={`pref-switch ${autoSave ? 'on' : ''}`}
-                  onClick={() => setAutoSave(!autoSave)}
+                  className={`pref-switch ${preferences.autoSave ? 'on' : ''}`}
+                  onClick={() => setPreference('autoSave', !preferences.autoSave)}
                   role="switch"
-                  aria-checked={autoSave}
+                  aria-checked={preferences.autoSave}
                 >
                   <span className="switch-thumb" />
                 </button>
@@ -197,10 +194,10 @@ export function Preferences() {
                   <span className="pref-item-desc">Ask before deleting messages</span>
                 </div>
                 <button
-                  className={`pref-switch ${confirmDelete ? 'on' : ''}`}
-                  onClick={() => setConfirmDelete(!confirmDelete)}
+                  className={`pref-switch ${preferences.confirmDelete ? 'on' : ''}`}
+                  onClick={() => setPreference('confirmDelete', !preferences.confirmDelete)}
                   role="switch"
-                  aria-checked={confirmDelete}
+                  aria-checked={preferences.confirmDelete}
                 >
                   <span className="switch-thumb" />
                 </button>
@@ -227,10 +224,7 @@ export function Preferences() {
 
         <div className="pref-footer">
           <button className="pref-btn secondary" onClick={() => setShowPreferences(false)}>
-            Cancel
-          </button>
-          <button className="pref-btn primary" onClick={() => setShowPreferences(false)}>
-            Apply Changes
+            Close
           </button>
         </div>
       </div>
