@@ -17,6 +17,8 @@ import {
   CommandPalette,
   AboutQP,
   CustomCursor,
+  Preferences,
+  Security,
 } from './components';
 import type { Account } from './types';
 
@@ -38,6 +40,8 @@ function EmailApp() {
       <ShortcutsModal />
       <CommandPalette />
       <AboutQP />
+      <Preferences />
+      <Security />
     </div>
   );
 }

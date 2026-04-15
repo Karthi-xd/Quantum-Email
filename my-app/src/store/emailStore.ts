@@ -15,6 +15,8 @@ interface EmailStore {
   showCommandPalette: boolean;
   showEmailDetail: boolean;
   showAboutQP: boolean;
+  showPreferences: boolean;
+  showSecurity: boolean;
   accounts: Account[];
   activeAccount: Account | null;
   composeData: { to: string; subject: string; body: string };
@@ -32,6 +34,8 @@ interface EmailStore {
   setShowCommandPalette: (show: boolean) => void;
   setShowEmailDetail: (show: boolean) => void;
   setShowAboutQP: (show: boolean) => void;
+  setShowPreferences: (show: boolean) => void;
+  setShowSecurity: (show: boolean) => void;
   addAccount: (account: Account) => void;
   removeAccount: (accountId: string) => void;
   switchAccount: (account: Account) => void;
@@ -65,6 +69,8 @@ export const useEmailStore = create<EmailStore>()(
       showCommandPalette: false,
       showEmailDetail: false,
       showAboutQP: false,
+      showPreferences: false,
+      showSecurity: false,
       accounts: [],
       activeAccount: null,
       composeData: { to: '', subject: '', body: '' },
@@ -118,6 +124,10 @@ export const useEmailStore = create<EmailStore>()(
       setShowEmailDetail: (show) => set({ showEmailDetail: show }),
 
       setShowAboutQP: (show) => set({ showAboutQP: show }),
+
+      setShowPreferences: (show) => set({ showPreferences: show }),
+
+      setShowSecurity: (show) => set({ showSecurity: show }),
 
       addAccount: (account) => {
         const colorIndex = get().accounts.length % AVATAR_COLORS.length;

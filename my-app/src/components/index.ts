@@ -14,3 +14,5 @@ export { ShortcutsModal } from './ShortcutsModal';
 export { CommandPalette } from './CommandPalette';
 export { EmailListSkeleton, EmailDetailSkeleton } from './LoadingSkeleton';
 export { AboutQP } from './AboutQP';
+export { Preferences } from './Preferences';
+export { Security } from './Security';
