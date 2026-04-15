@@ -1,20 +1,14 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import './CursorEffects.css';
 
-interface TrailPoint {
-  x: number;
-  y: number;
-  opacity: number;
-}
+const CHARS = '01アイウエオカキクケコ';
 
 export function CustomCursor() {
   const cursorRef = useRef<HTMLDivElement>(null);
   const trailRef = useRef<HTMLDivElement>(null);
-  const [isHovering, setIsHovering] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
-  const trailPoints = useRef<TrailPoint[]>([]);
+  const charsRef = useRef<{ x: number; y: number; char: string; opacity: number; vy: number }[]>([]);
   const lastPos = useRef({ x: 0, y: 0 });
-  const rafId = useRef<number>(0);
+  const rafRef = useRef<number>(0);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (cursorRef.current) {
@@ -27,91 +21,61 @@ export function CustomCursor() {
     const speed = Math.sqrt(dx * dx + dy * dy);
 
     if (speed > 3) {
-      trailPoints.current.push({
+      charsRef.current.push({
         x: e.clientX,
         y: e.clientY,
-        opacity: 0.6,
+        char: CHARS[Math.floor(Math.random() * CHARS.length)],
+        opacity: 1,
+        vy: 1 + Math.random() * 2,
       });
 
-      if (trailPoints.current.length > 15) {
-        trailPoints.current.shift();
+      if (charsRef.current.length > 20) {
+        charsRef.current.shift();
       }
     }
 
     lastPos.current = { x: e.clientX, y: e.clientY };
-    setIsVisible(true);
   }, []);
 
-  const animateTrail = useCallback(() => {
-    if (trailRef.current) {
-      const trailContainer = trailRef.current;
-      const currentPoints = trailPoints.current;
+  const animate = useCallback(() => {
+    const container = trailRef.current;
+    if (container) {
+      container.innerHTML = '';
 
-      const existingDots = trailContainer.querySelectorAll('.trail-dot');
-      existingDots.forEach((dot) => dot.remove());
+      charsRef.current.forEach((c) => {
+        c.y += c.vy;
+        c.opacity -= 0.035;
 
-      currentPoints.forEach((point) => {
-        point.opacity -= 0.04;
-        if (point.opacity > 0) {
-          const dot = document.createElement('div');
-          dot.className = 'trail-dot';
-          dot.style.left = `${point.x}px`;
-          dot.style.top = `${point.y}px`;
-          dot.style.opacity = point.opacity.toString();
-          dot.style.transform = `translate(-50%, -50%) scale(${0.5 + point.opacity * 0.8})`;
-          trailContainer.appendChild(dot);
+        if (c.opacity > 0) {
+          const el = document.createElement('div');
+          el.className = 'matrix-char';
+          el.style.cssText = `
+            left: ${c.x}px;
+            top: ${c.y}px;
+            opacity: ${c.opacity};
+            color: rgba(0, ${180 + c.opacity * 75}, 255, ${c.opacity});
+            text-shadow: 0 0 ${3 + c.opacity * 6}px rgba(0, 255, 136, ${c.opacity * 0.3});
+          `;
+          el.textContent = c.char;
+          container.appendChild(el);
         }
       });
 
-      trailPoints.current = currentPoints.filter((p) => p.opacity > 0);
+      charsRef.current = charsRef.current.filter((c) => c.opacity > 0);
     }
 
-    rafId.current = requestAnimationFrame(animateTrail);
+    rafRef.current = requestAnimationFrame(animate);
   }, []);
 
   useEffect(() => {
-    const handleMouseLeave = () => setIsVisible(false);
-    const handleMouseEnter = () => setIsVisible(true);
-
-    const handleMouseOver = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      const interactive = !!(
-        target.tagName === 'BUTTON' ||
-        target.tagName === 'A' ||
-        target.tagName === 'INPUT' ||
-        target.tagName === 'TEXTAREA' ||
-        target.closest('button') ||
-        target.closest('a') ||
-        target.closest('input') ||
-        target.closest('textarea') ||
-        target.classList.contains('nav-btn') ||
-        target.classList.contains('compose-btn') ||
-        target.classList.contains('erow') ||
-        target.classList.contains('avatar') ||
-        target.classList.contains('sb-brand') ||
-        target.classList.contains('init-btn') ||
-        target.closest('[role="button"]') ||
-        target.closest('[role="search"]')
-      );
-
-      setIsHovering(interactive);
-    };
-
     window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseenter', handleMouseEnter);
-    window.addEventListener('mouseleave', handleMouseLeave);
-    window.addEventListener('mouseover', handleMouseOver);
-
-    rafId.current = requestAnimationFrame(animateTrail);
+    rafRef.current = requestAnimationFrame(animate);
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseenter', handleMouseEnter);
-      window.removeEventListener('mouseleave', handleMouseLeave);
-      window.removeEventListener('mouseover', handleMouseOver);
-      cancelAnimationFrame(rafId.current);
+      cancelAnimationFrame(rafRef.current);
     };
-  }, [handleMouseMove, animateTrail]);
+  }, [handleMouseMove, animate]);
 
   if (typeof window !== 'undefined' && 'ontouchstart' in window) {
     return null;
@@ -119,12 +83,8 @@ export function CustomCursor() {
 
   return (
     <>
-      <div ref={trailRef} className="cursor-trail" aria-hidden="true" />
-      <div
-        ref={cursorRef}
-        className={`cursor ${isHovering ? 'hover' : ''} ${isVisible ? 'visible' : ''}`}
-        aria-hidden="true"
-      />
+      <div ref={trailRef} className="cursor-trail" />
+      <div ref={cursorRef} className="cursor" />
     </>
   );
 }

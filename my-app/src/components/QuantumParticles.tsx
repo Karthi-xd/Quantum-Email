@@ -1,4 +1,4 @@
-interface Particle {
+interface QuantumParticle {
   id: number;
   x: number;
   y: number;
@@ -10,16 +10,16 @@ interface Particle {
   driftY: number;
 }
 
-const particles: Particle[] = Array.from({ length: 40 }, (_, i) => ({
+const particles: QuantumParticle[] = Array.from({ length: 45 }, (_, i) => ({
   id: i,
   x: Math.random() * 100,
   y: Math.random() * 100,
-  size: 3 + Math.random() * 5,
-  duration: 15 + Math.random() * 12,
-  delay: Math.random() * 10,
-  type: ['quantum', 'data', 'energy'][Math.floor(Math.random() * 3)] as Particle['type'],
-  driftX: -80 + Math.random() * 160,
-  driftY: -80 + Math.random() * 160,
+  size: 4 + Math.random() * 6,
+  duration: 12 + Math.random() * 10,
+  delay: Math.random() * 8,
+  type: ['quantum', 'data', 'energy'][Math.floor(Math.random() * 3)] as QuantumParticle['type'],
+  driftX: -60 + Math.random() * 120,
+  driftY: -60 + Math.random() * 120,
 }));
 
 export function QuantumParticles() {

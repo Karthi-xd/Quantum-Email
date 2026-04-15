@@ -15,7 +15,6 @@ import {
   ToastContainer,
   ShortcutsModal,
   CommandPalette,
-  QuantumParticles,
   AboutQP,
   CustomCursor,
 } from './components';
@@ -83,7 +82,6 @@ export default function Root() {
       {page === 'app' && (
         <>
           <Background />
-          <QuantumParticles />
           <EmailApp />
         </>
       )}

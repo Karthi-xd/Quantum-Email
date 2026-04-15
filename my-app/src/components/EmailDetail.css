@@ -3,7 +3,7 @@
   inset: 0;
   background: rgba(0, 8, 16, 0.75);
   backdrop-filter: blur(8px);
-  z-index: 100;
+  z-index: 500;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -128,12 +128,7 @@
   gap: 0.55rem;
   flex-shrink: 0;
   position: relative;
-  z-index: 10;
-}
-
-.det-actions * {
-  position: relative;
-  z-index: 11;
+  z-index: 100;
 }
 
 @media (max-width: 768px) {

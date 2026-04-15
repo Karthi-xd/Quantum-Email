@@ -49,50 +49,62 @@ export function AccountsModal() {
     removeAccount(accountId);
   };
 
+  const handleSignOut = () => {
+    logout();
+    setShowAccounts(false);
+  };
+
   return (
     <div className="compose-modal glass" role="dialog" aria-modal="true" aria-labelledby="accounts-title">
       <div className="compose-head">
-        <h3 id="accounts-title">Accounts</h3>
+        <h3 id="accounts-title">Account Settings</h3>
         <button className="close-btn" onClick={() => setShowAccounts(false)} aria-label="Close">
           ×
         </button>
       </div>
 
       <div className="accounts-list" role="list">
-        {accounts.map((acc) => (
-          <div
-            key={acc.id}
-            className={`account-item ${activeAccount?.id === acc.id ? 'active' : ''}`}
-            role="listitem"
-          >
-            <div className="account-info" onClick={() => switchAccount(acc)} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && switchAccount(acc)}>
-              <span className="account-avatar" style={{ background: acc.color }}>
-                {acc.email[0].toUpperCase()}
-              </span>
-              <div className="account-details">
-                <span className="account-email">{acc.email}</span>
-                {acc.displayName && (
-                  <span className="account-name">{acc.displayName}</span>
+        {accounts.length > 0 ? (
+          <>
+            <div className="accounts-section-title">Your Accounts</div>
+            {accounts.map((acc) => (
+              <div
+                key={acc.id}
+                className={`account-item ${activeAccount?.id === acc.id ? 'active' : ''}`}
+                role="listitem"
+              >
+                <div className="account-info" onClick={() => switchAccount(acc)} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && switchAccount(acc)}>
+                  <span className="account-avatar" style={{ background: acc.color }}>
+                    {acc.email[0].toUpperCase()}
+                  </span>
+                  <div className="account-details">
+                    <span className="account-email">{acc.email}</span>
+                    {acc.displayName && (
+                      <span className="account-name">{acc.displayName}</span>
+                    )}
+                  </div>
+                  {activeAccount?.id === acc.id && (
+                    <span className="active-indicator" aria-label="Currently active">●</span>
+                  )}
+                </div>
+                {accounts.length > 1 && (
+                  <button
+                    className="account-remove"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemoveAccount(acc.id);
+                    }}
+                    aria-label={`Remove account ${acc.email}`}
+                  >
+                    ×
+                  </button>
                 )}
               </div>
-              {activeAccount?.id === acc.id && (
-                <span className="active-indicator" aria-label="Currently active">●</span>
-              )}
-            </div>
-            {accounts.length > 1 && (
-              <button
-                className="account-remove"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleRemoveAccount(acc.id);
-                }}
-                aria-label={`Remove account ${acc.email}`}
-              >
-                ×
-              </button>
-            )}
-          </div>
-        ))}
+            ))}
+          </>
+        ) : (
+          <div className="no-accounts">No accounts added</div>
+        )}
 
         {showAddForm ? (
           <div className="add-account-form">
@@ -146,17 +158,17 @@ export function AccountsModal() {
             className="add-account-btn"
             onClick={() => setShowAddForm(true)}
           >
-            + Add Another Account
+            + Add New Account
           </button>
         )}
       </div>
 
       <div className="compose-actions">
-        <button className="btn-danger sm" onClick={logout}>
-          Sign Out
+        <button className="btn-danger sm" onClick={handleSignOut}>
+          Sign Out All
         </button>
         <button className="btn-ghost" onClick={() => setShowAccounts(false)}>
-          Close
+          Done
         </button>
       </div>
     </div>
@@ -170,15 +182,27 @@ export function AccountSwitcher() {
     accounts,
     activeAccount,
     switchAccount,
+    setShowAccounts,
+    logout,
   } = useEmailStore();
 
   if (!showAccountSwitcher) return null;
+
+  const handleSwitchAccount = (acc: Account) => {
+    switchAccount(acc);
+    setShowAccountSwitcher(false);
+  };
+
+  const handleSignOut = () => {
+    logout();
+    setShowAccountSwitcher(false);
+  };
 
   return (
     <div className="account-switcher-overlay" onClick={() => setShowAccountSwitcher(false)} role="dialog" aria-modal="true" aria-label="Account switcher">
       <div className="account-switcher glass" onClick={(e) => e.stopPropagation()}>
         <div className="switcher-header">
-          <span className="switcher-title">Switch Account</span>
+          <span className="switcher-title">Accounts</span>
           <button
             className="close-btn"
             onClick={() => setShowAccountSwitcher(false)}
@@ -187,19 +211,16 @@ export function AccountSwitcher() {
             ×
           </button>
         </div>
+
         <div className="switcher-accounts" role="listbox" aria-label="Select account">
           {accounts.map((acc) => (
             <div
               key={acc.id}
               className={`switcher-account ${activeAccount?.id === acc.id ? 'active' : ''}`}
-              onClick={() => {
-                switchAccount(acc);
-                setShowAccountSwitcher(false);
-              }}
+              onClick={() => handleSwitchAccount(acc)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
-                  switchAccount(acc);
-                  setShowAccountSwitcher(false);
+                  handleSwitchAccount(acc);
                 }
               }}
               role="option"
@@ -221,15 +242,24 @@ export function AccountSwitcher() {
             </div>
           ))}
         </div>
-        <button
-          className="manage-accounts-btn"
-          onClick={() => {
-            setShowAccountSwitcher(false);
-            useEmailStore.getState().setShowAccounts(true);
-          }}
-        >
-          Manage Accounts
-        </button>
+
+        <div className="switcher-actions">
+          <button
+            className="switcher-btn manage"
+            onClick={() => {
+              setShowAccountSwitcher(false);
+              setShowAccounts(true);
+            }}
+          >
+            Manage Accounts
+          </button>
+          <button
+            className="switcher-btn signout"
+            onClick={handleSignOut}
+          >
+            Sign Out
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -1,19 +1,15 @@
-const particles = Array.from({ length: 15 }, (_, i) => ({
+const particles = Array.from({ length: 12 }, (_, i) => ({
   id: i,
   left: Math.random() * 100,
   top: Math.random() * 100,
   size: 1 + Math.random() * 2,
-  duration: 20 + Math.random() * 25,
-  delay: Math.random() * 10,
-  opacity: 0.08 + Math.random() * 0.08,
+  duration: 18 + Math.random() * 15,
+  delay: Math.random() * 6,
 }));
 
 export function Background() {
   return (
     <div className="bg" aria-hidden="true">
-      <div className="aurora" />
-      <div className="aurora aurora-2" />
-      <div className="aurora aurora-3" />
       <div className="orb o1" />
       <div className="orb o2" />
       <div className="orb o3" />
@@ -29,7 +25,6 @@ export function Background() {
             height: p.size,
             animationDuration: `${p.duration}s`,
             animationDelay: `${p.delay}s`,
-            opacity: p.opacity,
           }}
         />
       ))}

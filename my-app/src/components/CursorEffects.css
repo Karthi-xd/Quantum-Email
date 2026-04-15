@@ -1,48 +1,42 @@
 .cursor-trail {
   position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   pointer-events: none;
   z-index: 9998;
-  inset: 0;
   overflow: hidden;
 }
 
-.trail-dot {
+.matrix-char {
   position: absolute;
-  width: 5px;
-  height: 5px;
-  background: radial-gradient(circle, rgba(0, 170, 255, 0.9) 0%, rgba(0, 170, 255, 0.3) 60%, transparent 100%);
-  border-radius: 50%;
-  will-change: transform, opacity;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  font-weight: bold;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  user-select: none;
 }
 
 .cursor {
   position: fixed;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(0, 255, 136, 0.9);
+  border-radius: 2px;
   pointer-events: none;
   z-index: 9999;
-  width: 8px;
-  height: 8px;
-  background: #00aaff;
-  border-radius: 50%;
-  opacity: 0;
   transform: translate(-50%, -50%);
-  transition: opacity 0.2s ease, width 0.15s ease, height 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
-  box-shadow: 0 0 8px rgba(0, 170, 255, 0.8);
-}
-
-.cursor.visible {
-  opacity: 1;
-}
-
-.cursor.hover {
-  width: 12px;
-  height: 12px;
-  background: #00ff88;
-  box-shadow: 0 0 12px rgba(0, 255, 136, 0.9);
+  box-shadow: 
+    0 0 8px rgba(0, 255, 136, 0.6),
+    0 0 16px rgba(0, 255, 136, 0.3);
+  background: rgba(0, 255, 136, 0.08);
 }
 
 @media (hover: none) and (pointer: coarse) {
   .cursor,
   .cursor-trail {
-    display: none;
+    display: none !important;
   }
 }
