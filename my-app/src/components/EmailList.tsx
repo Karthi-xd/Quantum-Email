@@ -16,6 +16,7 @@ export function EmailList() {
     setShowAccounts,
     accounts,
     switchAccount,
+    removeAccount,
     logout,
   } = useEmailStore();
 
@@ -101,13 +102,15 @@ export function EmailList() {
               
               <div className="dropdown-divider" />
               
-              {accounts.length > 1 && (
-                <>
-                  <div className="dropdown-section">
-                    <span className="dropdown-label">Switch Node</span>
-                    {accounts.filter(a => a.id !== activeAccount?.id).map(acc => (
+              <div className="dropdown-accounts-scroll">
+                <div className="dropdown-accounts-track">
+                  <span className="dropdown-label">All Nodes</span>
+                  {accounts.map(acc => (
+                    <div
+                      key={acc.id}
+                      className={`dropdown-account-row ${activeAccount?.id === acc.id ? 'active' : ''}`}
+                    >
                       <button
-                        key={acc.id}
                         className="dropdown-account"
                         onClick={() => handleSwitchAccount(acc)}
                         role="menuitem"
@@ -119,12 +122,27 @@ export function EmailList() {
                           <span className="dropdown-email">{acc.email}</span>
                           <span className="dropdown-name">{acc.displayName}</span>
                         </div>
+                        {activeAccount?.id === acc.id && (
+                          <span className="active-badge">Active</span>
+                        )}
                       </button>
-                    ))}
-                  </div>
-                  <div className="dropdown-divider" />
-                </>
-              )}
+                      {accounts.length > 1 && (
+                        <button
+                          className="account-remove-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeAccount(acc.id);
+                          }}
+                          aria-label={`Remove ${acc.email}`}
+                          title="Remove node"
+                        >
+                          ×
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
 
               <div className="dropdown-actions">
                 <button
