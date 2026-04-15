@@ -23,9 +23,14 @@ export function EmailList() {
   } = useEmailStore();
 
   const [showDropdown, setShowDropdown] = useState(false);
+  const [accountSearch, setAccountSearch] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
   const currentEmails = emails[activeCategory] || [];
   const filteredEmails = getFilteredEmails(currentEmails, searchQuery);
+  const filteredAccounts = accounts.filter(acc => 
+    acc.email.toLowerCase().includes(accountSearch.toLowerCase()) ||
+    acc.displayName.toLowerCase().includes(accountSearch.toLowerCase())
+  );
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -117,12 +122,14 @@ export function EmailList() {
                     placeholder="Search nodes..."
                     className="dropdown-search-input"
                     aria-label="Search accounts"
+                    value={accountSearch}
+                    onChange={(e) => setAccountSearch(e.target.value)}
                   />
                 </div>
 
                 <div className="dropdown-accounts-scroll">
                   <div className="dropdown-accounts-track">
-                    {accounts.map(acc => {
+                    {filteredAccounts.length > 0 ? filteredAccounts.map(acc => {
                       const isActive = activeAccount?.id === acc.id;
                       const unreadCount = (emails.inbox || []).filter(e => !e.read).length;
                       const totalMsgs = Object.values(emails).flat().filter(e => e).length;
@@ -188,7 +195,11 @@ export function EmailList() {
                           </div>
                         </div>
                       );
-                    })}
+                    }) : (
+                      <div className="no-accounts-found">
+                        <span>No nodes found</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

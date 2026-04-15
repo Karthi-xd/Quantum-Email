@@ -56,6 +56,7 @@ interface EmailStore {
   setPreference: <K extends keyof EmailStore['preferences']>(key: K, value: EmailStore['preferences'][K]) => void;
   setSecurity: <K extends keyof EmailStore['security']>(key: K, value: EmailStore['security'][K]) => void;
   updatePassword: (currentPassword: string, newPassword: string) => boolean;
+  updateAccount: (account: Account) => void;
   addAccount: (account: Account) => void;
   removeAccount: (accountId: string) => void;
   switchAccount: (account: Account) => void;
@@ -187,6 +188,17 @@ export const useEmailStore = create<EmailStore>()(
         );
         set({ activeAccount: updatedAccount, accounts: updatedAccounts });
         return true;
+      },
+
+      updateAccount: (updatedAccount) => {
+        const state = get();
+        const updatedAccounts = state.accounts.map(a =>
+          a.id === updatedAccount.id ? updatedAccount : a
+        );
+        const updatedActive = state.activeAccount?.id === updatedAccount.id
+          ? updatedAccount
+          : state.activeAccount;
+        set({ accounts: updatedAccounts, activeAccount: updatedActive });
       },
 
       addAccount: (account) => {
