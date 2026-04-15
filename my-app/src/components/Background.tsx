@@ -3,9 +3,9 @@ const particles = Array.from({ length: 15 }, (_, i) => ({
   left: Math.random() * 100,
   top: Math.random() * 100,
   size: 1 + Math.random() * 2,
-  duration: 20 + Math.random() * 30,
+  duration: 20 + Math.random() * 25,
   delay: Math.random() * 10,
-  opacity: 0.05 + Math.random() * 0.05,
+  opacity: 0.08 + Math.random() * 0.08,
 }));
 
 export function Background() {

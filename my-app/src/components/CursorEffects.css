@@ -1,56 +1,48 @@
-.custom-cursor {
+.cursor-trail {
   position: fixed;
   pointer-events: none;
-  z-index: 10000;
-  opacity: 0;
-  transition: opacity 0.15s ease;
-  left: 0;
-  top: 0;
-  transform: translate(-50%, -50%);
+  z-index: 9998;
+  inset: 0;
+  overflow: hidden;
 }
 
-.custom-cursor.visible {
+.trail-dot {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  background: radial-gradient(circle, rgba(0, 170, 255, 0.9) 0%, rgba(0, 170, 255, 0.3) 60%, transparent 100%);
+  border-radius: 50%;
+  will-change: transform, opacity;
+}
+
+.cursor {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  width: 8px;
+  height: 8px;
+  background: #00aaff;
+  border-radius: 50%;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.2s ease, width 0.15s ease, height 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 0 8px rgba(0, 170, 255, 0.8);
+}
+
+.cursor.visible {
   opacity: 1;
 }
 
-.cursor-ring {
-  position: absolute;
-  width: 24px;
-  height: 24px;
-  border: 1px solid rgba(0, 170, 255, 0.6);
-  border-radius: 50%;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
-}
-
-.cursor-dot {
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  background: #00aaff;
-  border-radius: 50%;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  box-shadow: 0 0 6px #00aaff;
-  transition: background 0.15s ease, box-shadow 0.15s ease;
-}
-
-.custom-cursor.hover .cursor-ring {
-  border-color: rgba(0, 255, 136, 0.8);
-  box-shadow: 0 0 8px rgba(0, 255, 136, 0.4);
-  transform: translate(-50%, -50%) scale(1.2);
-}
-
-.custom-cursor.hover .cursor-dot {
+.cursor.hover {
+  width: 12px;
+  height: 12px;
   background: #00ff88;
-  box-shadow: 0 0 8px #00ff88;
+  box-shadow: 0 0 12px rgba(0, 255, 136, 0.9);
 }
 
 @media (hover: none) and (pointer: coarse) {
-  .custom-cursor {
+  .cursor,
+  .cursor-trail {
     display: none;
   }
 }
