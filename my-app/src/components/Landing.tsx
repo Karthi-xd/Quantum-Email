@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Background } from './Background';
 import { MatrixRain } from './MatrixRain';
 
 interface LandingProps {
@@ -17,7 +16,6 @@ export function Landing({ onEnter }: LandingProps) {
 
   return (
     <div className="landing">
-      <Background />
       <MatrixRain />
 
       <div className="landing-center">

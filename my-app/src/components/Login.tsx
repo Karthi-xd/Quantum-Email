@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Background } from './Background';
 import { MatrixRain } from './MatrixRain';
 import './Login.css';
 
@@ -34,7 +33,6 @@ export function Login({ onLogin }: LoginProps) {
 
   return (
     <div className="login-page">
-      <Background />
       <MatrixRain />
 
       <div className="login-container">

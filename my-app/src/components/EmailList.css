@@ -297,3 +297,327 @@
     animation: none;
   }
 }
+
+.account-dropdown-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.account-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(0, 170, 255, 0.05);
+  border: 1px solid rgba(0, 170, 255, 0.15);
+  border-radius: 10px;
+  padding: 0.35rem 0.6rem 0.35rem 0.4rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+}
+.account-trigger:hover {
+  background: rgba(0, 170, 255, 0.1);
+  border-color: rgba(0, 170, 255, 0.3);
+  box-shadow: 0 0 15px rgba(0, 170, 255, 0.15);
+}
+.account-trigger:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.trigger-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  color: #fff;
+  text-shadow: 0 0 6px rgba(0, 170, 255, 0.5);
+}
+
+.trigger-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.05rem;
+}
+
+.trigger-name {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text);
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trigger-status {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.62rem;
+  color: var(--muted);
+  font-family: 'Share Tech Mono', monospace;
+  letter-spacing: 0.05em;
+}
+
+.status-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #00ff88;
+  box-shadow: 0 0 6px #00ff88;
+  animation: pulse 2s infinite;
+}
+
+.trigger-arrow {
+  font-size: 0.6rem;
+  color: var(--muted);
+  transition: transform 0.2s ease;
+  margin-left: 0.25rem;
+}
+.trigger-arrow.open {
+  transform: rotate(180deg);
+}
+
+.account-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 280px;
+  border-radius: 12px;
+  padding: 0;
+  z-index: 1000;
+  animation: dropdownFade 0.2s ease;
+  overflow: hidden;
+}
+
+@keyframes dropdownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.dropdown-current {
+  padding: 1rem;
+  background: rgba(0, 170, 255, 0.03);
+}
+
+.current-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  color: var(--muted);
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.current-account {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.current-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cinzel', serif;
+  font-size: 0.9rem;
+  color: #fff;
+  text-shadow: 0 0 8px rgba(0, 170, 255, 0.6);
+  box-shadow: 0 0 12px rgba(0, 170, 255, 0.3);
+}
+
+.current-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.current-email {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.current-name {
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: var(--glass-border);
+  margin: 0.25rem 0;
+}
+
+.dropdown-section {
+  padding: 0.5rem;
+}
+
+.dropdown-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.15em;
+  color: var(--muted);
+  text-transform: uppercase;
+  display: block;
+  padding: 0.5rem 0.5rem 0.25rem;
+}
+
+.dropdown-account {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.5rem;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: var(--text);
+  text-align: left;
+}
+.dropdown-account:hover {
+  background: rgba(0, 170, 255, 0.08);
+}
+.dropdown-account:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.dropdown-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  color: #fff;
+  opacity: 0.85;
+}
+
+.dropdown-account-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+}
+
+.dropdown-email {
+  font-size: 0.75rem;
+  color: var(--text);
+}
+.dropdown-name {
+  font-size: 0.65rem;
+  color: var(--muted);
+}
+
+.dropdown-actions {
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.dropdown-action {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.55rem 0.6rem;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.78rem;
+  text-align: left;
+}
+.dropdown-action:hover {
+  background: rgba(0, 170, 255, 0.08);
+}
+.dropdown-action:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.dropdown-action.danger {
+  color: var(--pink);
+  margin: 0 0.5rem 0.5rem;
+  width: calc(100% - 1rem);
+}
+.dropdown-action.danger:hover {
+  background: rgba(255, 45, 120, 0.1);
+}
+.dropdown-action.danger .action-icon {
+  color: var(--pink);
+}
+
+.action-icon {
+  font-size: 0.85rem;
+  width: 18px;
+  text-align: center;
+  color: var(--accent);
+  opacity: 0.7;
+}
+
+.dropdown-footer {
+  padding: 0.6rem 1rem;
+  background: rgba(0, 170, 255, 0.02);
+  border-top: 1px solid var(--glass-border);
+}
+
+.footer-status {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+@media (max-width: 768px) {
+  .account-trigger {
+    padding: 0.3rem 0.4rem 0.3rem 0.3rem;
+  }
+  
+  .trigger-info {
+    display: none;
+  }
+  
+  .trigger-arrow {
+    display: none;
+  }
+  
+  .account-dropdown {
+    min-width: 260px;
+    right: -10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .account-dropdown {
+    min-width: 240px;
+    right: -20px;
+  }
+}
