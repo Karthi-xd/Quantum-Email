@@ -102,45 +102,92 @@ export function EmailList() {
               
               <div className="dropdown-divider" />
               
-              <div className="dropdown-accounts-scroll">
-                <div className="dropdown-accounts-track">
+              <div className="dropdown-accounts-section">
+                <div className="dropdown-header-row">
                   <span className="dropdown-label">All Nodes</span>
-                  {accounts.map(acc => (
-                    <div
-                      key={acc.id}
-                      className={`dropdown-account-row ${activeAccount?.id === acc.id ? 'active' : ''}`}
-                    >
-                      <button
-                        className="dropdown-account"
-                        onClick={() => handleSwitchAccount(acc)}
-                        role="menuitem"
-                      >
-                        <span className="dropdown-avatar" style={{ background: acc.color }}>
-                          {acc.email[0].toUpperCase()}
-                        </span>
-                        <div className="dropdown-account-info">
-                          <span className="dropdown-email">{acc.email}</span>
-                          <span className="dropdown-name">{acc.displayName}</span>
-                        </div>
-                        {activeAccount?.id === acc.id && (
-                          <span className="active-badge">Active</span>
-                        )}
-                      </button>
-                      {accounts.length > 1 && (
-                        <button
-                          className="account-remove-btn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removeAccount(acc.id);
-                          }}
-                          aria-label={`Remove ${acc.email}`}
-                          title="Remove node"
+                  <span className="accounts-count">{accounts.length}</span>
+                </div>
+                
+                <div className="dropdown-search">
+                  <span className="search-icon">⌕</span>
+                  <input
+                    type="text"
+                    placeholder="Search nodes..."
+                    className="dropdown-search-input"
+                    aria-label="Search accounts"
+                  />
+                </div>
+
+                <div className="dropdown-accounts-scroll">
+                  <div className="dropdown-accounts-track">
+                    {accounts.map(acc => {
+                      const isActive = activeAccount?.id === acc.id;
+                      const unreadCount = (emails.inbox || []).filter(e => !e.read).length;
+                      const totalMsgs = Object.values(emails).flat().filter(e => e).length;
+                      
+                      return (
+                        <div
+                          key={acc.id}
+                          className={`dropdown-account-card ${isActive ? 'active' : ''}`}
+                          onClick={() => handleSwitchAccount(acc)}
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => e.key === 'Enter' && handleSwitchAccount(acc)}
                         >
-                          ×
-                        </button>
-                      )}
-                    </div>
-                  ))}
+                          <div className="card-avatar-wrap">
+                            <span className="card-avatar" style={{ background: acc.color }}>
+                              {acc.email[0].toUpperCase()}
+                            </span>
+                            <span className={`card-status ${isActive ? 'online' : 'offline'}`} />
+                          </div>
+                          
+                          <div className="card-content">
+                            <div className="card-header-row">
+                              <span className="card-email">{acc.email}</span>
+                              {isActive && <span className="active-indicator">◉</span>}
+                            </div>
+                            <span className="card-name">{acc.displayName}</span>
+                            <div className="card-stats">
+                              <span className="stat-item">
+                                <span className="stat-icon">◈</span>
+                                {totalMsgs} msgs
+                              </span>
+                              <span className="stat-item unread">
+                                <span className="stat-icon">●</span>
+                                {unreadCount} unread
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="card-actions">
+                            <button
+                              className="card-action-btn"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleSwitchAccount(acc);
+                              }}
+                              title="Switch to this account"
+                            >
+                              ↗
+                            </button>
+                            {accounts.length > 1 && (
+                              <button
+                                className="card-action-btn danger"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  removeAccount(acc.id);
+                                }}
+                                aria-label={`Remove ${acc.email}`}
+                                title="Remove node"
+                              >
+                                ×
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
 
