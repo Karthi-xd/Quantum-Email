@@ -24,6 +24,7 @@
   flex-direction: column;
   animation: modalSlideIn 0.3s ease;
   overflow: hidden;
+  position: relative;
 }
 
 @keyframes modalSlideIn {
@@ -73,41 +74,72 @@
 }
 
 .pref-close {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 8px;
-  background: transparent;
-  border: 1px solid transparent;
+  background: rgba(0, 170, 255, 0.05);
+  border: 1px solid rgba(0, 170, 255, 0.2);
   color: var(--muted);
-  font-size: 1.5rem;
   cursor: pointer;
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  font-size: 1.2rem;
 }
 
 .pref-close:hover {
-  background: rgba(255, 45, 120, 0.1);
-  border-color: rgba(255, 45, 120, 0.2);
-  color: var(--pink);
+  background: rgba(0, 170, 255, 0.1);
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: rotate(90deg);
+  box-shadow: 0 0 15px rgba(0, 170, 255, 0.3);
+}
+
+.pref-close:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .pref-content {
   flex: 1;
   overflow-y: auto;
-  padding: 1rem 1.5rem;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(0, 170, 255, 0.3) transparent;
+  padding: 1rem 2rem 1.5rem;
+  padding-right: 2rem;
 }
 
 .pref-content::-webkit-scrollbar {
   width: 4px;
 }
 
+.pref-content::-webkit-scrollbar-track {
+  background: rgba(0, 170, 255, 0.06);
+  border-radius: 4px;
+}
+
 .pref-content::-webkit-scrollbar-thumb {
-  background: rgba(0, 170, 255, 0.3);
-  border-radius: 2px;
+  background: linear-gradient(180deg, 
+    rgba(0, 170, 255, 0.6) 0%,
+    rgba(0, 255, 136, 0.9) 50%,
+    rgba(0, 170, 255, 0.6) 100%
+  );
+  border-radius: 4px;
+  animation: thumbGlow 2s ease-in-out infinite;
+}
+
+@keyframes thumbGlow {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(0, 170, 255, 0.6), 0 0 16px rgba(0, 170, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(0, 170, 255, 0.9), 0 0 24px rgba(0, 255, 136, 0.5);
+  }
+}
+
+.pref-content::-webkit-scrollbar-thumb:hover {
+  box-shadow: 0 0 12px rgba(0, 170, 255, 1), 0 0 24px rgba(0, 255, 136, 0.6);
+  transform: scaleX(1.2);
 }
 
 .pref-section {
@@ -338,6 +370,10 @@
   .pref-content,
   .pref-footer {
     padding: 1rem;
+  }
+
+  .pref-content {
+    padding-right: 1rem;
   }
 
   .pref-item {
