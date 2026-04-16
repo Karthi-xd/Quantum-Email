@@ -1,14 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Cinzel:wght@400;600;900&family=Exo+2:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=Michroma&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&display=swap');
 
 :root {
-  --bg: #010408;
+  --bg: #050a12;
   --accent: #00aaff;
   --accent-dim: rgba(0,170,255,0.15);
   --accent2: #00e5ff;
   --pink: #ff2d78;
-  --text: #d4f0ff;
-  --muted: #2e4a66;
-  --glass: rgba(0, 12, 24, 0.55);
+  --text: #ffffff;
+  --muted: #7a9cc0;
+  --glass: rgba(5, 10, 18, 0.55);
   --glass-border: rgba(0,170,255,0.14);
   --glass-shadow: 0 8px 40px rgba(0,0,0,0.7);
 }
@@ -1514,4 +1514,49 @@ body, * {
 
 @media (hover: none) and (pointer: coarse) {
   .init-btn { min-height: 48px; min-width: 120px; padding: 0.85rem 2.2rem; }
+}
+
+/* Theme Classes */
+.theme-quantum {
+  --accent: #00aaff;
+  --accent-dim: rgba(0,170,255,0.15);
+  --accent2: #00e5ff;
+  --pink: #ff2d78;
+}
+
+.theme-classic {
+  --accent: #00d4ff;
+  --accent-dim: rgba(0,212,255,0.15);
+  --accent2: #00e5ff;
+  --pink: #ff6b9d;
+}
+
+.theme-minimal {
+  --accent: #4da6ff;
+  --accent-dim: rgba(77,166,255,0.1);
+  --accent2: #66b3ff;
+  --pink: #ff8fb3;
+}
+
+/* Font Size Classes */
+.font-small {
+  font-size: 13px;
+}
+
+.font-small .email-content,
+.font-small .email-preview {
+  font-size: 0.8rem;
+}
+
+.font-medium {
+  font-size: 15px;
+}
+
+.font-large {
+  font-size: 17px;
+}
+
+.font-large .email-content,
+.font-large .email-preview {
+  font-size: 1rem;
 }

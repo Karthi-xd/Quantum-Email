@@ -24,9 +24,10 @@ import type { Account } from './types';
 
 function EmailApp() {
   useKeyboardShortcuts();
+  const { preferences } = useEmailStore();
 
   return (
-    <div className="app-wrap">
+    <div className={`app-wrap theme-${preferences.theme} font-${preferences.fontSize}`}>
       <div className="app">
         <Sidebar />
         <EmailList />
