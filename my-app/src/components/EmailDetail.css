@@ -22,7 +22,7 @@
   max-height: 80vh;
   border-radius: 16px;
   border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow), 0 0 80px rgba(61, 242, 224, 0.15);
+  box-shadow: var(--glass-shadow), 0 0 80px rgba(0, 170, 255, 0.15);
   display: flex;
   flex-direction: column;
   animation: modalSlideIn 0.3s ease;
@@ -50,7 +50,7 @@
   font-size: 0.83rem;
   letter-spacing: 0.1em;
 }
-.det-icon { font-size: 2.2rem; color: rgba(0,170,255,0.12); }
+.det-icon { font-size: 2.2rem; color: rgba(255,0,85,0.12); }
 
 .det-head {
   display: flex;
@@ -119,7 +119,7 @@
   color: var(--muted);
 }
 .det-body::-webkit-scrollbar { width: 3px; }
-.det-body::-webkit-scrollbar-thumb { background: rgba(0,170,255,0.1); }
+.det-body::-webkit-scrollbar-thumb { background: rgba(255,0,85,0.1); }
 
 .det-actions {
   padding: 0.9rem 1.2rem;

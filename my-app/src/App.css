@@ -1,15 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Cinzel:wght@400;600;900&family=Exo+2:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=Michroma&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&display=swap');
 
 :root {
-  --bg: #0B0F14;
-  --accent: #3DF2E0;
-  --accent-dim: rgba(61,242,224,0.15);
+  --bg: #010408;
+  --accent: #00aaff;
+  --accent-dim: rgba(0,170,255,0.15);
   --accent2: #00e5ff;
   --pink: #ff2d78;
-  --text: #ffffff;
-  --muted: #6a8a8a;
-  --glass: rgba(11, 15, 20, 0.55);
-  --glass-border: rgba(61,242,224,0.14);
+  --text: #d4f0ff;
+  --muted: #2e4a66;
+  --glass: rgba(0, 12, 24, 0.55);
+  --glass-border: rgba(0,170,255,0.14);
   --glass-shadow: 0 8px 40px rgba(0,0,0,0.7);
 }
 
@@ -183,7 +183,7 @@ body, * {
 .o2 {
   width: clamp(250px, 45vw, 500px);
   height: clamp(250px, 45vw, 500px);
-  background: radial-gradient(circle, rgba(61,242,224,0.12) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(0,170,255,0.12) 0%, transparent 70%);
   bottom: -160px; left: -120px;
 }
 
@@ -213,7 +213,7 @@ body, * {
 .o2 {
   width: clamp(250px, 45vw, 500px);
   height: clamp(250px, 45vw, 500px);
-  background: radial-gradient(circle, rgba(61,242,224,0.2) 0%, rgba(61,242,224,0.08) 40%, transparent 70%);
+  background: radial-gradient(circle, rgba(0,170,255,0.2) 0%, rgba(0,170,255,0.08) 40%, transparent 70%);
   bottom: -160px; left: -120px;
   animation: orbFloat 18s ease-in-out infinite alternate-reverse;
   box-shadow: 0 0 80px rgba(0, 200, 255, 0.12);
@@ -344,11 +344,11 @@ body, * {
   inset: 0;
   background: linear-gradient(
     135deg,
-    #010408 0%,
+    #0a0a0f 0%,
     #020810 25%,
     #010c14 50%,
     #020810 75%,
-    #010408 100%
+    #0a0a0f 100%
   );
 }
 

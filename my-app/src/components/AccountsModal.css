@@ -10,19 +10,19 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 1rem;
-  background: rgba(61, 242, 224, 0.03);
-  border: 1px solid rgba(61, 242, 224, 0.1);
+  background: rgba(0, 170, 255, 0.03);
+  border: 1px solid rgba(0, 170, 255, 0.1);
   border-radius: 8px;
   transition: all 0.2s;
 }
 
 .account-item:hover {
-  background: rgba(61, 242, 224, 0.06);
+  background: rgba(0, 170, 255, 0.06);
 }
 
 .account-item.active {
   border-color: var(--accent);
-  background: rgba(61, 242, 224, 0.08);
+  background: rgba(0, 170, 255, 0.08);
 }
 
 .account-info {
@@ -37,7 +37,7 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent), rgba(61, 242, 224, 0.7));
+  background: linear-gradient(135deg, var(--accent), rgba(0, 170, 255, 0.7));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -168,7 +168,7 @@
 }
 
 .switcher-account:hover {
-  background: rgba(61, 242, 224, 0.06);
+  background: rgba(0, 170, 255, 0.06);
 }
 
 .switcher-account:focus-visible {
@@ -177,7 +177,7 @@
 }
 
 .switcher-account.active {
-  background: rgba(61, 242, 224, 0.1);
+  background: rgba(0, 170, 255, 0.1);
 }
 
 .switcher-account .account-avatar {
@@ -224,7 +224,7 @@
   margin: 0.5rem;
   padding: 0.7rem;
   background: transparent;
-  border: 1px dashed rgba(61, 242, 224, 0.25);
+  border: 1px dashed rgba(0, 170, 255, 0.25);
   border-radius: 8px;
   color: var(--muted);
   font-family: 'Share Tech Mono', monospace;
@@ -238,7 +238,7 @@
 .manage-accounts-btn:hover {
   border-color: var(--accent);
   color: var(--accent);
-  background: rgba(61, 242, 224, 0.05);
+  background: rgba(0, 170, 255, 0.05);
 }
 .manage-accounts-btn:focus-visible {
   outline: 2px solid var(--accent);
@@ -265,7 +265,7 @@
   margin: 1rem;
   padding: 0.75rem;
   background: transparent;
-  border: 1px dashed rgba(61, 242, 224, 0.25);
+  border: 1px dashed rgba(0, 170, 255, 0.25);
   border-radius: 8px;
   color: var(--accent);
   font-family: 'Share Tech Mono', monospace;
@@ -278,8 +278,8 @@
 }
 .add-account-btn:hover {
   border-color: var(--accent);
-  background: rgba(61, 242, 224, 0.05);
-  box-shadow: 0 0 15px rgba(61, 242, 224, 0.1);
+  background: rgba(0, 170, 255, 0.05);
+  box-shadow: 0 0 15px rgba(0, 170, 255, 0.1);
 }
 .add-account-btn:focus-visible {
   outline: 2px solid var(--accent);
@@ -341,14 +341,14 @@
 }
 
 .switcher-btn.manage {
-  background: rgba(61, 242, 224, 0.05);
-  border: 1px solid rgba(61, 242, 224, 0.2);
+  background: rgba(0, 170, 255, 0.05);
+  border: 1px solid rgba(0, 170, 255, 0.2);
   color: var(--accent);
 }
 
 .switcher-btn.manage:hover {
-  background: rgba(61, 242, 224, 0.1);
-  box-shadow: 0 0 12px rgba(61, 242, 224, 0.15);
+  background: rgba(0, 170, 255, 0.1);
+  box-shadow: 0 0 12px rgba(0, 170, 255, 0.15);
 }
 
 .switcher-btn.signout {
@@ -433,7 +433,7 @@
   justify-content: space-between;
   padding: 1.25rem 1.5rem;
   border-bottom: 1px solid var(--glass-border);
-  background: rgba(61, 242, 224, 0.03);
+  background: rgba(0, 170, 255, 0.03);
 }
 
 .accounts-title-row {
@@ -466,8 +466,8 @@
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  background: rgba(61, 242, 224, 0.05);
-  border: 1px solid rgba(61, 242, 224, 0.2);
+  background: rgba(0, 170, 255, 0.05);
+  border: 1px solid rgba(0, 170, 255, 0.2);
   color: var(--muted);
   cursor: pointer;
   padding: 0;
@@ -479,11 +479,11 @@
 }
 
 .close-btn:hover {
-  background: rgba(61, 242, 224, 0.1);
+  background: rgba(0, 170, 255, 0.1);
   border-color: var(--accent);
   color: var(--accent);
   transform: rotate(90deg);
-  box-shadow: 0 0 15px rgba(61, 242, 224, 0.3);
+  box-shadow: 0 0 15px rgba(0, 170, 255, 0.3);
 }
 
 .close-btn:focus-visible {
@@ -503,15 +503,15 @@
 }
 
 .accounts-modal-content::-webkit-scrollbar-track {
-  background: rgba(61, 242, 224, 0.06);
+  background: rgba(0, 170, 255, 0.06);
   border-radius: 4px;
 }
 
 .accounts-modal-content::-webkit-scrollbar-thumb {
   background: linear-gradient(180deg, 
-    rgba(61, 242, 224, 0.6) 0%,
+    rgba(0, 170, 255, 0.6) 0%,
     rgba(0, 255, 136, 0.9) 50%,
-    rgba(61, 242, 224, 0.6) 100%
+    rgba(0, 170, 255, 0.6) 100%
   );
   border-radius: 4px;
   animation: thumbGlow 2s ease-in-out infinite;
@@ -519,15 +519,15 @@
 
 @keyframes thumbGlow {
   0%, 100% {
-    box-shadow: 0 0 8px rgba(61, 242, 224, 0.6), 0 0 16px rgba(61, 242, 224, 0.3);
+    box-shadow: 0 0 8px rgba(0, 170, 255, 0.6), 0 0 16px rgba(0, 170, 255, 0.3);
   }
   50% {
-    box-shadow: 0 0 12px rgba(61, 242, 224, 0.9), 0 0 24px rgba(0, 255, 136, 0.5);
+    box-shadow: 0 0 12px rgba(0, 170, 255, 0.9), 0 0 24px rgba(0, 255, 136, 0.5);
   }
 }
 
 .accounts-modal-content::-webkit-scrollbar-thumb:hover {
-  box-shadow: 0 0 12px rgba(61, 242, 224, 1), 0 0 24px rgba(0, 255, 136, 0.6);
+  box-shadow: 0 0 12px rgba(0, 170, 255, 1), 0 0 24px rgba(0, 255, 136, 0.6);
   transform: scaleX(1.2);
 }
 
@@ -550,10 +550,10 @@
   font-family: 'Share Tech Mono', monospace;
   font-size: 0.65rem;
   color: var(--accent);
-  background: rgba(61, 242, 224, 0.1);
+  background: rgba(0, 170, 255, 0.1);
   padding: 0.2rem 0.5rem;
   border-radius: 10px;
-  border: 1px solid rgba(61, 242, 224, 0.2);
+  border: 1px solid rgba(0, 170, 255, 0.2);
 }
 
 .accounts-list {
@@ -568,21 +568,21 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 1rem;
-  background: rgba(61, 242, 224, 0.02);
-  border: 1px solid rgba(61, 242, 224, 0.08);
+  background: rgba(0, 170, 255, 0.02);
+  border: 1px solid rgba(0, 170, 255, 0.08);
   border-radius: 10px;
   transition: all 0.2s ease;
 }
 
 .account-item:hover {
-  background: rgba(61, 242, 224, 0.06);
-  border-color: rgba(61, 242, 224, 0.15);
+  background: rgba(0, 170, 255, 0.06);
+  border-color: rgba(0, 170, 255, 0.15);
 }
 
 .account-item.active {
-  border-color: rgba(61, 242, 224, 0.3);
-  background: rgba(61, 242, 224, 0.08);
-  box-shadow: 0 0 15px rgba(61, 242, 224, 0.1);
+  border-color: rgba(0, 170, 255, 0.3);
+  background: rgba(0, 170, 255, 0.08);
+  box-shadow: 0 0 15px rgba(0, 170, 255, 0.1);
 }
 
 .account-info {
@@ -605,7 +605,7 @@
   font-weight: 600;
   font-size: 0.9rem;
   flex-shrink: 0;
-  box-shadow: 0 0 10px rgba(61, 242, 224, 0.2);
+  box-shadow: 0 0 10px rgba(0, 170, 255, 0.2);
 }
 
 .account-details {
@@ -664,8 +664,8 @@
   width: 28px;
   height: 28px;
   border-radius: 6px;
-  background: rgba(61, 242, 224, 0.1);
-  border: 1px solid rgba(61, 242, 224, 0.2);
+  background: rgba(0, 170, 255, 0.1);
+  border: 1px solid rgba(0, 170, 255, 0.2);
   color: var(--accent);
   font-size: 0.85rem;
   cursor: pointer;
@@ -676,7 +676,7 @@
 }
 
 .account-action-btn:hover {
-  background: rgba(61, 242, 224, 0.2);
+  background: rgba(0, 170, 255, 0.2);
   transform: scale(1.05);
 }
 
@@ -734,7 +734,7 @@
   justify-content: space-between;
   padding: 1rem 1.5rem;
   border-top: 1px solid var(--glass-border);
-  background: rgba(61, 242, 224, 0.02);
+  background: rgba(0, 170, 255, 0.02);
 }
 
 .add-account-form {
@@ -760,8 +760,8 @@
 
 .form-field input {
   padding: 0.65rem 0.8rem;
-  background: rgba(61, 242, 224, 0.03);
-  border: 1px solid rgba(61, 242, 224, 0.15);
+  background: rgba(0, 170, 255, 0.03);
+  border: 1px solid rgba(0, 170, 255, 0.15);
   border-radius: 6px;
   color: var(--text);
   font-family: 'Inter', sans-serif;
@@ -771,9 +771,9 @@
 }
 
 .form-field input:focus {
-  border-color: rgba(61, 242, 224, 0.4);
-  background: rgba(61, 242, 224, 0.06);
-  box-shadow: 0 0 10px rgba(61, 242, 224, 0.1);
+  border-color: rgba(0, 170, 255, 0.4);
+  background: rgba(0, 170, 255, 0.06);
+  box-shadow: 0 0 10px rgba(0, 170, 255, 0.1);
 }
 
 .form-field input::placeholder {

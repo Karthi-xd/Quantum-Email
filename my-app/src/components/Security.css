@@ -44,7 +44,7 @@
   justify-content: space-between;
   padding: 1.25rem 1.5rem;
   border-bottom: 1px solid var(--glass-border);
-  background: rgba(61, 242, 224, 0.03);
+  background: rgba(0, 170, 255, 0.03);
 }
 
 .sec-title-row {
@@ -77,8 +77,8 @@
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  background: rgba(61, 242, 224, 0.05);
-  border: 1px solid rgba(61, 242, 224, 0.2);
+  background: rgba(0, 170, 255, 0.05);
+  border: 1px solid rgba(0, 170, 255, 0.2);
   color: var(--muted);
   cursor: pointer;
   padding: 0;
@@ -90,11 +90,11 @@
 }
 
 .sec-close:hover {
-  background: rgba(61, 242, 224, 0.1);
+  background: rgba(0, 170, 255, 0.1);
   border-color: var(--accent);
   color: var(--accent);
   transform: rotate(90deg);
-  box-shadow: 0 0 15px rgba(61, 242, 224, 0.3);
+  box-shadow: 0 0 15px rgba(0, 170, 255, 0.3);
 }
 
 .sec-close:focus-visible {
@@ -114,15 +114,15 @@
 }
 
 .sec-content::-webkit-scrollbar-track {
-  background: rgba(61, 242, 224, 0.06);
+  background: rgba(0, 170, 255, 0.06);
   border-radius: 4px;
 }
 
 .sec-content::-webkit-scrollbar-thumb {
   background: linear-gradient(180deg, 
-    rgba(61, 242, 224, 0.6) 0%,
+    rgba(0, 170, 255, 0.6) 0%,
     rgba(0, 255, 136, 0.9) 50%,
-    rgba(61, 242, 224, 0.6) 100%
+    rgba(0, 170, 255, 0.6) 100%
   );
   border-radius: 4px;
   animation: thumbGlow 2s ease-in-out infinite;
@@ -130,15 +130,15 @@
 
 @keyframes thumbGlow {
   0%, 100% {
-    box-shadow: 0 0 8px rgba(61, 242, 224, 0.6), 0 0 16px rgba(61, 242, 224, 0.3);
+    box-shadow: 0 0 8px rgba(0, 170, 255, 0.6), 0 0 16px rgba(0, 170, 255, 0.3);
   }
   50% {
-    box-shadow: 0 0 12px rgba(61, 242, 224, 0.9), 0 0 24px rgba(0, 255, 136, 0.5);
+    box-shadow: 0 0 12px rgba(0, 170, 255, 0.9), 0 0 24px rgba(0, 255, 136, 0.5);
   }
 }
 
 .sec-content::-webkit-scrollbar-thumb:hover {
-  box-shadow: 0 0 12px rgba(61, 242, 224, 1), 0 0 24px rgba(0, 255, 136, 0.6);
+  box-shadow: 0 0 12px rgba(0, 170, 255, 1), 0 0 24px rgba(0, 255, 136, 0.6);
   transform: scaleX(1.2);
 }
 
@@ -156,7 +156,7 @@
   gap: 0.5rem;
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(61, 242, 224, 0.1);
+  border-bottom: 1px solid rgba(0, 170, 255, 0.1);
 }
 
 .sec-section-header h3 {
@@ -223,7 +223,7 @@
 
 .enc-meter-fill {
   height: 100%;
-  background: linear-gradient(90deg, rgba(61, 242, 224, 0.6), rgba(0, 255, 136, 0.8), rgba(61, 242, 224, 0.6));
+  background: linear-gradient(90deg, rgba(0, 170, 255, 0.6), rgba(0, 255, 136, 0.8), rgba(0, 170, 255, 0.6));
   border-radius: 2px;
   animation: meterGlow 2s ease-in-out infinite;
 }
@@ -263,20 +263,20 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 1rem;
-  background: rgba(61, 242, 224, 0.02);
-  border: 1px solid rgba(61, 242, 224, 0.06);
+  background: rgba(0, 170, 255, 0.02);
+  border: 1px solid rgba(0, 170, 255, 0.06);
   border-radius: 10px;
   transition: all 0.2s ease;
 }
 
 .sec-item:hover {
-  background: rgba(61, 242, 224, 0.04);
-  border-color: rgba(61, 242, 224, 0.12);
+  background: rgba(0, 170, 255, 0.04);
+  border-color: rgba(0, 170, 255, 0.12);
 }
 
 .sec-item.indent {
   margin-left: 1rem;
-  background: rgba(61, 242, 224, 0.01);
+  background: rgba(0, 170, 255, 0.01);
 }
 
 .sec-item.danger {
@@ -314,8 +314,8 @@
   width: 44px;
   height: 24px;
   border-radius: 12px;
-  background: rgba(61, 242, 224, 0.1);
-  border: 1px solid rgba(61, 242, 224, 0.2);
+  background: rgba(0, 170, 255, 0.1);
+  border: 1px solid rgba(0, 170, 255, 0.2);
   cursor: pointer;
   position: relative;
   transition: all 0.3s ease;
@@ -352,8 +352,8 @@
   padding: 0.35rem 0.6rem;
   font-size: 0.7rem;
   font-family: 'Share Tech Mono', monospace;
-  background: rgba(61, 242, 224, 0.05);
-  border: 1px solid rgba(61, 242, 224, 0.15);
+  background: rgba(0, 170, 255, 0.05);
+  border: 1px solid rgba(0, 170, 255, 0.15);
   border-radius: 6px;
   color: var(--muted);
   cursor: pointer;
@@ -361,13 +361,13 @@
 }
 
 .time-btn:hover {
-  background: rgba(61, 242, 224, 0.1);
+  background: rgba(0, 170, 255, 0.1);
   color: var(--text);
 }
 
 .time-btn.active {
-  background: rgba(61, 242, 224, 0.15);
-  border-color: rgba(61, 242, 224, 0.4);
+  background: rgba(0, 170, 255, 0.15);
+  border-color: rgba(0, 170, 255, 0.4);
   color: var(--accent);
 }
 
@@ -375,8 +375,8 @@
   padding: 0.4rem 0.9rem;
   font-size: 0.75rem;
   font-family: 'Share Tech Mono', monospace;
-  background: rgba(61, 242, 224, 0.1);
-  border: 1px solid rgba(61, 242, 224, 0.2);
+  background: rgba(0, 170, 255, 0.1);
+  border: 1px solid rgba(0, 170, 255, 0.2);
   border-radius: 6px;
   color: var(--accent);
   cursor: pointer;
@@ -384,8 +384,8 @@
 }
 
 .sec-action-btn:hover {
-  background: rgba(61, 242, 224, 0.2);
-  box-shadow: 0 0 10px rgba(61, 242, 224, 0.2);
+  background: rgba(0, 170, 255, 0.2);
+  box-shadow: 0 0 10px rgba(0, 170, 255, 0.2);
 }
 
 .sec-action-btn.danger {
@@ -406,8 +406,8 @@
 
 .password-change-form {
   padding: 1rem;
-  background: rgba(61, 242, 224, 0.02);
-  border: 1px solid rgba(61, 242, 224, 0.1);
+  background: rgba(0, 170, 255, 0.02);
+  border: 1px solid rgba(0, 170, 255, 0.1);
   border-radius: 10px;
   margin-top: 0.5rem;
   display: flex;
@@ -442,8 +442,8 @@
 
 .form-field input {
   padding: 0.6rem 0.8rem;
-  background: rgba(61, 242, 224, 0.03);
-  border: 1px solid rgba(61, 242, 224, 0.15);
+  background: rgba(0, 170, 255, 0.03);
+  border: 1px solid rgba(0, 170, 255, 0.15);
   border-radius: 6px;
   color: var(--text);
   font-family: 'Inter', sans-serif;
@@ -453,8 +453,8 @@
 }
 
 .form-field input:focus {
-  border-color: rgba(61, 242, 224, 0.4);
-  background: rgba(61, 242, 224, 0.05);
+  border-color: rgba(0, 170, 255, 0.4);
+  background: rgba(0, 170, 255, 0.05);
 }
 
 .form-field input::placeholder {
@@ -494,8 +494,8 @@
   display: flex;
   gap: 0.75rem;
   padding: 1rem;
-  background: rgba(61, 242, 224, 0.03);
-  border: 1px solid rgba(61, 242, 224, 0.1);
+  background: rgba(0, 170, 255, 0.03);
+  border: 1px solid rgba(0, 170, 255, 0.1);
   border-radius: 10px;
 }
 
@@ -530,7 +530,7 @@
   justify-content: flex-end;
   padding: 1rem 1.5rem;
   border-top: 1px solid var(--glass-border);
-  background: rgba(61, 242, 224, 0.02);
+  background: rgba(0, 170, 255, 0.02);
 }
 
 .sec-btn {
@@ -556,12 +556,12 @@
 
 .sec-btn.secondary {
   background: transparent;
-  border: 1px solid rgba(61, 242, 224, 0.15);
+  border: 1px solid rgba(0, 170, 255, 0.15);
   color: var(--muted);
 }
 
 .sec-btn.secondary:hover {
-  background: rgba(61, 242, 224, 0.05);
+  background: rgba(0, 170, 255, 0.05);
   color: var(--text);
 }
 
