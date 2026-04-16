@@ -37,13 +37,7 @@
   position: relative;
 }
 
-.sb-brand:hover .brand-q {
-  animation: glitchQ 0.6s ease-out forwards;
-}
 
-.sb-brand:hover .brand-p {
-  animation: glitchP 0.6s ease-out 0.08s forwards;
-}
 
 @keyframes glitchQ {
   0% { 

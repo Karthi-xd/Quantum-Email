@@ -1,14 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useEmailStore } from '../store/emailStore';
 
-const PARTICLE_COUNT = 12;
-const particleStyles = Array.from({ length: PARTICLE_COUNT }).map((_, i) => ({
-  '--delay': `${i * 0.15}s`,
-  '--x': `${Math.random() * 100}%`,
-  '--y': `${Math.random() * 100}%`,
-  '--size': `${3 + Math.random() * 4}px`,
-} as React.CSSProperties));
-
 export function AboutQP() {
   const { showAboutQP, setShowAboutQP } = useEmailStore();
   const modalRef = useRef<HTMLDivElement>(null);
@@ -119,12 +111,6 @@ export function AboutQP() {
       if (e.target === e.currentTarget) handleClose();
     }}>
       <div className="about-qp-modal" ref={modalRef}>
-        <div className="about-qp-particles">
-          {particleStyles.map((style, i) => (
-            <div key={i} className="about-particle" style={style} />
-          ))}
-        </div>
-
         <div className="scroll-track">
           <div className="scroll-thumb" />
         </div>

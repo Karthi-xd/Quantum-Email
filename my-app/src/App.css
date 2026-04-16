@@ -6,8 +6,8 @@
   --accent-dim: rgba(0,170,255,0.15);
   --accent2: #00e5ff;
   --pink: #ff2d78;
-  --text: #d4f0ff;
-  --muted: #2e4a66;
+  --text: #ffffff;
+  --muted: #7a9cc0;
   --glass: rgba(0, 12, 24, 0.55);
   --glass-border: rgba(0,170,255,0.14);
   --glass-shadow: 0 8px 40px rgba(0,0,0,0.7);
@@ -1191,26 +1191,6 @@ body, * {
   }
 }
 
-.about-qp-particles {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.about-particle {
-  position: absolute;
-  width: var(--size);
-  height: var(--size);
-  background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
-  border-radius: 50%;
-  left: var(--x);
-  top: var(--y);
-  opacity: 0;
-  animation: particleFloat 4s ease-in-out var(--delay) infinite;
-  box-shadow: 0 0 10px var(--accent);
-}
-
 .about-qp-header {
   display: flex;
   justify-content: space-between;
@@ -1230,76 +1210,30 @@ body, * {
 
 .about-logo-q {
   color: var(--accent);
-  text-shadow: 0 0 20px rgba(0, 170, 255, 0.8), 0 0 40px rgba(0, 170, 255, 0.4);
-  animation: logoGlow 2s ease-in-out infinite;
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   display: inline-block;
-}
-
-.about-logo-q:hover {
-  animation: logoQHover 0.6s ease-out forwards;
-  filter: brightness(1.3);
-}
-
-@keyframes logoQHover {
-  0% { transform: scale(1) rotate(0deg); }
-  30% { transform: scale(1.2) rotate(-5deg); }
-  60% { transform: scale(1.15) rotate(3deg); }
-  100% { transform: scale(1.1) rotate(0deg); text-shadow: 0 0 40px rgba(0, 170, 255, 1), 0 0 80px rgba(0, 170, 255, 0.7), 0 0 120px rgba(0, 170, 255, 0.4); }
 }
 
 .about-logo-p {
   color: var(--text);
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   display: inline-block;
-}
-
-.about-logo-p:hover {
-  animation: logoPHover 0.6s ease-out forwards;
-  filter: brightness(1.3);
-}
-
-.about-qp-logo:hover .about-logo-p {
-  color: var(--accent);
-  text-shadow: 0 0 20px rgba(0, 170, 255, 0.6), 0 0 40px rgba(0, 170, 255, 0.3);
-}
-
-@keyframes logoPHover {
-  0% { transform: scale(1) rotate(0deg); }
-  30% { transform: scale(1.2) rotate(5deg); }
-  60% { transform: scale(1.15) rotate(-3deg); }
-  100% { transform: scale(1.1) rotate(0deg); text-shadow: 0 0 30px rgba(0, 170, 255, 0.8), 0 0 60px rgba(0, 170, 255, 0.4); }
 }
 
 .about-logo-ring {
   position: absolute;
   width: 60px;
   height: 60px;
-  border: 1px solid rgba(0, 170, 255, 0.3);
+  border: 1px solid rgba(0, 170, 255, 0.2);
   border-radius: 50%;
   top: 50%;
   left: 0;
   transform: translateY(-50%);
-  animation: ringPulse 3s ease-in-out infinite;
   pointer-events: none;
-  transition: all 0.4s ease;
 }
 
 .about-logo-ring.ring-2 {
   width: 80px;
   height: 80px;
-  animation-delay: 0.5s;
-  border-color: rgba(0, 170, 255, 0.15);
-}
-
-.about-qp-logo:hover .about-logo-ring {
-  border-color: rgba(0, 170, 255, 0.6);
-  box-shadow: 0 0 20px rgba(0, 170, 255, 0.4);
-}
-
-.about-qp-logo:hover .about-logo-ring.ring-2 {
-  border-color: rgba(0, 170, 255, 0.4);
-  box-shadow: 0 0 30px rgba(0, 170, 255, 0.3);
+  border-color: rgba(0, 170, 255, 0.1);
 }
 
 .about-qp-close {
@@ -1336,10 +1270,6 @@ body, * {
 
 .title-letter {
   display: inline-block;
-  color: var(--accent);
-  text-shadow: 0 0 20px rgba(0, 170, 255, 0.6);
-  animation: letterFloat 3s ease-in-out calc(var(--i) * 0.1s) infinite;
-  transform-style: preserve-3d;
 }
 
 .about-subtitle {
