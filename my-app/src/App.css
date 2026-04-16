@@ -1,13 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Cinzel:wght@400;600;900&family=Exo+2:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=Michroma&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&display=swap');
 
 :root {
-  --bg: #010408;
-  --accent: #00aaff;
-  --accent-dim: rgba(0,170,255,0.15);
+  --bg: #0B0F14;
+  --accent: #3DF2E0;
+  --accent-dim: rgba(61,242,224,0.15);
   --accent2: #00e5ff;
   --pink: #ff2d78;
   --text: #ffffff;
-  --muted: #7a9cc0;
+  --muted: #6a8a8a;
+  --glass: rgba(11, 15, 20, 0.55);
+  --glass-border: rgba(61,242,224,0.14);
+  --glass-shadow: 0 8px 40px rgba(0,0,0,0.7);
+}
   --glass: rgba(0, 12, 24, 0.55);
   --glass-border: rgba(0,170,255,0.14);
   --glass-shadow: 0 8px 40px rgba(0,0,0,0.7);
@@ -183,7 +187,7 @@ body, * {
 .o2 {
   width: clamp(250px, 45vw, 500px);
   height: clamp(250px, 45vw, 500px);
-  background: radial-gradient(circle, rgba(0,200,255,0.12) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(61,242,224,0.12) 0%, transparent 70%);
   bottom: -160px; left: -120px;
 }
 
@@ -207,13 +211,13 @@ body, * {
   background: radial-gradient(circle, rgba(0,170,255,0.25) 0%, rgba(0,170,255,0.1) 40%, transparent 70%);
   top: -180px; right: -80px;
   animation: orbFloat 14s ease-in-out infinite alternate;
-  box-shadow: 0 0 100px rgba(0, 170, 255, 0.15);
+  box-shadow: 0 0 100px rgba(61, 242, 224, 0.15);
 }
 
 .o2 {
   width: clamp(250px, 45vw, 500px);
   height: clamp(250px, 45vw, 500px);
-  background: radial-gradient(circle, rgba(0,200,255,0.2) 0%, rgba(0,200,255,0.08) 40%, transparent 70%);
+  background: radial-gradient(circle, rgba(61,242,224,0.2) 0%, rgba(61,242,224,0.08) 40%, transparent 70%);
   bottom: -160px; left: -120px;
   animation: orbFloat 18s ease-in-out infinite alternate-reverse;
   box-shadow: 0 0 80px rgba(0, 200, 255, 0.12);
@@ -237,11 +241,11 @@ body, * {
   background: linear-gradient(
     180deg,
     transparent 0%,
-    rgba(0, 170, 255, 0.08) 20%,
+    rgba(61, 242, 224, 0.08) 20%,
     rgba(0, 229, 255, 0.12) 35%,
     rgba(0, 255, 136, 0.1) 50%,
     rgba(255, 45, 120, 0.08) 65%,
-    rgba(0, 170, 255, 0.1) 80%,
+    rgba(61, 242, 224, 0.1) 80%,
     transparent 100%
   );
   filter: blur(60px);
@@ -258,7 +262,7 @@ body, * {
   background: linear-gradient(
     180deg,
     rgba(255, 45, 120, 0.1) 0%,
-    rgba(0, 170, 255, 0.12) 30%,
+    rgba(61, 242, 224, 0.12) 30%,
     rgba(0, 255, 136, 0.08) 50%,
     rgba(0, 229, 255, 0.1) 70%,
     transparent 100%
@@ -277,7 +281,7 @@ body, * {
     90deg,
     transparent 0%,
     rgba(0, 255, 136, 0.06) 30%,
-    rgba(0, 170, 255, 0.1) 50%,
+    rgba(61, 242, 224, 0.1) 50%,
     rgba(0, 255, 136, 0.06) 70%,
     transparent 100%
   );
@@ -356,8 +360,8 @@ body, * {
   position: absolute;
   inset: 0;
   background-image: 
-    linear-gradient(rgba(0, 170, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 170, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(rgba(61, 242, 224, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(61, 242, 224, 0.03) 1px, transparent 1px);
   background-size: 60px 60px;
   mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
   -webkit-mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
@@ -374,7 +378,7 @@ body, * {
 .glow-1 {
   width: clamp(300px, 50vw, 500px);
   height: clamp(300px, 50vw, 500px);
-  background: radial-gradient(circle, rgba(0, 170, 255, 0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(61, 242, 224, 0.08) 0%, transparent 70%);
   top: -150px;
   right: -100px;
   animation-delay: 0s;
@@ -383,7 +387,7 @@ body, * {
 .glow-2 {
   width: clamp(250px, 40vw, 400px);
   height: clamp(250px, 40vw, 400px);
-  background: radial-gradient(circle, rgba(0, 170, 255, 0.06) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(61, 242, 224, 0.06) 0%, transparent 70%);
   bottom: -100px;
   left: -80px;
   animation-delay: 4s;
@@ -444,8 +448,8 @@ body, * {
   gap: 2px;
   font-family: 'Share Tech Mono', monospace;
   font-size: 14px;
-  color: #00aaff;
-  text-shadow: 0 0 10px #00aaff, 0 0 20px #00aaff;
+  color: #3DF2E0;
+  text-shadow: 0 0 10px #3DF2E0, 0 0 20px #3DF2E0;
   animation: rain linear infinite;
   opacity: 0.4;
 }
@@ -454,7 +458,7 @@ body, * {
 .rain-col span:first-child { 
   color: #ffffff; 
   opacity: 1; 
-  text-shadow: 0 0 15px #00aaff, 0 0 30px #00aaff, 0 0 50px #00e5ff;
+  text-shadow: 0 0 15px #3DF2E0, 0 0 30px #3DF2E0, 0 0 50px #00e5ff;
 }
 
 .quantum-particles {
@@ -478,23 +482,23 @@ body, * {
   position: absolute;
   inset: -4px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(0, 170, 255, 0.2) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(61, 242, 224, 0.2) 0%, transparent 70%);
 }
 
 .q-particle.q-quantum {
-  background: radial-gradient(circle, rgba(0, 170, 255, 0.7) 0%, rgba(0, 170, 255, 0.3) 50%, transparent 70%);
-  border: 1px solid rgba(0, 170, 255, 0.4);
-  box-shadow: 0 0 20px rgba(0, 170, 255, 0.3), inset 0 0 12px rgba(0, 170, 255, 0.2);
+  background: radial-gradient(circle, rgba(61, 242, 224, 0.7) 0%, rgba(61, 242, 224, 0.3) 50%, transparent 70%);
+  border: 1px solid rgba(61, 242, 224, 0.4);
+  box-shadow: 0 0 20px rgba(61, 242, 224, 0.3), inset 0 0 12px rgba(61, 242, 224, 0.2);
 }
 
 .q-particle.q-data {
-  background: radial-gradient(circle, rgba(0, 229, 255, 0.85) 0%, rgba(0, 170, 255, 0.5) 50%, transparent 70%);
-  box-shadow: 0 0 25px rgba(0, 229, 255, 0.4), 0 0 50px rgba(0, 170, 255, 0.2);
+  background: radial-gradient(circle, rgba(0, 229, 255, 0.85) 0%, rgba(61, 242, 224, 0.5) 50%, transparent 70%);
+  box-shadow: 0 0 25px rgba(0, 229, 255, 0.4), 0 0 50px rgba(61, 242, 224, 0.2);
 }
 
 .q-particle.q-energy {
-  background: radial-gradient(circle, rgba(0, 170, 255, 0.8) 0%, rgba(100, 200, 255, 0.4) 60%, transparent 100%);
-  box-shadow: 0 0 20px rgba(0, 170, 255, 0.4);
+  background: radial-gradient(circle, rgba(61, 242, 224, 0.8) 0%, rgba(100, 200, 255, 0.4) 60%, transparent 100%);
+  box-shadow: 0 0 20px rgba(61, 242, 224, 0.4);
 }
 
 .q-particle.q-energy::after {
@@ -514,7 +518,7 @@ body, * {
 .q-orbit {
   position: absolute;
   inset: -6px;
-  border: 1px solid rgba(0, 170, 255, 0.3);
+  border: 1px solid rgba(61, 242, 224, 0.3);
   border-radius: 50%;
   animation: orbitSpin 4s linear infinite;
 }
@@ -526,10 +530,10 @@ body, * {
   left: 50%;
   width: 5px;
   height: 5px;
-  background: rgba(0, 170, 255, 0.6);
+  background: rgba(61, 242, 224, 0.6);
   border-radius: 50%;
   transform: translateX(-50%);
-  box-shadow: 0 0 10px rgba(0, 170, 255, 0.7);
+  box-shadow: 0 0 10px rgba(61, 242, 224, 0.7);
 }
 
 .q-core {
@@ -561,7 +565,7 @@ body, * {
   border-radius: inherit;
   background: linear-gradient(
     135deg,
-    rgba(0, 170, 255, 0.1) 0%,
+    rgba(61, 242, 224, 0.1) 0%,
     transparent 40%,
     transparent 60%,
     rgba(255, 45, 120, 0.08) 100%
@@ -581,7 +585,7 @@ body, * {
     var(--mouse-x, 50%),
     var(--mouse-y, 50%),
     transparent 0%,
-    rgba(0, 170, 255, 0.15) 30%,
+    rgba(61, 242, 224, 0.15) 30%,
     rgba(0, 255, 136, 0.1) 50%,
     rgba(255, 45, 120, 0.08) 70%,
     transparent 100%
@@ -640,7 +644,7 @@ body, * {
 .glass.holo:hover::before {
   background: linear-gradient(
     135deg,
-    rgba(0, 170, 255, 0.2) 0%,
+    rgba(61, 242, 224, 0.2) 0%,
     rgba(0, 255, 136, 0.15) 30%,
     rgba(255, 45, 120, 0.12) 60%,
     rgba(0, 229, 255, 0.18) 100%
@@ -818,11 +822,11 @@ body, * {
 .skeleton-time {
   background: linear-gradient(
     90deg,
-    rgba(0, 170, 255, 0.02) 0%,
-    rgba(0, 170, 255, 0.08) 25%,
+    rgba(61, 242, 224, 0.02) 0%,
+    rgba(61, 242, 224, 0.08) 25%,
     rgba(0, 255, 136, 0.05) 50%,
-    rgba(0, 170, 255, 0.08) 75%,
-    rgba(0, 170, 255, 0.02) 100%
+    rgba(61, 242, 224, 0.08) 75%,
+    rgba(61, 242, 224, 0.02) 100%
   );
   background-size: 300% 100%;
   animation: shimmerQuantum 2s ease-in-out infinite;
@@ -840,7 +844,7 @@ body, * {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(0, 170, 255, 0.15) 50%,
+    rgba(61, 242, 224, 0.15) 50%,
     transparent 100%
   );
   animation: shimmerGlow 1.5s ease-in-out infinite;
@@ -878,10 +882,10 @@ body, * {
 
 .quantum-pulse {
   position: absolute;
-  background: radial-gradient(circle, rgba(0, 170, 255, 0.6) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(61, 242, 224, 0.6) 0%, transparent 70%);
   border-radius: 50%;
   animation: quantumSkeletonPulse 2s ease-in-out infinite;
-  box-shadow: 0 0 10px rgba(0, 170, 255, 0.3);
+  box-shadow: 0 0 10px rgba(61, 242, 224, 0.3);
 }
 
 .quantum-pulse:nth-child(odd) {
@@ -910,7 +914,7 @@ body, * {
   align-items: center;
   gap: 1rem;
   padding: 0.9rem 1.3rem;
-  border-bottom: 1px solid rgba(0, 170, 255, 0.04);
+  border-bottom: 1px solid rgba(61, 242, 224, 0.04);
   animation: fadeUp 0.3s ease both;
   position: relative;
 }
@@ -920,7 +924,7 @@ body, * {
   height: 6px; 
   border-radius: 50%; 
   flex-shrink: 0;
-  box-shadow: 0 0 8px rgba(0, 170, 255, 0.4);
+  box-shadow: 0 0 8px rgba(61, 242, 224, 0.4);
 }
 
 .skeleton-avatar { 
@@ -935,7 +939,7 @@ body, * {
 .skeleton-avatar .avatar-ring {
   position: absolute;
   inset: -4px;
-  border: 1px solid rgba(0, 170, 255, 0.3);
+  border: 1px solid rgba(61, 242, 224, 0.3);
   border-radius: 50%;
   animation: avatarRingPulse 1.5s ease-in-out infinite;
 }
@@ -1022,13 +1026,13 @@ body, * {
   max-width: 680px;
   max-height: 90vh;
   border-radius: 24px;
-  border: 1px solid rgba(0, 170, 255, 0.25);
+  border: 1px solid rgba(61, 242, 224, 0.25);
   background: linear-gradient(135deg, rgba(0, 12, 28, 0.95) 0%, rgba(0, 8, 20, 0.98) 100%);
   box-shadow: 
-    0 0 80px rgba(0, 170, 255, 0.2),
-    0 0 160px rgba(0, 170, 255, 0.1),
-    0 0 240px rgba(0, 170, 255, 0.05),
-    inset 0 1px 0 rgba(0, 170, 255, 0.15);
+    0 0 80px rgba(61, 242, 224, 0.2),
+    0 0 160px rgba(61, 242, 224, 0.1),
+    0 0 240px rgba(61, 242, 224, 0.05),
+    inset 0 1px 0 rgba(61, 242, 224, 0.15);
   animation: modalSlideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   transition: box-shadow 0.3s ease;
   overflow-y: auto;
@@ -1036,10 +1040,10 @@ body, * {
 
 .about-qp-modal:hover {
   box-shadow: 
-    0 0 100px rgba(0, 170, 255, 0.3),
-    0 0 200px rgba(0, 170, 255, 0.15),
-    0 0 300px rgba(0, 170, 255, 0.08),
-    inset 0 1px 0 rgba(0, 170, 255, 0.2);
+    0 0 100px rgba(61, 242, 224, 0.3),
+    0 0 200px rgba(61, 242, 224, 0.15),
+    0 0 300px rgba(61, 242, 224, 0.08),
+    inset 0 1px 0 rgba(61, 242, 224, 0.2);
 }
 
 .about-qp-modal::before {
@@ -1051,7 +1055,7 @@ body, * {
   bottom: 0;
   border-radius: 24px;
   padding: 2px;
-  background: linear-gradient(45deg, transparent 0%, rgba(0, 170, 255, 0.5) 25%, rgba(0, 170, 255, 0.2) 50%, rgba(0, 170, 255, 0.5) 75%, transparent 100%);
+  background: linear-gradient(45deg, transparent 0%, rgba(61, 242, 224, 0.5) 25%, rgba(61, 242, 224, 0.2) 50%, rgba(61, 242, 224, 0.5) 75%, transparent 100%);
   background-size: 200% 200%;
   animation: borderGlow 3s ease-in-out infinite;
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
@@ -1123,7 +1127,7 @@ body, * {
   top: 120px;
   bottom: 60px;
   width: 4px;
-  background: rgba(0, 170, 255, 0.06);
+  background: rgba(61, 242, 224, 0.06);
   border-radius: 4px;
   z-index: 100;
   opacity: 0;
@@ -1143,15 +1147,15 @@ body, * {
   height: var(--scroll-thumb-height, 50px);
   top: var(--scroll-thumb-top-offset, 0);
   background: linear-gradient(180deg, 
-    rgba(0, 170, 255, 0.6) 0%,
+    rgba(61, 242, 224, 0.6) 0%,
     rgba(0, 255, 136, 0.9) 50%,
-    rgba(0, 170, 255, 0.6) 100%
+    rgba(61, 242, 224, 0.6) 100%
   );
   border-radius: 4px;
   cursor: grab;
   box-shadow: 
-    0 0 8px rgba(0, 170, 255, 0.8),
-    0 0 16px rgba(0, 170, 255, 0.4),
+    0 0 8px rgba(61, 242, 224, 0.8),
+    0 0 16px rgba(61, 242, 224, 0.4),
     inset 0 0 4px rgba(255, 255, 255, 0.3);
   transition: box-shadow 0.2s ease, transform 0.1s ease;
   animation: thumbGlow 2s ease-in-out infinite;
@@ -1159,8 +1163,8 @@ body, * {
 
 .scroll-thumb:hover {
   box-shadow: 
-    0 0 12px rgba(0, 170, 255, 1),
-    0 0 24px rgba(0, 170, 255, 0.6),
+    0 0 12px rgba(61, 242, 224, 1),
+    0 0 24px rgba(61, 242, 224, 0.6),
     0 0 36px rgba(0, 255, 136, 0.4),
     inset 0 0 6px rgba(255, 255, 255, 0.4);
   transform: scaleX(1.2);
@@ -1171,21 +1175,21 @@ body, * {
   animation: none;
   box-shadow: 
     0 0 16px rgba(0, 255, 136, 1),
-    0 0 32px rgba(0, 170, 255, 0.8),
+    0 0 32px rgba(61, 242, 224, 0.8),
     inset 0 0 8px rgba(255, 255, 255, 0.5);
 }
 
 @keyframes thumbGlow {
   0%, 100% {
     box-shadow: 
-      0 0 8px rgba(0, 170, 255, 0.6),
-      0 0 16px rgba(0, 170, 255, 0.3),
+      0 0 8px rgba(61, 242, 224, 0.6),
+      0 0 16px rgba(61, 242, 224, 0.3),
       inset 0 0 4px rgba(255, 255, 255, 0.3);
   }
   50% {
     box-shadow: 
-      0 0 12px rgba(0, 170, 255, 0.9),
-      0 0 24px rgba(0, 170, 255, 0.5),
+      0 0 12px rgba(61, 242, 224, 0.9),
+      0 0 24px rgba(61, 242, 224, 0.5),
       0 0 36px rgba(0, 255, 136, 0.3),
       inset 0 0 6px rgba(255, 255, 255, 0.4);
   }
@@ -1222,7 +1226,7 @@ body, * {
   position: absolute;
   width: 60px;
   height: 60px;
-  border: 1px solid rgba(0, 170, 255, 0.2);
+  border: 1px solid rgba(61, 242, 224, 0.2);
   border-radius: 50%;
   top: 50%;
   left: 0;
@@ -1233,12 +1237,12 @@ body, * {
 .about-logo-ring.ring-2 {
   width: 80px;
   height: 80px;
-  border-color: rgba(0, 170, 255, 0.1);
+  border-color: rgba(61, 242, 224, 0.1);
 }
 
 .about-qp-close {
-  background: rgba(0, 170, 255, 0.05);
-  border: 1px solid rgba(0, 170, 255, 0.2);
+  background: rgba(61, 242, 224, 0.05);
+  border: 1px solid rgba(61, 242, 224, 0.2);
   border-radius: 8px;
   color: var(--muted);
   cursor: pointer;
@@ -1250,7 +1254,7 @@ body, * {
 }
 
 .about-qp-close:hover {
-  background: rgba(0, 170, 255, 0.1);
+  background: rgba(61, 242, 224, 0.1);
   border-color: var(--accent);
   color: var(--accent);
   transform: rotate(90deg);
@@ -1295,7 +1299,7 @@ body, * {
   font-family: 'Cinzel', serif;
   font-weight: 700;
   color: var(--accent);
-  text-shadow: 0 0 10px rgba(0, 170, 255, 0.5);
+  text-shadow: 0 0 10px rgba(61, 242, 224, 0.5);
 }
 
 .desc-accent { color: var(--accent2); font-weight: 500; }
@@ -1309,24 +1313,24 @@ body, * {
 }
 
 .feature-card {
-  background: rgba(0, 170, 255, 0.03);
-  border: 1px solid rgba(0, 170, 255, 0.12);
+  background: rgba(61, 242, 224, 0.03);
+  border: 1px solid rgba(61, 242, 224, 0.12);
   border-radius: 12px;
   padding: 1.25rem 1rem;
   transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .feature-card:hover {
-  background: rgba(0, 170, 255, 0.08);
-  border-color: rgba(0, 170, 255, 0.3);
+  background: rgba(61, 242, 224, 0.08);
+  border-color: rgba(61, 242, 224, 0.3);
   transform: translateY(-5px);
-  box-shadow: 0 10px 40px rgba(0, 170, 255, 0.15);
+  box-shadow: 0 10px 40px rgba(61, 242, 224, 0.15);
 }
 
 .feature-icon {
   font-size: 1.8rem;
   margin-bottom: 0.75rem;
-  filter: drop-shadow(0 0 10px rgba(0, 170, 255, 0.5));
+  filter: drop-shadow(0 0 10px rgba(61, 242, 224, 0.5));
 }
 
 .feature-card h3 {
@@ -1399,8 +1403,8 @@ body, * {
   font-size: 0.72rem;
   letter-spacing: 0.1em;
   padding: 0.4rem 0.9rem;
-  background: linear-gradient(135deg, rgba(0, 170, 255, 0.15) 0%, rgba(0, 170, 255, 0.08) 100%);
-  border: 1px solid rgba(0, 170, 255, 0.3);
+  background: linear-gradient(135deg, rgba(61, 242, 224, 0.15) 0%, rgba(61, 242, 224, 0.08) 100%);
+  border: 1px solid rgba(61, 242, 224, 0.3);
   border-radius: 20px;
   color: var(--text);
   text-transform: uppercase;
@@ -1423,10 +1427,10 @@ body, * {
 }
 
 .tech-badge:hover {
-  background: linear-gradient(135deg, rgba(0, 170, 255, 0.25) 0%, rgba(0, 170, 255, 0.15) 100%);
-  box-shadow: 0 0 20px rgba(0, 170, 255, 0.3), 0 0 40px rgba(0, 170, 255, 0.1);
+  background: linear-gradient(135deg, rgba(61, 242, 224, 0.25) 0%, rgba(61, 242, 224, 0.15) 100%);
+  box-shadow: 0 0 20px rgba(61, 242, 224, 0.3), 0 0 40px rgba(61, 242, 224, 0.1);
   transform: translateY(-2px);
-  border-color: rgba(0, 170, 255, 0.5);
+  border-color: rgba(61, 242, 224, 0.5);
 }
 
 .about-version {
@@ -1457,8 +1461,8 @@ body, * {
   font-size: 0.6rem;
   letter-spacing: 0.1em;
   padding: 0.2rem 0.5rem;
-  background: rgba(0, 170, 255, 0.1);
-  border: 1px solid rgba(0, 170, 255, 0.3);
+  background: rgba(61, 242, 224, 0.1);
+  border: 1px solid rgba(61, 242, 224, 0.3);
   border-radius: 4px;
   color: var(--accent);
   animation: statusPulse 2s ease-in-out infinite;

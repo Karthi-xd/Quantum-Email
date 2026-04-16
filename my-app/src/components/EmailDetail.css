@@ -22,7 +22,7 @@
   max-height: 80vh;
   border-radius: 16px;
   border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow), 0 0 80px rgba(0, 170, 255, 0.15);
+  box-shadow: var(--glass-shadow), 0 0 80px rgba(61, 242, 224, 0.15);
   display: flex;
   flex-direction: column;
   animation: modalSlideIn 0.3s ease;

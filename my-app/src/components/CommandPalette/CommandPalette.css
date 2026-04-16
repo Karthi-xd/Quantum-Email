@@ -21,7 +21,7 @@
   max-width: 560px;
   border-radius: 14px;
   border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow), 0 0 60px rgba(0, 170, 255, 0.15);
+  box-shadow: var(--glass-shadow), 0 0 60px rgba(61, 242, 224, 0.15);
   display: flex;
   flex-direction: column;
   max-height: 60vh;
@@ -72,8 +72,8 @@
 }
 
 .command-esc {
-  background: rgba(0, 170, 255, 0.08);
-  border: 1px solid rgba(0, 170, 255, 0.15);
+  background: rgba(61, 242, 224, 0.08);
+  border: 1px solid rgba(61, 242, 224, 0.15);
   border-radius: 4px;
   padding: 0.2rem 0.5rem;
   font-family: 'Share Tech Mono', monospace;
@@ -119,7 +119,7 @@
 
 .command-item:hover,
 .command-item.selected {
-  background: rgba(0, 170, 255, 0.08);
+  background: rgba(61, 242, 224, 0.08);
 }
 
 .command-item:focus-visible {
@@ -128,7 +128,7 @@
 }
 
 .command-item.selected {
-  box-shadow: inset 0 0 0 1px rgba(0, 170, 255, 0.2);
+  box-shadow: inset 0 0 0 1px rgba(61, 242, 224, 0.2);
 }
 
 .command-item-icon {
@@ -145,8 +145,8 @@
 }
 
 .command-item-shortcut {
-  background: rgba(0, 170, 255, 0.08);
-  border: 1px solid rgba(0, 170, 255, 0.15);
+  background: rgba(61, 242, 224, 0.08);
+  border: 1px solid rgba(61, 242, 224, 0.15);
   border-radius: 4px;
   padding: 0.15rem 0.4rem;
   font-family: 'Share Tech Mono', monospace;
@@ -167,8 +167,8 @@
 }
 
 .command-footer kbd {
-  background: rgba(0, 170, 255, 0.08);
-  border: 1px solid rgba(0, 170, 255, 0.15);
+  background: rgba(61, 242, 224, 0.08);
+  border: 1px solid rgba(61, 242, 224, 0.15);
   border-radius: 3px;
   padding: 0.1rem 0.35rem;
   font-size: 0.65rem;

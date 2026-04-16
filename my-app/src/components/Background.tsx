@@ -21,7 +21,7 @@ export function Background() {
       ctx.fillStyle = '#010408';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      ctx.strokeStyle = 'rgba(0, 170, 255, 0.03)';
+      ctx.strokeStyle = 'rgba(61, 242, 224, 0.03)';
       ctx.lineWidth = 1;
       const gridSize = 80;
       for (let x = 0; x < canvas.width; x += gridSize) {
