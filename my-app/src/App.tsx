@@ -26,8 +26,12 @@ function EmailApp() {
   useKeyboardShortcuts();
   const { preferences } = useEmailStore();
 
+  useEffect(() => {
+    document.documentElement.className = `theme-${preferences.theme} font-${preferences.fontSize}`;
+  }, [preferences.theme, preferences.fontSize]);
+
   return (
-    <div className={`app-wrap theme-${preferences.theme} font-${preferences.fontSize}`}>
+    <div className="app-wrap">
       <div className="app">
         <Sidebar />
         <EmailList />

@@ -1560,3 +1560,76 @@ body, * {
 .font-large .email-preview {
   font-size: 1rem;
 }
+
+/* Expanded Font Size Classes */
+.font-small {
+  font-size: 13px;
+}
+.font-small .nav-btn,
+.font-small .compose-btn,
+.font-small .email-row,
+.font-small .det-body p,
+.font-small .form-input,
+.font-small .btn-prime,
+.font-small .btn-ghost,
+.font-small .btn-danger,
+.font-small .pref-item-label,
+.font-small .pref-item-desc,
+.font-small .sec-item-label,
+.font-small .sec-item-desc,
+.font-small .account-email,
+.font-small .account-name {
+  font-size: 0.8rem;
+}
+.font-small .ep-title,
+.font-small .det-head h3 {
+  font-size: 0.75rem;
+}
+
+.font-medium {
+  font-size: 15px;
+}
+.font-medium .nav-btn,
+.font-medium .compose-btn,
+.font-medium .email-row,
+.font-medium .det-body p,
+.font-medium .form-input,
+.font-medium .btn-prime,
+.font-medium .btn-ghost,
+.font-medium .btn-danger,
+.font-medium .pref-item-label,
+.font-medium .pref-item-desc,
+.font-medium .sec-item-label,
+.font-medium .sec-item-desc,
+.font-medium .account-email,
+.font-medium .account-name {
+  font-size: 0.9rem;
+}
+.font-medium .ep-title,
+.font-medium .det-head h3 {
+  font-size: 0.85rem;
+}
+
+.font-large {
+  font-size: 17px;
+}
+.font-large .nav-btn,
+.font-large .compose-btn,
+.font-large .email-row,
+.font-large .det-body p,
+.font-large .form-input,
+.font-large .btn-prime,
+.font-large .btn-ghost,
+.font-large .btn-danger,
+.font-large .pref-item-label,
+.font-large .pref-item-desc,
+.font-large .sec-item-label,
+.font-large .sec-item-desc,
+.font-large .account-email,
+.font-large .account-name {
+  font-size: 1rem;
+}
+.font-large .ep-title,
+.font-large .det-head h3 {
+  font-size: 0.95rem;
+}
