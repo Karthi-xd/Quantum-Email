@@ -14,7 +14,6 @@ export function EmailList() {
     setSearchQuery,
     activeAccount,
     setShowAccounts,
-    setShowPreferences,
     setShowSecurity,
     accounts,
     switchAccount,
@@ -215,18 +214,10 @@ export function EmailList() {
                 </button>
                 <button
                   className="dropdown-action settings"
-                  onClick={() => { setShowPreferences(true); setShowDropdown(false); }}
-                  role="menuitem"
-                >
-                  <span className="action-icon">◎</span>
-                  <span>Preferences</span>
-                </button>
-                <button
-                  className="dropdown-action security"
                   onClick={() => { setShowSecurity(true); setShowDropdown(false); }}
                   role="menuitem"
                 >
-                  <span className="action-icon">◉</span>
+                  <span className="action-icon">◎</span>
                   <span>Security</span>
                 </button>
               </div>

@@ -17,18 +17,16 @@ import {
   CommandPalette,
   AboutQP,
   CustomCursor,
-  Preferences,
   Security,
 } from './components';
 import type { Account } from './types';
 
 function EmailApp() {
   useKeyboardShortcuts();
-  const { preferences } = useEmailStore();
 
   useEffect(() => {
-    document.documentElement.className = `theme-${preferences.theme} font-${preferences.fontSize}`;
-  }, [preferences.theme, preferences.fontSize]);
+    document.documentElement.className = 'theme-quantum font-medium';
+  }, []);
 
   return (
     <div className="app-wrap">
@@ -45,7 +43,6 @@ function EmailApp() {
       <ShortcutsModal />
       <CommandPalette />
       <AboutQP />
-      <Preferences />
       <Security />
     </div>
   );
