@@ -178,7 +178,7 @@
 }
 
 .efrom {
-  font-size: 0.86rem;
+  font-size: 0.9rem;
   font-weight: 500;
   min-width: 80px;
   max-width: 145px;
@@ -190,14 +190,14 @@
 }
 .emid {
   flex: 1;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
   min-width: 0;
 }
 .esubj { color: rgba(200,232,255,0.8); font-weight: 400; }
-.eprev { color: var(--muted); font-size: 0.8rem; }
+.eprev { color: var(--muted); font-size: 0.85rem; }
 
 .etime {
   font-family: 'Share Tech Mono', monospace;
