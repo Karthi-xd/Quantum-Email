@@ -4,6 +4,7 @@ export { QuantumParticles } from './QuantumParticles';
 export { CustomCursor } from './CursorEffects';
 export { Landing } from './Landing';
 export { Login } from './Login';
+export { Register } from './Register';
 export { Sidebar } from './Sidebar';
 export { EmailList } from './EmailList';
 export { EmailDetail } from './EmailDetail';

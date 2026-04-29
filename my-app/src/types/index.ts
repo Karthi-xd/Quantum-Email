@@ -38,4 +38,4 @@ export const NAV_ITEMS: EmailCategory[] = [
   { key: 'spam', label: 'Spam', icon: '!' },
 ];
 
-export type Page = 'landing' | 'login' | 'app';
+export type Page = 'landing' | 'login' | 'register' | 'app';

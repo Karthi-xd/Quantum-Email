@@ -6,6 +6,7 @@ import {
   Background,
   Landing,
   Login,
+  Register,
   Sidebar,
   EmailList,
   EmailDetail,
@@ -16,10 +17,11 @@ import {
   ShortcutsModal,
   CommandPalette,
   AboutQP,
-  CustomCursor,
   Security,
 } from './components';
 import type { Account } from './types';
+
+const API_BASE = 'http://localhost:8000';
 
 function EmailApp() {
   useKeyboardShortcuts();
@@ -51,20 +53,39 @@ function EmailApp() {
 export default function Root() {
   const { page, setPage, addAccount } = useEmailStore();
 
-  const handleLogin = (email: string, password: string) => {
-    const displayName = email.split('@')[0];
-    const newAccount: Account = {
-      id: crypto.randomUUID(),
-      email,
-      displayName,
-      password,
-      smtpHost: 'smtp.gmail.com',
-      smtpPort: 587,
-      imapHost: 'imap.gmail.com',
-      imapPort: 993,
-    };
-    addAccount(newAccount);
-    setPage('app');
+  const handleLogin = async (email: string, password: string) => {
+    try {
+      const response = await fetch(`${API_BASE}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Invalid credentials');
+      }
+
+      const data = await response.json();
+      const displayName = email.split('@')[0];
+      const newAccount: Account = {
+        id: crypto.randomUUID(),
+        email,
+        displayName,
+        password,
+        smtpHost: 'smtp.gmail.com',
+        smtpPort: 587,
+        imapHost: 'imap.gmail.com',
+        imapPort: 993,
+      };
+      addAccount(newAccount);
+      setPage('app');
+    } catch {
+      alert('Login failed. Check your credentials or ensure the backend is running.');
+    }
+  };
+
+  const handleRegisterSuccess = () => {
+    setPage('login');
   };
 
   useEffect(() => {
@@ -84,7 +105,8 @@ export default function Root() {
     <>
       <CustomCursor />
       {page === 'landing' && <Landing onEnter={() => setPage('login')} />}
-      {page === 'login' && <Login onLogin={handleLogin} />}
+      {page === 'login' && <Login onLogin={handleLogin} onGoToRegister={() => setPage('register')} />}
+      {page === 'register' && <Register onRegisterSuccess={handleRegisterSuccess} onGoToLogin={() => setPage('login')} />}
       {page === 'app' && (
         <>
           <Background />

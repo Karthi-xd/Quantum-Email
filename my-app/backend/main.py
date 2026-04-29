@@ -9,6 +9,8 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import uuid
 from datetime import datetime
+import bcrypt
+from generate_pqc import generate_quantum_keys
 
 app = FastAPI(title="Q-Mail Backend")
 
@@ -35,6 +37,7 @@ def get_db():
 class UserCreate(BaseModel):
     email: str
     password: str
+    username: Optional[str] = None
 
 class EmailSend(BaseModel):
     from_email: str
@@ -61,8 +64,11 @@ def init_db():
     cur.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
+            username VARCHAR(255) NOT NULL,
             email VARCHAR(255) UNIQUE NOT NULL,
-            password VARCHAR(255) NOT NULL,
+            hashed_password VARCHAR(255) NOT NULL,
+            kyber_pub TEXT,
+            dili_pub TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
@@ -84,13 +90,20 @@ def init_db():
 # Routes
 @app.post("/register")
 def register(user: UserCreate):
+    username = user.username or user.email.split('@')[0]
+    hashed = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    
+    pqc_keys = generate_quantum_keys()
+    
     conn = get_db()
     cur = conn.cursor()
     try:
-        cur.execute("INSERT INTO users (email, password) VALUES (%s, %s)", 
-                    (user.email, user.password))
+        cur.execute(
+            "INSERT INTO users (username, email, hashed_password, kyber_pub, dili_pub) VALUES (%s, %s, %s, %s, %s)",
+            (username, user.email, hashed, pqc_keys['kyber_pub'], pqc_keys['dili_pub'])
+        )
         conn.commit()
-        return {"message": "User registered successfully"}
+        return {"message": "User registered successfully", "username": username}
     except psycopg2.IntegrityError:
         raise HTTPException(status_code=400, detail="Email already exists")
     finally:
@@ -101,13 +114,12 @@ def register(user: UserCreate):
 def login(user: UserCreate):
     conn = get_db()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM users WHERE email = %s AND password = %s",
-                (user.email, user.password))
+    cur.execute("SELECT * FROM users WHERE email = %s", (user.email,))
     result = cur.fetchone()
     cur.close()
     conn.close()
-    if result:
-        return {"message": "Login successful", "email": user.email}
+    if result and bcrypt.checkpw(user.password.encode('utf-8'), result['hashed_password'].encode('utf-8')):
+        return {"message": "Login successful", "email": user.email, "username": result['username']}
     raise HTTPException(status_code=401, detail="Invalid credentials")
 
 @app.post("/send-email")

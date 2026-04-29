@@ -4,9 +4,10 @@ import './Login.css';
 
 interface LoginProps {
   onLogin: (email: string, password: string) => void;
+  onGoToRegister: () => void;
 }
 
-export function Login({ onLogin }: LoginProps) {
+export function Login({ onLogin, onGoToRegister }: LoginProps) {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [authenticating, setAuthenticating] = useState(false);
@@ -108,9 +109,9 @@ export function Login({ onLogin }: LoginProps) {
             )}
           </button>
 
-          <div className="login-footer" aria-hidden="true">
-            <span className="pulse-dot sm" />
-            <span>256-qubit entangled connection</span>
+          <div className="login-footer" aria-hidden="false" style={{ cursor: 'pointer' }} onClick={onGoToRegister}>
+            <span>No quantum node yet?</span>
+            <span style={{ color: 'var(--accent)', marginLeft: '0.25rem', textDecoration: 'underline' }}>Forge Identity</span>
           </div>
         </form>
       </div>
