@@ -17,6 +17,7 @@ import {
   ShortcutsModal,
   CommandPalette,
   AboutQP,
+  CustomCursor,
   Security,
 } from './components';
 import type { Account } from './types';
