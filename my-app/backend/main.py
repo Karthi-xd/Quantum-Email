@@ -11,6 +11,9 @@ import uuid
 from datetime import datetime
 import bcrypt
 from generate_pqc import generate_quantum_keys
+from config import get_settings
+
+settings = get_settings()
 
 app = FastAPI(title="Q-Mail Backend")
 
@@ -24,13 +27,7 @@ app.add_middleware(
 
 # Database connection
 def get_db():
-    conn = psycopg2.connect(
-        host="localhost",
-        database="qmail",
-        user="postgres",
-        password="Karthi0303",
-        cursor_factory=RealDictCursor
-    )
+    conn = psycopg2.connect(settings.DATABASE_URL, cursor_factory=RealDictCursor)
     return conn
 
 # Models

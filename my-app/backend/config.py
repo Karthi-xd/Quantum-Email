@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings
 from functools import lru_cache
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = "postgresql://REDACTED:REDACTED@REDACTED/neondb?sslmode=require&channel_binding=require"
+    DATABASE_URL: str
     
     SMTP_HOST: str = "smtp.gmail.com"
     SMTP_PORT: int = 587

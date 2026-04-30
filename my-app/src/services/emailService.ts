@@ -1,7 +1,7 @@
 import { generateSharedKey, qkdEncrypt } from '../qkd';
 import type { Account, Email } from '../types';
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000';
 
 export interface SendEmailPayload {
   fromEmail: string;
@@ -38,7 +38,7 @@ export const emailService = {
     }
 
     const newEmail: Email = {
-      id: Date.now(),
+      id: crypto.randomUUID(),
       from: account.email,
       to: payload.toEmail,
       subject: payload.subject,

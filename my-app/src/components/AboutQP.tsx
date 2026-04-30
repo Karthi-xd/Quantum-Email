@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { useEmailStore } from '../store/emailStore';
 
 export function AboutQP() {
@@ -6,13 +6,13 @@ export function AboutQP() {
   const modalRef = useRef<HTMLDivElement>(null);
   const [isClosing, setIsClosing] = useState(false);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setIsClosing(true);
     setTimeout(() => {
       setShowAboutQP(false);
       setIsClosing(false);
     }, 400);
-  };
+  }, [setShowAboutQP]);
 
   useEffect(() => {
     if (showAboutQP) {

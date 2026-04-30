@@ -37,45 +37,46 @@ export function CustomCursor() {
     lastPos.current = { x: e.clientX, y: e.clientY };
   }, []);
 
-  const animate = useCallback(() => {
-    const container = trailRef.current;
-    if (container) {
-      container.innerHTML = '';
-
-      charsRef.current.forEach((c) => {
-        c.y += c.vy;
-        c.opacity -= 0.035;
-
-        if (c.opacity > 0) {
-          const el = document.createElement('div');
-          el.className = 'matrix-char';
-          el.style.cssText = `
-            left: ${c.x}px;
-            top: ${c.y}px;
-            opacity: ${c.opacity};
-            color: rgba(0, ${180 + c.opacity * 75}, 255, ${c.opacity});
-            text-shadow: 0 0 ${3 + c.opacity * 6}px rgba(0, 255, 136, ${c.opacity * 0.3});
-          `;
-          el.textContent = c.char;
-          container.appendChild(el);
-        }
-      });
-
-      charsRef.current = charsRef.current.filter((c) => c.opacity > 0);
-    }
-
-    rafRef.current = requestAnimationFrame(animate);
-  }, []);
-
   useEffect(() => {
     window.addEventListener('mousemove', handleMouseMove);
+
+    const animate = () => {
+      const container = trailRef.current;
+      if (container) {
+        container.innerHTML = '';
+
+        charsRef.current.forEach((c) => {
+          c.y += c.vy;
+          c.opacity -= 0.035;
+
+          if (c.opacity > 0) {
+            const el = document.createElement('div');
+            el.className = 'matrix-char';
+            el.style.cssText = `
+              left: ${c.x}px;
+              top: ${c.y}px;
+              opacity: ${c.opacity};
+              color: rgba(0, ${180 + c.opacity * 75}, 255, ${c.opacity});
+              text-shadow: 0 0 ${3 + c.opacity * 6}px rgba(0, 255, 136, ${c.opacity * 0.3});
+            `;
+            el.textContent = c.char;
+            container.appendChild(el);
+          }
+        });
+
+        charsRef.current = charsRef.current.filter((c) => c.opacity > 0);
+      }
+
+      rafRef.current = requestAnimationFrame(animate);
+    };
+
     rafRef.current = requestAnimationFrame(animate);
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       cancelAnimationFrame(rafRef.current);
     };
-  }, [handleMouseMove, animate]);
+  }, [handleMouseMove]);
 
   if (typeof window !== 'undefined' && 'ontouchstart' in window) {
     return null;

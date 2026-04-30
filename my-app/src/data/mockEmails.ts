@@ -3,7 +3,7 @@ import type { Email } from '../types';
 export const generateMockEmails = (): Record<string, Email[]> => {
   const inbox: Email[] = [
     {
-      id: 1,
+      id: 'mock-1',
       from: 'Nova Systems',
       subject: 'Quantum Key Exchange Initialized',
       preview: 'Your entangled key pair has been successfully generated and is ready for use.',
@@ -12,7 +12,7 @@ export const generateMockEmails = (): Record<string, Email[]> => {
       body: 'Your entangled key pair has been successfully generated and is ready for use. The quantum state has been preserved across all relay nodes. You may now establish secure communications using the new quantum channels.',
     },
     {
-      id: 2,
+      id: 'mock-2',
       from: 'Dr. Aria Chen',
       subject: 'Re: Superposition Protocol',
       preview: 'The wave function collapse was intentional. Let me explain the reasoning.',
@@ -22,7 +22,7 @@ export const generateMockEmails = (): Record<string, Email[]> => {
       attachment: true,
     },
     {
-      id: 3,
+      id: 'mock-3',
       from: 'Q-Net Alerts',
       subject: 'Decoherence Warning Detected',
       preview: 'Anomalous interference patterns observed in sector 7 of the relay network.',
@@ -32,7 +32,7 @@ export const generateMockEmails = (): Record<string, Email[]> => {
       encrypted: true,
     },
     {
-      id: 4,
+      id: 'mock-4',
       from: 'Entanglement Lab',
       subject: 'Your Qubit Status Report',
       preview: 'Weekly summary of your quantum communication activity and node health.',
@@ -45,7 +45,7 @@ export const generateMockEmails = (): Record<string, Email[]> => {
 
   const sent: Email[] = [
     {
-      id: 5,
+      id: 'mock-5',
       from: 'You',
       to: 'Quantum Council',
       subject: 'Encrypted Transmission #4471',
@@ -56,7 +56,7 @@ export const generateMockEmails = (): Record<string, Email[]> => {
       attachment: true,
     },
     {
-      id: 6,
+      id: 'mock-6',
       from: 'You',
       to: 'Node Operator',
       subject: 'Quantum Handshake Request',
@@ -69,7 +69,7 @@ export const generateMockEmails = (): Record<string, Email[]> => {
 
   const spam: Email[] = [
     {
-      id: 7,
+      id: 'mock-7',
       from: 'ClassicalNet Inc.',
       subject: 'You WON a free qubit!!!',
       preview: 'Congratulations! Your classical computer has been selected for an upgrade.',
@@ -78,7 +78,7 @@ export const generateMockEmails = (): Record<string, Email[]> => {
       body: 'Congratulations! Your classical computer has been selected for an upgrade to quantum capabilities.',
     },
     {
-      id: 8,
+      id: 'mock-8',
       from: 'Fake Quantum LLC',
       subject: 'Upgrade to 9000-qubit NOW',
       preview: 'Limited time offer! No entanglement required. Act fast.',
@@ -102,7 +102,7 @@ export const generateEmailsForAccount = (accountEmail: string): Record<string, E
   const personalizeEmail = (email: Email): Email => ({
     ...email,
     from: email.from === 'You' ? accountEmail : email.from,
-    id: email.id + Date.now(),
+    id: `mock-${email.id}-${Date.now()}`,
   });
 
   return {

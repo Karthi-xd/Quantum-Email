@@ -42,8 +42,8 @@ interface EmailStore {
   setPage: (page: Page) => void;
   setActiveCategory: (category: string) => void;
   setSelectedEmail: (email: Email | null) => void;
-  markAsRead: (emailId: number) => void;
-  deleteEmail: (emailId: number) => void;
+  markAsRead: (emailId: string) => void;
+  deleteEmail: (emailId: string) => void;
   setComposing: (composing: boolean) => void;
   setShowAccounts: (show: boolean) => void;
   setShowAccountSwitcher: (show: boolean) => void;
@@ -272,13 +272,20 @@ export const useEmailStore = create<EmailStore>()(
     }),
     {
       name: 'qmail-storage',
-      partialize: (state) => ({
-        accounts: state.accounts,
-        activeAccount: state.activeAccount,
-        emails: state.emails,
-        preferences: state.preferences,
-        security: state.security,
-      }),
+      partialize: (state) => {
+        const stripPassword = (account: Account) => {
+          const { password: _password, ...rest } = account;
+          void _password;
+          return rest;
+        };
+        return {
+          accounts: state.accounts.map(stripPassword),
+          activeAccount: state.activeAccount ? stripPassword(state.activeAccount) : null,
+          emails: state.emails,
+          preferences: state.preferences,
+          security: state.security,
+        };
+      },
     }
   )
 );

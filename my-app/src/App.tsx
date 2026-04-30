@@ -22,7 +22,7 @@ import {
 } from './components';
 import type { Account } from './types';
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000';
 
 function EmailApp() {
   useKeyboardShortcuts();
@@ -66,7 +66,7 @@ export default function Root() {
         throw new Error('Invalid credentials');
       }
 
-      const data = await response.json();
+      await response.json();
       const displayName = email.split('@')[0];
       const newAccount: Account = {
         id: crypto.randomUUID(),
