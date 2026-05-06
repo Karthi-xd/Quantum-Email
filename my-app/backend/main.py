@@ -2,8 +2,8 @@ from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, List
-import psycopg2
-from psycopg2.extras import RealDictCursor
+import psycopg
+from psycopg.rows import dict_row
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -27,7 +27,7 @@ app.add_middleware(
 
 # Database connection
 def get_db():
-    conn = psycopg2.connect(settings.DATABASE_URL, cursor_factory=RealDictCursor)
+    conn = psycopg.connect(settings.DATABASE_URL, row_factory=dict_row)
     return conn
 
 # Models
@@ -63,9 +63,9 @@ def init_db():
             id SERIAL PRIMARY KEY,
             username VARCHAR(255) NOT NULL,
             email VARCHAR(255) UNIQUE NOT NULL,
-            hashed_password VARCHAR(255) NOT NULL,
-            kyber_pub TEXT,
-            dili_pub TEXT,
+            password_hash TEXT NOT NULL,
+            kyber_public_key TEXT,
+            dilithium_public_key TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
@@ -88,6 +88,7 @@ def init_db():
 @app.post("/register")
 def register(user: UserCreate):
     username = user.username or user.email.split('@')[0]
+    email = user.email.strip().lower()
     hashed = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
     
     pqc_keys = generate_quantum_keys()
@@ -96,12 +97,12 @@ def register(user: UserCreate):
     cur = conn.cursor()
     try:
         cur.execute(
-            "INSERT INTO users (username, email, hashed_password, kyber_pub, dili_pub) VALUES (%s, %s, %s, %s, %s)",
-            (username, user.email, hashed, pqc_keys['kyber_pub'], pqc_keys['dili_pub'])
+            "INSERT INTO users (username, email, password_hash, kyber_public_key, dilithium_public_key) VALUES (%s, %s, %s, %s, %s)",
+            (username, email, hashed, pqc_keys['kyber_pub'], pqc_keys['dili_pub'])
         )
         conn.commit()
         return {"message": "User registered successfully", "username": username}
-    except psycopg2.IntegrityError:
+    except psycopg.errors.UniqueViolation:
         raise HTTPException(status_code=400, detail="Email already exists")
     finally:
         cur.close()
@@ -109,14 +110,20 @@ def register(user: UserCreate):
 
 @app.post("/login")
 def login(user: UserCreate):
+    email = user.email.strip().lower()
     conn = get_db()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM users WHERE email = %s", (user.email,))
+    cur.execute("SELECT * FROM users WHERE email = %s", (email,))
     result = cur.fetchone()
+    if not result:
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    password_match = bcrypt.checkpw(user.password.encode('utf-8'), result['password_hash'].encode('utf-8'))
     cur.close()
     conn.close()
-    if result and bcrypt.checkpw(user.password.encode('utf-8'), result['hashed_password'].encode('utf-8')):
-        return {"message": "Login successful", "email": user.email, "username": result['username']}
+    if password_match:
+        return {"message": "Login successful", "email": email, "username": result['username']}
     raise HTTPException(status_code=401, detail="Invalid credentials")
 
 @app.post("/send-email")
