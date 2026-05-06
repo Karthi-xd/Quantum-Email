@@ -1,12 +1,14 @@
 import sys
 sys.stdout.reconfigure(encoding='utf-8')
+import logging
+logger = logging.getLogger(__name__)
 
 from kyber_py.kyber import Kyber512
 from dilithium_py.dilithium import Dilithium2
 from base64 import b64encode
 
 def generate_quantum_keys():
-    print("Generating Post-Quantum Keys...")
+    logger.info("Generating Post-Quantum Keys...")
 
     # 1. KYBER (for Encrypting the Email)
     public_key_kyber, private_key_kyber = Kyber512.keygen()
