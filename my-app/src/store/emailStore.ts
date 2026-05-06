@@ -202,6 +202,11 @@ export const useEmailStore = create<EmailStore>()(
       },
 
       addAccount: (account) => {
+        const existing = get().accounts.find((a) => a.email === account.email);
+        if (existing) {
+          set({ activeAccount: existing });
+          return;
+        }
         const colorIndex = get().accounts.length % AVATAR_COLORS.length;
         const newAccount: Account = {
           ...account,
