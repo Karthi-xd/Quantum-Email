@@ -3,7 +3,7 @@ import { MatrixRain } from './MatrixRain';
 import './Login.css';
 
 interface LoginProps {
-  onLogin: (email: string, password: string) => void;
+  onLogin: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   onGoToRegister: () => void;
 }
 
@@ -18,7 +18,7 @@ export function Login({ onLogin, onGoToRegister }: LoginProps) {
     setError('');
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.email || !formData.password) {
@@ -27,9 +27,18 @@ export function Login({ onLogin, onGoToRegister }: LoginProps) {
     }
 
     setAuthenticating(true);
-    setTimeout(() => {
-      onLogin(formData.email, formData.password);
-    }, 1500);
+    setError('');
+
+    try {
+      const result = await onLogin(formData.email, formData.password);
+      if (!result.success) {
+        setError(result.error || 'Login failed');
+      }
+    } catch {
+      setError('An unexpected error occurred');
+    } finally {
+      setAuthenticating(false);
+    }
   };
 
   return (

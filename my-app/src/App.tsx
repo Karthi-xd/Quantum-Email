@@ -55,6 +55,7 @@ export default function Root() {
   const { page, setPage, addAccount } = useEmailStore();
 
   const handleLogin = async (email: string, password: string) => {
+    console.log('Attempting login for:', email);
     try {
       const response = await fetch(`${API_BASE}/login`, {
         method: 'POST',
@@ -62,14 +63,17 @@ export default function Root() {
         body: JSON.stringify({ email, password }),
       });
 
+      console.log('Login response status:', response.status);
+      const data = await response.json();
+      console.log('Login response data:', data);
+
       if (!response.ok) {
-        throw new Error('Invalid credentials');
+        return { success: false, error: data.detail || 'Invalid credentials' };
       }
 
-      await response.json();
       const displayName = email.split('@')[0];
       const newAccount: Account = {
-        id: crypto.randomUUID(),
+        id: '',
         email,
         displayName,
         password,
@@ -80,8 +84,10 @@ export default function Root() {
       };
       addAccount(newAccount);
       setPage('app');
-    } catch {
-      alert('Login failed. Check your credentials or ensure the backend is running.');
+      return { success: true };
+    } catch (err) {
+      console.error('Login error:', err);
+      return { success: false, error: 'Login failed. Check your credentials or ensure the backend is running.' };
     }
   };
 
