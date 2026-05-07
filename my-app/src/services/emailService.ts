@@ -3,36 +3,34 @@ import type { Account, Email } from '../types';
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000';
 
-export interface SendEmailPayload {
-  fromEmail: string;
-  toEmail: string;
-  subject: string;
-  body: string;
-  smtpHost: string;
-  smtpPort: number;
-}
-
 export const emailService = {
   async sendEmail(
     account: Account,
-    payload: Omit<SendEmailPayload, 'fromEmail' | 'smtpHost' | 'smtpPort'>
+    payload: { toEmail: string; subject: string; body: string }
   ): Promise<{ success: boolean; email?: Email; error?: string }> {
     const key = generateSharedKey(32);
     const encryptedBody = qkdEncrypt(payload.body, key);
 
+    const body = JSON.stringify({
+      from_email: account.email,
+      to_email: payload.toEmail,
+      subject: payload.subject,
+      body: payload.body,
+      smtp_host: account.smtpHost,
+      smtp_port: account.smtpPort,
+      smtp_password: account.password || '',
+    });
+
     try {
-      await fetch(`${API_BASE}/send-email`, {
+      const res = await fetch(`${API_BASE}/send-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          from_email: account.email,
-          to_email: payload.toEmail,
-          subject: payload.subject,
-          body: payload.body,
-          smtp_host: account.smtpHost,
-          smtp_port: account.smtpPort,
-        }),
+        body,
       });
+      if (!res.ok) {
+        const data = await res.json();
+        return { success: false, error: data.detail || 'Failed to send' };
+      }
     } catch {
       console.log('Email saved locally (server unavailable)');
     }
@@ -42,11 +40,9 @@ export const emailService = {
       from: account.email,
       to: payload.toEmail,
       subject: payload.subject,
-      preview: `[QKD Encrypted] ${encryptedBody.substring(0, 50)}...`,
+      preview: `[Sent] ${payload.body.substring(0, 80)}...`,
       time: 'Just now',
       read: true,
-      encrypted: true,
-      key: key,
       body: payload.body,
     };
 
@@ -68,6 +64,29 @@ export const emailService = {
       return { success: true, emails };
     } catch {
       return { success: false, error: 'Unable to connect to server' };
+    }
+  },
+
+  async fetchImapEmails(account: Account): Promise<{ success: boolean; emails?: Email[]; error?: string }> {
+    try {
+      const res = await fetch(`${API_BASE}/fetch-imap`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: account.email,
+          password: account.password,
+          imap_host: account.imapHost,
+          imap_port: account.imapPort,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        return { success: false, error: data.detail || 'IMAP fetch failed' };
+      }
+      const emails = await res.json();
+      return { success: true, emails };
+    } catch {
+      return { success: false, error: 'Unable to connect to IMAP server' };
     }
   },
 
