@@ -43,6 +43,7 @@ class EmailSend(BaseModel):
     body: str
     smtp_host: str = "smtp.gmail.com"
     smtp_port: int = 587
+    smtp_password: str = ""
 
 class Email(BaseModel):
     id: str
@@ -140,22 +141,22 @@ def send_email(email: EmailSend):
     conn.commit()
     
     # Send via SMTP
-    try:
-        server = smtplib.SMTP(email.smtp_host, email.smtp_port)
-        server.starttls()
-        # For Gmail, use app password. For other SMTP, configure accordingly
-        # server.login("your-email@gmail.com", "your-app-password")
-        
-        msg = MIMEMultipart()
-        msg['From'] = email.from_email
-        msg['To'] = email.to_email
-        msg['Subject'] = email.subject
-        msg.attach(MIMEText(email.body, 'plain'))
-        
-        # server.send_message(msg)
-        server.quit()
-    except Exception as e:
-        print(f"SMTP error (email saved to DB): {e}")
+    if email.smtp_password:
+        try:
+            server = smtplib.SMTP(email.smtp_host, email.smtp_port)
+            server.starttls()
+            server.login(email.from_email, email.smtp_password)
+
+            msg = MIMEMultipart()
+            msg['From'] = email.from_email
+            msg['To'] = email.to_email
+            msg['Subject'] = email.subject
+            msg.attach(MIMEText(email.body, 'plain'))
+
+            server.send_message(msg)
+            server.quit()
+        except Exception as e:
+            print(f"SMTP error (email saved to DB): {e}")
     
     cur.close()
     conn.close()
