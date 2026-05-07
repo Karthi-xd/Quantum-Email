@@ -5,6 +5,8 @@ from typing import Optional, List
 import psycopg
 from psycopg.rows import dict_row
 import smtplib
+import imaplib
+import email as email_lib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import uuid
@@ -187,6 +189,58 @@ def get_sent_emails(email: str):
     cur.close()
     conn.close()
     return emails
+
+class ImapFetch(BaseModel):
+    email: str
+    password: str
+    imap_host: str = "imap.gmail.com"
+    imap_port: int = 993
+
+@app.post("/fetch-imap")
+def fetch_imap(req: ImapFetch):
+    try:
+        mail = imaplib.IMAP4_SSL(req.imap_host, req.imap_port)
+        mail.login(req.email, req.password)
+        mail.select("INBOX")
+
+        _, data = mail.search(None, "ALL")
+        ids = data[0].split()
+        ids = ids[-20:]
+
+        emails = []
+        for mid in ids:
+            _, msg_data = mail.fetch(mid, "(RFC822)")
+            raw = msg_data[0][1]
+            msg = email_lib.message_from_bytes(raw)
+
+            subject = msg["Subject"] or "(No Subject)"
+            from_addr = msg["From"] or "unknown"
+            date = msg["Date"] or ""
+
+            body = ""
+            if msg.is_multipart():
+                for part in msg.walk():
+                    if part.get_content_type() == "text/plain":
+                        body = part.get_payload(decode=True).decode("utf-8", errors="ignore")
+                        break
+            else:
+                body = msg.get_payload(decode=True).decode("utf-8", errors="ignore")
+
+            emails.append({
+                "id": str(mid),
+                "from": from_addr,
+                "to": req.email,
+                "subject": subject,
+                "body": body,
+                "preview": body[:100],
+                "time": date,
+                "read": False,
+            })
+
+        mail.logout()
+        return emails
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"IMAP fetch failed: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn
