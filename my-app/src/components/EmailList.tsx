@@ -1,6 +1,7 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useEmailStore, getFilteredEmails } from '../store/emailStore';
 import { NAV_ITEMS } from '../types';
+import { emailService } from '../services/emailService';
 import type { Email, Account } from '../types';
 import './EmailList.css';
 
@@ -19,10 +20,12 @@ export function EmailList() {
     switchAccount,
     removeAccount,
     logout,
+    setEmails,
   } = useEmailStore();
 
   const [showDropdown, setShowDropdown] = useState(false);
   const [accountSearch, setAccountSearch] = useState('');
+  const [syncing, setSyncing] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const currentEmails = emails[activeCategory] || [];
   const filteredEmails = getFilteredEmails(currentEmails, searchQuery);
@@ -30,6 +33,21 @@ export function EmailList() {
     acc.email.toLowerCase().includes(accountSearch.toLowerCase()) ||
     acc.displayName.toLowerCase().includes(accountSearch.toLowerCase())
   );
+
+  const handleSync = useCallback(async () => {
+    if (!activeAccount || syncing) return;
+    setSyncing(true);
+    const result = await emailService.fetchImapEmails(activeAccount);
+    if (result.success && result.emails) {
+      setEmails({
+        inbox: result.emails,
+        all: result.emails,
+        sent: emails.sent || [],
+        spam: emails.spam || [],
+      });
+    }
+    setSyncing(false);
+  }, [activeAccount, syncing, setEmails, emails.sent, emails.spam]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -40,6 +58,13 @@ export function EmailList() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (!activeAccount) return;
+    handleSync();
+    const interval = setInterval(handleSync, 30000);
+    return () => clearInterval(interval);
+  }, [activeAccount, handleSync]);
 
   const handleSelectEmail = (email: Email) => {
     setSelectedEmail(email);
@@ -71,6 +96,9 @@ export function EmailList() {
             aria-label="Search emails"
           />
         </div>
+        <button className={`sync-btn ${syncing ? 'syncing' : ''}`} onClick={handleSync} aria-label="Sync emails" title="Sync emails">
+          <span className="sync-icon">⟳</span>
+        </button>
         <div className="account-dropdown-wrap" ref={dropdownRef}>
           <button
             className="account-trigger"
