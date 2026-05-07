@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Email, Account, Page } from '../types';
-import { generateMockEmails } from '../data/mockEmails';
 
 interface EmailStore {
   page: Page;
@@ -64,6 +63,7 @@ interface EmailStore {
   setComposeData: (data: Partial<{ to: string; subject: string; body: string }>) => void;
   clearCompose: () => void;
   addSentEmail: (email: Email) => void;
+  setEmails: (emails: Record<string, Email[]>) => void;
   setSearchQuery: (query: string) => void;
   logout: () => void;
   clearAllData: () => void;
@@ -83,7 +83,7 @@ export const useEmailStore = create<EmailStore>()(
       page: 'landing',
       activeCategory: 'inbox',
       selectedEmail: null,
-      emails: generateMockEmails(),
+      emails: {},
       composing: false,
       showAccounts: false,
       showAccountSwitcher: false,
@@ -250,9 +250,12 @@ export const useEmailStore = create<EmailStore>()(
         set((state) => ({
           emails: {
             ...state.emails,
-            sent: [email, ...state.emails.sent],
+            inbox: state.emails.inbox || [],
+            sent: [email, ...(state.emails.sent || [])],
           },
         })),
+
+      setEmails: (emails) => set({ emails }),
 
       setSearchQuery: (query) => set({ searchQuery: query }),
 
