@@ -121,6 +121,18 @@
 .det-body::-webkit-scrollbar { width: 3px; }
 .det-body::-webkit-scrollbar-thumb { background: rgba(255,0,85,0.1); }
 
+.qkd-badge {
+  padding: 0.4rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  background: rgba(0, 170, 255, 0.08);
+  border: 1px solid rgba(0, 170, 255, 0.2);
+  color: var(--accent);
+  text-align: center;
+}
+
 .det-actions {
   padding: 0.9rem 1.2rem;
   border-top: 1px solid var(--glass-border);

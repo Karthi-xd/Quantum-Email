@@ -60,18 +60,12 @@ export function EmailDetail() {
           <span>{selectedEmail.time}</span>
         </div>
         <div className="det-body">
-          {selectedEmail?.encrypted ? (
-            <p className="qkd-badge" role="status">🔐 QKD Encrypted (Key required for decryption)</p>
-          ) : null}
-          <p>{selectedEmail?.preview}</p>
-          <p>
-            Transmission encrypted with a 256-qubit entangled key pair. Quantum signature
-            verified. No decoherence detected in transit through the relay network.
-          </p>
-          <p>
-            All packets transmitted via superposition channels and collapsed only upon your
-            authorized observation.
-          </p>
+          {selectedEmail?.encrypted && (
+            <p className="qkd-badge" role="status">
+              {selectedEmail.verified ? '🔐 Quantum Encrypted & Signature Verified' : '🔐 Quantum Encrypted'}
+            </p>
+          )}
+          <p>{(selectedEmail?.body || selectedEmail?.preview)}</p>
         </div>
         <div className="det-actions">
           <button className="btn-prime sm" onClick={handleReply} aria-label="Reply to email">
