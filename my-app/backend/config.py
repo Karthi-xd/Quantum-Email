@@ -1,8 +1,10 @@
 from pydantic_settings import BaseSettings
 from functools import lru_cache
+import os
 
 class Settings(BaseSettings):
-    DATABASE_URL: str
+    DATABASE_URL: str = ""
+    DATABASE_PATH: str = ""
     
     SMTP_HOST: str = "smtp.gmail.com"
     SMTP_PORT: int = 587
@@ -17,4 +19,7 @@ class Settings(BaseSettings):
 
 @lru_cache()
 def get_settings():
-    return Settings()
+    s = Settings()
+    if not s.DATABASE_PATH:
+        s.DATABASE_PATH = os.path.join(os.path.dirname(__file__), "qmail.db")
+    return s
