@@ -77,6 +77,8 @@ export default function Root() {
         email,
         displayName,
         password,
+        kyberPub: data.kyber_pub || '',
+        diliPub: data.dili_pub || '',
         smtpHost: 'smtp.gmail.com',
         smtpPort: 587,
         imapHost: 'imap.gmail.com',
