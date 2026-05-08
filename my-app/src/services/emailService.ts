@@ -1,4 +1,3 @@
-import { generateSharedKey, qkdEncrypt } from '../qkd';
 import type { Account, Email } from '../types';
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000';
@@ -8,14 +7,12 @@ export const emailService = {
     account: Account,
     payload: { toEmail: string; subject: string; body: string }
   ): Promise<{ success: boolean; email?: Email; error?: string }> {
-    const key = generateSharedKey(32);
-    const encryptedBody = qkdEncrypt(payload.body, key);
-
     const body = JSON.stringify({
       from_email: account.email,
       to_email: payload.toEmail,
       subject: payload.subject,
       body: payload.body,
+      account_password: account.password || '',
       smtp_host: account.smtpHost,
       smtp_port: account.smtpPort,
       smtp_password: account.password || '',
@@ -44,23 +41,53 @@ export const emailService = {
       time: 'Just now',
       read: true,
       body: payload.body,
+      encrypted: false,
+      verified: false,
     };
 
     return { success: true, email: newEmail };
   },
 
-  async fetchEmails(account: Account): Promise<{ success: boolean; emails?: Record<string, Email[]>; error?: string }> {
+  async fetchEmails(account: Account): Promise<{ success: boolean; emails?: Email[]; error?: string }> {
     try {
-      const response = await fetch(`${API_BASE}/emails/${encodeURIComponent(account.email)}`, {
-        method: 'GET',
+      const response = await fetch(`${API_BASE}/emails`, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: account.email,
+          password: account.password || '',
+        }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch emails');
+        const data = await response.json();
+        return { success: false, error: data.detail || 'Failed to fetch emails' };
       }
 
-      const emails = await response.json();
+      const emails: Email[] = await response.json();
+      return { success: true, emails };
+    } catch {
+      return { success: false, error: 'Unable to connect to server' };
+    }
+  },
+
+  async fetchSentEmails(account: Account): Promise<{ success: boolean; emails?: Email[]; error?: string }> {
+    try {
+      const response = await fetch(`${API_BASE}/emails/sent`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: account.email,
+          password: account.password || '',
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        return { success: false, error: data.detail || 'Failed to fetch sent emails' };
+      }
+
+      const emails: Email[] = await response.json();
       return { success: true, emails };
     } catch {
       return { success: false, error: 'Unable to connect to server' };
@@ -90,29 +117,13 @@ export const emailService = {
     }
   },
 
-  async verifyAccount(account: Account): Promise<{ success: boolean; error?: string }> {
+  async fetchPublicKeys(email: string): Promise<{ kyber_pub: string; dili_pub: string } | null> {
     try {
-      const response = await fetch(`${API_BASE}/verify`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: account.email,
-          password: account.password,
-          smtp_host: account.smtpHost,
-          smtp_port: account.smtpPort,
-          imap_host: account.imapHost,
-          imap_port: account.imapPort,
-        }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.detail || 'Verification failed');
-      }
-
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error instanceof Error ? error.message : 'Verification failed' };
+      const res = await fetch(`${API_BASE}/public-keys/${encodeURIComponent(email)}`);
+      if (!res.ok) return null;
+      return await res.json();
+    } catch {
+      return null;
     }
   },
 };
