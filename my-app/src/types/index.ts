@@ -7,7 +7,7 @@ export interface Email {
   time: string;
   read: boolean;
   encrypted?: boolean;
-  key?: string;
+  verified?: boolean;
   body?: string;
   attachment?: boolean;
 }
@@ -21,6 +21,8 @@ export interface Account {
   imapHost: string;
   imapPort: number;
   password?: string;
+  kyberPub?: string;
+  diliPub?: string;
   avatar?: string;
   color?: string;
 }
