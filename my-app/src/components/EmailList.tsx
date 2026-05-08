@@ -37,15 +37,29 @@ export function EmailList() {
   const handleSync = useCallback(async () => {
     if (!activeAccount || syncing) return;
     setSyncing(true);
-    const result = await emailService.fetchImapEmails(activeAccount);
-    if (result.success && result.emails) {
-      setEmails({
-        inbox: result.emails,
-        all: result.emails,
-        sent: emails.sent || [],
-        spam: emails.spam || [],
-      });
+
+    const [inboxResult, sentResult, imapResult] = await Promise.all([
+      emailService.fetchEmails(activeAccount),
+      emailService.fetchSentEmails(activeAccount),
+      emailService.fetchImapEmails(activeAccount),
+    ]);
+
+    const inboxEmails = [...(inboxResult.emails || [])];
+    if (imapResult.success && imapResult.emails) {
+      const imapIds = new Set(imapResult.emails.map((e: Email) => e.id));
+      for (const imap of imapResult.emails) {
+        if (!inboxEmails.some((e: Email) => e.id === imap.id)) {
+          inboxEmails.push(imap);
+        }
+      }
     }
+
+    setEmails({
+      inbox: inboxEmails,
+      all: inboxEmails,
+      sent: [...(sentResult.emails || []), ...(emails.sent || [])],
+      spam: emails.spam || [],
+    });
     setSyncing(false);
   }, [activeAccount, syncing, setEmails, emails.sent, emails.spam]);
 
