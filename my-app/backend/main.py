@@ -1,9 +1,8 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, List
-import psycopg
-from psycopg.rows import dict_row
+import sqlite3
 import smtplib
 import imaplib
 import email as email_lib
@@ -12,7 +11,13 @@ from email.mime.multipart import MIMEMultipart
 import uuid
 from datetime import datetime
 import bcrypt
-from generate_pqc import generate_quantum_keys
+from generate_pqc import (
+    generate_quantum_keys,
+    encrypt_email_body,
+    decrypt_email_body,
+    encrypt_private_key,
+    decrypt_private_key,
+)
 from config import get_settings
 
 settings = get_settings()
@@ -27,12 +32,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Database connection
 def get_db():
-    conn = psycopg.connect(settings.DATABASE_URL, row_factory=dict_row)
+    conn = sqlite3.connect(settings.DATABASE_PATH)
+    conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA foreign_keys=ON")
     return conn
 
-# Models
 class UserCreate(BaseModel):
     email: str
     password: str
@@ -43,20 +49,39 @@ class EmailSend(BaseModel):
     to_email: str
     subject: str
     body: str
+    account_password: str = ""
     smtp_host: str = "smtp.gmail.com"
     smtp_port: int = 587
     smtp_password: str = ""
 
-class Email(BaseModel):
-    id: str
-    from_email: str
-    to_email: str
-    subject: str
-    body: str
-    timestamp: str
-    read: bool = False
+class EmailFetchRequest(BaseModel):
+    email: str
+    password: str
 
-# Initialize database tables
+class ImapFetch(BaseModel):
+    email: str
+    password: str
+    imap_host: str = "imap.gmail.com"
+    imap_port: int = 993
+
+def migrate_db():
+    conn = get_db()
+    cur = conn.cursor()
+    for col in ["kyber_private_key_enc", "dilithium_private_key_enc"]:
+        cur.execute(f"""
+            ALTER TABLE users ADD COLUMN IF NOT EXISTS {col} TEXT
+        """)
+    for col in ["encrypted_body", "encrypted_key", "signature"]:
+        cur.execute(f"""
+            ALTER TABLE emails ADD COLUMN IF NOT EXISTS {col} TEXT
+        """)
+    cur.execute("""
+        ALTER TABLE emails ADD COLUMN IF NOT EXISTS verified BOOLEAN DEFAULT FALSE
+    """)
+    conn.commit()
+    cur.close()
+    conn.close()
+
 @app.on_event("startup")
 def init_db():
     conn = get_db()
@@ -69,6 +94,8 @@ def init_db():
             password_hash TEXT NOT NULL,
             kyber_public_key TEXT,
             dilithium_public_key TEXT,
+            kyber_private_key_enc TEXT,
+            dilithium_private_key_enc TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
@@ -79,6 +106,10 @@ def init_db():
             to_email VARCHAR(255) NOT NULL,
             subject TEXT,
             body TEXT,
+            encrypted_body TEXT,
+            encrypted_key TEXT,
+            signature TEXT,
+            verified BOOLEAN DEFAULT FALSE,
             timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             read BOOLEAN DEFAULT FALSE
         )
@@ -86,25 +117,39 @@ def init_db():
     conn.commit()
     cur.close()
     conn.close()
+    migrate_db()
 
-# Routes
 @app.post("/register")
 def register(user: UserCreate):
     username = user.username or user.email.split('@')[0]
     email = user.email.strip().lower()
     hashed = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-    
+
     pqc_keys = generate_quantum_keys()
-    
+    kyber_priv_enc = encrypt_private_key(
+        pqc_keys['kyber_priv'].encode('utf-8'), hashed
+    )
+    dili_priv_enc = encrypt_private_key(
+        pqc_keys['dili_priv'].encode('utf-8'), hashed
+    )
+
     conn = get_db()
     cur = conn.cursor()
     try:
         cur.execute(
-            "INSERT INTO users (username, email, password_hash, kyber_public_key, dilithium_public_key) VALUES (%s, %s, %s, %s, %s)",
-            (username, email, hashed, pqc_keys['kyber_pub'], pqc_keys['dili_pub'])
+            """INSERT INTO users 
+               (username, email, password_hash, kyber_public_key, dilithium_public_key, kyber_private_key_enc, dilithium_private_key_enc) 
+               VALUES (%s, %s, %s, %s, %s, %s, %s)""",
+            (username, email, hashed, pqc_keys['kyber_pub'], pqc_keys['dili_pub'],
+             kyber_priv_enc, dili_priv_enc)
         )
         conn.commit()
-        return {"message": "User registered successfully", "username": username}
+        return {
+            "message": "User registered successfully",
+            "username": username,
+            "kyber_pub": pqc_keys['kyber_pub'],
+            "dili_pub": pqc_keys['dili_pub'],
+        }
     except psycopg.errors.UniqueViolation:
         raise HTTPException(status_code=400, detail="Email already exists")
     finally:
@@ -123,26 +168,99 @@ def login(user: UserCreate):
         conn.close()
         raise HTTPException(status_code=401, detail="Invalid credentials")
     password_match = bcrypt.checkpw(user.password.encode('utf-8'), result['password_hash'].encode('utf-8'))
+    if not password_match:
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    resp = {
+        "message": "Login successful",
+        "email": email,
+        "username": result['username'],
+        "kyber_pub": result.get('kyber_public_key') or "",
+        "dili_pub": result.get('dilithium_public_key') or "",
+    }
+
+    if not result.get('kyber_private_key_enc'):
+        pqc_keys = generate_quantum_keys()
+        hashed = result['password_hash']
+        kyber_priv_enc = encrypt_private_key(
+            pqc_keys['kyber_priv'].encode('utf-8'), hashed
+        )
+        dili_priv_enc = encrypt_private_key(
+            pqc_keys['dili_priv'].encode('utf-8'), hashed
+        )
+        cur.execute(
+            """UPDATE users SET 
+               kyber_public_key=%s, dilithium_public_key=%s,
+               kyber_private_key_enc=%s, dilithium_private_key_enc=%s
+               WHERE email=%s""",
+            (pqc_keys['kyber_pub'], pqc_keys['dili_pub'],
+             kyber_priv_enc, dili_priv_enc, email)
+        )
+        conn.commit()
+        resp['kyber_pub'] = pqc_keys['kyber_pub']
+        resp['dili_pub'] = pqc_keys['dili_pub']
+
     cur.close()
     conn.close()
-    if password_match:
-        return {"message": "Login successful", "email": email, "username": result['username']}
-    raise HTTPException(status_code=401, detail="Invalid credentials")
+    return resp
 
 @app.post("/send-email")
 def send_email(email: EmailSend):
     conn = get_db()
     cur = conn.cursor()
-    
-    # Save to database
+
     email_id = str(uuid.uuid4())
-    cur.execute(
-        "INSERT INTO emails (id, from_email, to_email, subject, body) VALUES (%s, %s, %s, %s, %s)",
-        (email_id, email.from_email, email.to_email, email.subject, email.body)
-    )
+
+    if email.account_password:
+        cur.execute("SELECT * FROM users WHERE email = %s", (email.from_email,))
+        sender = cur.fetchone()
+        cur.execute("SELECT * FROM users WHERE email = %s", (email.to_email,))
+        recipient = cur.fetchone()
+
+        if sender and recipient and recipient.get('kyber_public_key'):
+            try:
+                sender_hash = sender['password_hash']
+                kyber_priv_bytes = decrypt_private_key(
+                    sender['kyber_private_key_enc'], sender_hash
+                )
+                dili_priv_bytes = decrypt_private_key(
+                    sender['dilithium_private_key_enc'], sender_hash
+                )
+
+                result = encrypt_email_body(
+                    email.body,
+                    recipient['kyber_public_key'],
+                    dili_priv_bytes.decode('utf-8'),
+                )
+
+                cur.execute(
+                    """INSERT INTO emails 
+                       (id, from_email, to_email, subject, encrypted_body, encrypted_key, signature)
+                       VALUES (%s, %s, %s, %s, %s, %s, %s)""",
+                    (email_id, email.from_email, email.to_email, email.subject,
+                     result['encrypted_body'], result['encrypted_key'], result['signature'])
+                )
+            except Exception as e:
+                print(f"PQC encryption error (saving plaintext fallback): {e}")
+                cur.execute(
+                    "INSERT INTO emails (id, from_email, to_email, subject, body) VALUES (%s, %s, %s, %s, %s)",
+                    (email_id, email.from_email, email.to_email, email.subject, email.body)
+                )
+        else:
+            cur.execute(
+                "INSERT INTO emails (id, from_email, to_email, subject, body) VALUES (%s, %s, %s, %s, %s)",
+                (email_id, email.from_email, email.to_email, email.subject, email.body)
+            )
+    else:
+        cur.execute(
+            "INSERT INTO emails (id, from_email, to_email, subject, body) VALUES (%s, %s, %s, %s, %s)",
+            (email_id, email.from_email, email.to_email, email.subject, email.body)
+        )
+
     conn.commit()
-    
-    # Send via SMTP
+
     if email.smtp_password:
         try:
             server = smtplib.SMTP(email.smtp_host, email.smtp_port)
@@ -159,42 +277,174 @@ def send_email(email: EmailSend):
             server.quit()
         except Exception as e:
             print(f"SMTP error (email saved to DB): {e}")
-    
+
     cur.close()
     conn.close()
     return {"message": "Email sent", "id": email_id}
 
-@app.get("/emails/{email}")
-def get_emails(email: str):
+@app.post("/emails")
+def get_emails(req: EmailFetchRequest):
+    email = req.email.strip().lower()
     conn = get_db()
     cur = conn.cursor()
     cur.execute(
         "SELECT * FROM emails WHERE to_email = %s ORDER BY timestamp DESC",
         (email,)
     )
-    emails = cur.fetchall()
+    rows = cur.fetchall()
+
+    cur.execute("SELECT * FROM users WHERE email = %s", (email,))
+    user = cur.fetchone()
+
+    result = []
+    for row in rows:
+        email_data = {
+            "id": row['id'],
+            "from": row['from_email'],
+            "to": row['to_email'],
+            "subject": row['subject'],
+            "body": row['body'] or "",
+            "preview": "",
+            "time": row['timestamp'].isoformat() if row['timestamp'] else "",
+            "read": row['read'],
+            "encrypted": False,
+            "verified": False,
+        }
+
+        if row.get('encrypted_body') and row.get('encrypted_key') and row.get('signature'):
+            email_data["encrypted"] = True
+            if user and user.get('kyber_private_key_enc') and req.password:
+                try:
+                    sender_row = None
+                    cur2 = conn.cursor()
+                    cur2.execute("SELECT * FROM users WHERE email = %s", (row['from_email'],))
+                    sender_row = cur2.fetchone()
+                    cur2.close()
+
+                    sender_dili_pub = sender_row['dilithium_public_key'] if sender_row else ""
+
+                    password_hash = user['password_hash']
+                    kyber_priv_bytes = decrypt_private_key(
+                        user['kyber_private_key_enc'], password_hash
+                    )
+
+                    decrypted = decrypt_email_body(
+                        row['encrypted_body'],
+                        row['encrypted_key'],
+                        row['signature'],
+                        kyber_priv_bytes.decode('utf-8'),
+                        sender_dili_pub,
+                    )
+                    email_data["body"] = decrypted["body"]
+                    email_data["verified"] = decrypted["verified"]
+                    email_data["preview"] = decrypted["body"][:100]
+                except Exception as e:
+                    email_data["body"] = "[Unable to decrypt - invalid key or corrupted data]"
+                    email_data["preview"] = "[Encrypted]"
+                    email_data["verified"] = False
+            else:
+                email_data["body"] = "[Encrypted - provide password to decrypt]"
+                email_data["preview"] = "[Encrypted]"
+        else:
+            email_data["preview"] = (row['body'] or "")[:100]
+
+        result.append(email_data)
+
     cur.close()
     conn.close()
-    return emails
+    return result
 
-@app.get("/emails/{email}/sent")
-def get_sent_emails(email: str):
+@app.post("/emails/sent")
+def get_sent_emails(req: EmailFetchRequest):
+    email = req.email.strip().lower()
     conn = get_db()
     cur = conn.cursor()
     cur.execute(
         "SELECT * FROM emails WHERE from_email = %s ORDER BY timestamp DESC",
         (email,)
     )
-    emails = cur.fetchall()
+    rows = cur.fetchall()
+
+    cur.execute("SELECT * FROM users WHERE email = %s", (email,))
+    user = cur.fetchone()
+
+    result = []
+    for row in rows:
+        email_data = {
+            "id": row['id'],
+            "from": row['from_email'],
+            "to": row['to_email'],
+            "subject": row['subject'],
+            "body": "",
+            "preview": "",
+            "time": row['timestamp'].isoformat() if row['timestamp'] else "",
+            "read": row['read'],
+            "encrypted": False,
+            "verified": False,
+        }
+
+        if row.get('encrypted_body') and row.get('encrypted_key') and row.get('signature'):
+            email_data["encrypted"] = True
+            if user and user.get('kyber_private_key_enc') and req.password:
+                try:
+                    sender_row = None
+                    cur2 = conn.cursor()
+                    cur2.execute("SELECT * FROM users WHERE email = %s", (row['to_email'],))
+                    sender_row = cur2.fetchone()
+                    cur2.close()
+
+                    sender_dili_pub = sender_row['dilithium_public_key'] if sender_row else ""
+
+                    password_hash = user['password_hash']
+                    kyber_priv_bytes = decrypt_private_key(
+                        user['kyber_private_key_enc'], password_hash
+                    )
+
+                    decrypted = decrypt_email_body(
+                        row['encrypted_body'],
+                        row['encrypted_key'],
+                        row['signature'],
+                        kyber_priv_bytes.decode('utf-8'),
+                        sender_dili_pub,
+                    )
+                    email_data["body"] = decrypted["body"]
+                    email_data["verified"] = decrypted["verified"]
+                    email_data["preview"] = decrypted["body"][:100]
+                except Exception:
+                    email_data["body"] = "[Unable to decrypt]"
+                    email_data["preview"] = "[Encrypted]"
+                    email_data["verified"] = False
+            else:
+                email_data["body"] = "[Encrypted]"
+                email_data["preview"] = "[Encrypted]"
+        else:
+            email_data["body"] = row['body'] or ""
+            email_data["preview"] = (row['body'] or "")[:100]
+
+        result.append(email_data)
+
     cur.close()
     conn.close()
-    return emails
+    return result
 
-class ImapFetch(BaseModel):
-    email: str
-    password: str
-    imap_host: str = "imap.gmail.com"
-    imap_port: int = 993
+@app.get("/public-keys/{email}")
+def get_public_keys(email: str):
+    email = email.strip().lower()
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT kyber_public_key, dilithium_public_key FROM users WHERE email = %s",
+        (email,)
+    )
+    result = cur.fetchone()
+    cur.close()
+    conn.close()
+    if not result:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {
+        "kyber_pub": result['kyber_public_key'],
+        "dili_pub": result['dilithium_public_key'],
+    }
 
 @app.post("/fetch-imap")
 def fetch_imap(req: ImapFetch):
@@ -235,6 +485,8 @@ def fetch_imap(req: ImapFetch):
                 "preview": body[:100],
                 "time": date,
                 "read": False,
+                "encrypted": False,
+                "verified": False,
             })
 
         mail.logout()
