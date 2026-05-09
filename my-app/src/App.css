@@ -27,15 +27,16 @@ body {
   overflow: hidden;
 }
 
-body, * {
+* {
   cursor: none !important;
 }
 
 @media (hover: none) and (pointer: coarse) {
-  body, * {
+  * {
     cursor: auto !important;
   }
 }
+
 
 *:focus-visible {
   outline: 2px solid var(--accent);

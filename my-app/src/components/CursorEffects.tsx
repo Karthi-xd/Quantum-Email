@@ -84,8 +84,8 @@ export function CustomCursor() {
 
   return (
     <>
-      <div ref={trailRef} className="cursor-trail" />
       <div ref={cursorRef} className="cursor" />
+      <div ref={trailRef} className="cursor-trail" />
     </>
   );
 }

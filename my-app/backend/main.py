@@ -10,6 +10,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import uuid
 from datetime import datetime
+from contextlib import asynccontextmanager
 import bcrypt
 from generate_pqc import (
     generate_quantum_keys,
@@ -22,7 +23,12 @@ from config import get_settings
 
 settings = get_settings()
 
-app = FastAPI(title="Q-Mail Backend")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()
+    yield
+
+app = FastAPI(title="Q-Mail Backend", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -64,31 +70,31 @@ class ImapFetch(BaseModel):
     imap_host: str = "imap.gmail.com"
     imap_port: int = 993
 
+def column_exists(cur, table, col):
+    cur.execute(f"PRAGMA table_info({table})")
+    return any(row[1] == col for row in cur.fetchall())
+
 def migrate_db():
     conn = get_db()
     cur = conn.cursor()
     for col in ["kyber_private_key_enc", "dilithium_private_key_enc"]:
-        cur.execute(f"""
-            ALTER TABLE users ADD COLUMN IF NOT EXISTS {col} TEXT
-        """)
+        if not column_exists(cur, "users", col):
+            cur.execute(f"ALTER TABLE users ADD COLUMN {col} TEXT")
     for col in ["encrypted_body", "encrypted_key", "signature"]:
-        cur.execute(f"""
-            ALTER TABLE emails ADD COLUMN IF NOT EXISTS {col} TEXT
-        """)
-    cur.execute("""
-        ALTER TABLE emails ADD COLUMN IF NOT EXISTS verified BOOLEAN DEFAULT FALSE
-    """)
+        if not column_exists(cur, "emails", col):
+            cur.execute(f"ALTER TABLE emails ADD COLUMN {col} TEXT")
+    if not column_exists(cur, "emails", "verified"):
+        cur.execute("ALTER TABLE emails ADD COLUMN verified BOOLEAN DEFAULT FALSE")
     conn.commit()
     cur.close()
     conn.close()
 
-@app.on_event("startup")
 def init_db():
     conn = get_db()
     cur = conn.cursor()
     cur.execute("""
         CREATE TABLE IF NOT EXISTS users (
-            id SERIAL PRIMARY KEY,
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
             username VARCHAR(255) NOT NULL,
             email VARCHAR(255) UNIQUE NOT NULL,
             password_hash TEXT NOT NULL,
@@ -139,7 +145,7 @@ def register(user: UserCreate):
         cur.execute(
             """INSERT INTO users 
                (username, email, password_hash, kyber_public_key, dilithium_public_key, kyber_private_key_enc, dilithium_private_key_enc) 
-               VALUES (%s, %s, %s, %s, %s, %s, %s)""",
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
             (username, email, hashed, pqc_keys['kyber_pub'], pqc_keys['dili_pub'],
              kyber_priv_enc, dili_priv_enc)
         )
@@ -150,7 +156,7 @@ def register(user: UserCreate):
             "kyber_pub": pqc_keys['kyber_pub'],
             "dili_pub": pqc_keys['dili_pub'],
         }
-    except psycopg.errors.UniqueViolation:
+    except sqlite3.IntegrityError:
         raise HTTPException(status_code=400, detail="Email already exists")
     finally:
         cur.close()
@@ -161,17 +167,19 @@ def login(user: UserCreate):
     email = user.email.strip().lower()
     conn = get_db()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM users WHERE email = %s", (email,))
-    result = cur.fetchone()
-    if not result:
+    cur.execute("SELECT * FROM users WHERE email = ?", (email,))
+    row = cur.fetchone()
+    if not row:
         cur.close()
         conn.close()
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    password_match = bcrypt.checkpw(user.password.encode('utf-8'), result['password_hash'].encode('utf-8'))
+    password_match = bcrypt.checkpw(user.password.encode('utf-8'), row['password_hash'].encode('utf-8'))
     if not password_match:
         cur.close()
         conn.close()
         raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    result = dict(row)
 
     resp = {
         "message": "Login successful",
@@ -192,9 +200,9 @@ def login(user: UserCreate):
         )
         cur.execute(
             """UPDATE users SET 
-               kyber_public_key=%s, dilithium_public_key=%s,
-               kyber_private_key_enc=%s, dilithium_private_key_enc=%s
-               WHERE email=%s""",
+               kyber_public_key=?, dilithium_public_key=?,
+               kyber_private_key_enc=?, dilithium_private_key_enc=?
+               WHERE email=?""",
             (pqc_keys['kyber_pub'], pqc_keys['dili_pub'],
              kyber_priv_enc, dili_priv_enc, email)
         )
@@ -214,10 +222,12 @@ def send_email(email: EmailSend):
     email_id = str(uuid.uuid4())
 
     if email.account_password:
-        cur.execute("SELECT * FROM users WHERE email = %s", (email.from_email,))
-        sender = cur.fetchone()
-        cur.execute("SELECT * FROM users WHERE email = %s", (email.to_email,))
-        recipient = cur.fetchone()
+        cur.execute("SELECT * FROM users WHERE email = ?", (email.from_email,))
+        sender_row = cur.fetchone()
+        cur.execute("SELECT * FROM users WHERE email = ?", (email.to_email,))
+        recipient_row = cur.fetchone()
+        sender = dict(sender_row) if sender_row else None
+        recipient = dict(recipient_row) if recipient_row else None
 
         if sender and recipient and recipient.get('kyber_public_key'):
             try:
@@ -238,24 +248,24 @@ def send_email(email: EmailSend):
                 cur.execute(
                     """INSERT INTO emails 
                        (id, from_email, to_email, subject, encrypted_body, encrypted_key, signature)
-                       VALUES (%s, %s, %s, %s, %s, %s, %s)""",
+                       VALUES (?, ?, ?, ?, ?, ?, ?)""",
                     (email_id, email.from_email, email.to_email, email.subject,
                      result['encrypted_body'], result['encrypted_key'], result['signature'])
                 )
             except Exception as e:
                 print(f"PQC encryption error (saving plaintext fallback): {e}")
                 cur.execute(
-                    "INSERT INTO emails (id, from_email, to_email, subject, body) VALUES (%s, %s, %s, %s, %s)",
+                    "INSERT INTO emails (id, from_email, to_email, subject, body) VALUES (?, ?, ?, ?, ?)",
                     (email_id, email.from_email, email.to_email, email.subject, email.body)
                 )
         else:
             cur.execute(
-                "INSERT INTO emails (id, from_email, to_email, subject, body) VALUES (%s, %s, %s, %s, %s)",
+                "INSERT INTO emails (id, from_email, to_email, subject, body) VALUES (?, ?, ?, ?, ?)",
                 (email_id, email.from_email, email.to_email, email.subject, email.body)
             )
     else:
         cur.execute(
-            "INSERT INTO emails (id, from_email, to_email, subject, body) VALUES (%s, %s, %s, %s, %s)",
+            "INSERT INTO emails (id, from_email, to_email, subject, body) VALUES (?, ?, ?, ?, ?)",
             (email_id, email.from_email, email.to_email, email.subject, email.body)
         )
 
@@ -288,13 +298,14 @@ def get_emails(req: EmailFetchRequest):
     conn = get_db()
     cur = conn.cursor()
     cur.execute(
-        "SELECT * FROM emails WHERE to_email = %s ORDER BY timestamp DESC",
+        "SELECT * FROM emails WHERE to_email = ? ORDER BY timestamp DESC",
         (email,)
     )
-    rows = cur.fetchall()
+    rows = [dict(r) for r in cur.fetchall()]
 
-    cur.execute("SELECT * FROM users WHERE email = %s", (email,))
-    user = cur.fetchone()
+    cur.execute("SELECT * FROM users WHERE email = ?", (email,))
+    user_row = cur.fetchone()
+    user = dict(user_row) if user_row else None
 
     result = []
     for row in rows:
@@ -317,7 +328,7 @@ def get_emails(req: EmailFetchRequest):
                 try:
                     sender_row = None
                     cur2 = conn.cursor()
-                    cur2.execute("SELECT * FROM users WHERE email = %s", (row['from_email'],))
+                    cur2.execute("SELECT * FROM users WHERE email = ?", (row['from_email'],))
                     sender_row = cur2.fetchone()
                     cur2.close()
 
@@ -360,13 +371,14 @@ def get_sent_emails(req: EmailFetchRequest):
     conn = get_db()
     cur = conn.cursor()
     cur.execute(
-        "SELECT * FROM emails WHERE from_email = %s ORDER BY timestamp DESC",
+        "SELECT * FROM emails WHERE from_email = ? ORDER BY timestamp DESC",
         (email,)
     )
-    rows = cur.fetchall()
+    rows = [dict(r) for r in cur.fetchall()]
 
-    cur.execute("SELECT * FROM users WHERE email = %s", (email,))
-    user = cur.fetchone()
+    cur.execute("SELECT * FROM users WHERE email = ?", (email,))
+    user_row = cur.fetchone()
+    user = dict(user_row) if user_row else None
 
     result = []
     for row in rows:
@@ -389,7 +401,7 @@ def get_sent_emails(req: EmailFetchRequest):
                 try:
                     sender_row = None
                     cur2 = conn.cursor()
-                    cur2.execute("SELECT * FROM users WHERE email = %s", (row['to_email'],))
+                    cur2.execute("SELECT * FROM users WHERE email = ?", (row['to_email'],))
                     sender_row = cur2.fetchone()
                     cur2.close()
 
@@ -433,7 +445,7 @@ def get_public_keys(email: str):
     conn = get_db()
     cur = conn.cursor()
     cur.execute(
-        "SELECT kyber_public_key, dilithium_public_key FROM users WHERE email = %s",
+        "SELECT kyber_public_key, dilithium_public_key FROM users WHERE email = ?",
         (email,)
     )
     result = cur.fetchone()
