@@ -32,13 +32,14 @@ export const emailService = {
       console.log('Email saved locally (server unavailable)');
     }
 
+    const now = new Date();
     const newEmail: Email = {
       id: crypto.randomUUID(),
       from: account.email,
       to: payload.toEmail,
       subject: payload.subject,
       preview: `[Sent] ${payload.body.substring(0, 80)}...`,
-      time: 'Just now',
+      time: now.toISOString().replace('T', ' ').slice(0, 19),
       read: true,
       body: payload.body,
       encrypted: false,
