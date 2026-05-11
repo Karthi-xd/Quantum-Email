@@ -46,7 +46,6 @@ export function EmailList() {
 
     const inboxEmails = [...(inboxResult.emails || [])];
     if (imapResult.success && imapResult.emails) {
-      const imapIds = new Set(imapResult.emails.map((e: Email) => e.id));
       for (const imap of imapResult.emails) {
         if (!inboxEmails.some((e: Email) => e.id === imap.id)) {
           inboxEmails.push(imap);
