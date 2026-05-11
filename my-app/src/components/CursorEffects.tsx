@@ -28,12 +28,8 @@ export function CustomCursor() {
         opacity: 1,
         vy: 1 + Math.random() * 2,
       });
-
-      if (charsRef.current.length > 20) {
-        charsRef.current.shift();
-      }
+      if (charsRef.current.length > 20) charsRef.current.shift();
     }
-
     lastPos.current = { x: e.clientX, y: e.clientY };
   }, []);
 
@@ -44,11 +40,9 @@ export function CustomCursor() {
       const container = trailRef.current;
       if (container) {
         container.innerHTML = '';
-
         charsRef.current.forEach((c) => {
           c.y += c.vy;
           c.opacity -= 0.035;
-
           if (c.opacity > 0) {
             const el = document.createElement('div');
             el.className = 'matrix-char';
@@ -63,24 +57,19 @@ export function CustomCursor() {
             container.appendChild(el);
           }
         });
-
         charsRef.current = charsRef.current.filter((c) => c.opacity > 0);
       }
-
       rafRef.current = requestAnimationFrame(animate);
     };
 
     rafRef.current = requestAnimationFrame(animate);
-
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       cancelAnimationFrame(rafRef.current);
     };
   }, [handleMouseMove]);
 
-  if (typeof window !== 'undefined' && 'ontouchstart' in window) {
-    return null;
-  }
+  if (typeof window !== 'undefined' && 'ontouchstart' in window) return null;
 
   return (
     <>

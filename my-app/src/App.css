@@ -37,7 +37,6 @@ body {
   }
 }
 
-
 *:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
@@ -726,7 +725,6 @@ body {
   border: 1px solid rgba(0,170,255,0.35);
   padding: clamp(0.6rem, 1.2vw, 0.85rem) clamp(1.5rem, 3vw, 2.4rem);
   border-radius: 4px;
-  cursor: pointer;
   position: relative;
   overflow: hidden;
   transition: box-shadow 0.3s, background 0.3s, transform 0.2s;
@@ -757,7 +755,6 @@ body {
 .init-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 .init-btn.syncing {
-  cursor: default;
   border-color: rgba(0,170,255,0.2);
   color: rgba(0,170,255,0.6);
   animation: flicker 0.15s infinite alternate;
@@ -1149,7 +1146,6 @@ body {
     rgba(61, 242, 224, 0.6) 100%
   );
   border-radius: 4px;
-  cursor: grab;
   box-shadow: 
     0 0 8px rgba(61, 242, 224, 0.8),
     0 0 16px rgba(61, 242, 224, 0.4),
@@ -1168,7 +1164,6 @@ body {
 }
 
 .scroll-thumb:active {
-  cursor: grabbing;
   animation: none;
   box-shadow: 
     0 0 16px rgba(0, 255, 136, 1),
@@ -1242,7 +1237,6 @@ body {
   border: 1px solid rgba(61, 242, 224, 0.2);
   border-radius: 8px;
   color: var(--muted);
-  cursor: pointer;
   padding: 0.5rem;
   display: flex;
   align-items: center;

@@ -145,7 +145,7 @@ export function Register({ onRegisterSuccess, onGoToLogin }: RegisterProps) {
             )}
           </button>
 
-          <div className="login-footer" style={{ cursor: 'pointer' }} onClick={onGoToLogin} aria-hidden="false">
+          <div className="login-footer" onClick={onGoToLogin} aria-hidden="false">
             <span>Already have a node?</span>
             <span style={{ color: 'var(--accent)', marginLeft: '0.25rem', textDecoration: 'underline' }}>Access Terminal</span>
           </div>

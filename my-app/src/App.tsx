@@ -19,6 +19,7 @@ import {
   AboutQP,
   CustomCursor,
   Security,
+  Preferences,
 } from './components';
 import type { Account } from './types';
 

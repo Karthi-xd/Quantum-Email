@@ -118,7 +118,7 @@ export function Login({ onLogin, onGoToRegister }: LoginProps) {
             )}
           </button>
 
-          <div className="login-footer" aria-hidden="false" style={{ cursor: 'pointer' }} onClick={onGoToRegister}>
+          <div className="login-footer" aria-hidden="false" onClick={onGoToRegister}>
             <span>No quantum node yet?</span>
             <span style={{ color: 'var(--accent)', marginLeft: '0.25rem', textDecoration: 'underline' }}>Forge Identity</span>
           </div>

@@ -23,14 +23,14 @@
   position: fixed;
   width: 14px;
   height: 14px;
-  border: 2px solid rgba(0, 255, 136, 0.9);
+  border: 2px solid rgba(0, 170, 255, 0.9);
   border-radius: 2px;
   pointer-events: none;
   z-index: 9999;
   transform: translate(-50%, -50%);
-  box-shadow: 
-    0 0 8px rgba(0, 255, 136, 0.6),
-    0 0 16px rgba(0, 255, 136, 0.3);
+  box-shadow:
+    0 0 8px rgba(0, 170, 255, 0.6),
+    0 0 16px rgba(0, 170, 255, 0.3);
 }
 
 @media (hover: none) and (pointer: coarse) {

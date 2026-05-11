@@ -1,7 +1,6 @@
 export { Background } from './Background';
 export { MatrixRain } from './MatrixRain';
 export { QuantumParticles } from './QuantumParticles';
-export { CustomCursor } from './CursorEffects';
 export { Landing } from './Landing';
 export { Login } from './Login';
 export { Register } from './Register';
@@ -15,5 +14,6 @@ export { ShortcutsModal } from './ShortcutsModal';
 export { CommandPalette } from './CommandPalette';
 export { EmailListSkeleton, EmailDetailSkeleton } from './LoadingSkeleton';
 export { AboutQP } from './AboutQP';
+export { CustomCursor } from './CursorEffects';
 export { Preferences } from './Preferences';
 export { Security } from './Security';
