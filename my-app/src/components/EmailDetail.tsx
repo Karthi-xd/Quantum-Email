@@ -2,6 +2,18 @@ import { useEmailStore } from '../store/emailStore';
 import './EmailDetail.css';
 import './Buttons.css';
 
+function fmtTime(ts: string): string {
+  if (!ts) return '';
+  const d = new Date(ts.replace(' ', 'T') + 'Z');
+  const now = new Date();
+  const diff = now.getTime() - d.getTime();
+  if (diff < 60000) return 'Just now';
+  if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+  if (diff < 604800000) return `${Math.floor(diff / 86400000)}d ago`;
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
 export function EmailDetail() {
   const { selectedEmail, setSelectedEmail, deleteEmail, setComposeData, setComposing } = useEmailStore();
 
@@ -57,7 +69,7 @@ export function EmailDetail() {
           <span>
             From: <strong>{selectedEmail.from}</strong>
           </span>
-          <span>{selectedEmail.time}</span>
+          <span>{fmtTime(selectedEmail.time)}</span>
         </div>
         <div className="det-body">
           {selectedEmail?.encrypted && (
