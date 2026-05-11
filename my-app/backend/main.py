@@ -383,6 +383,12 @@ def send_email(email: EmailSend):
     return {"message": "Email sent", "id": email_id}
 
 
+def _fmt_ts(ts):
+    if ts is None:
+        return ""
+    return ts.isoformat() if hasattr(ts, 'isoformat') else str(ts)
+
+
 def _decrypt_email_row(row: dict, user: dict, password: str, conn, peer_col: str) -> dict:
     email_data = {
         "id": row['id'],
@@ -391,7 +397,7 @@ def _decrypt_email_row(row: dict, user: dict, password: str, conn, peer_col: str
         "subject": row['subject'],
         "body": row['body'] or "",
         "preview": "",
-        "time": row['timestamp'].isoformat() if row['timestamp'] else "",
+        "time": _fmt_ts(row['timestamp']),
         "read": row['read'],
         "encrypted": False,
         "verified": False,
