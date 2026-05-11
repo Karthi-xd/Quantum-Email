@@ -226,13 +226,6 @@
 .esubj { color: rgba(200,232,255,0.8); font-weight: 400; }
 .eprev { color: var(--muted); font-size: 0.85rem; }
 
-.etime {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.71rem;
-  color: var(--muted);
-  flex-shrink: 0;
-}
-
 .attachment-indicator {
   font-size: 0.8rem;
   color: var(--muted);
@@ -292,9 +285,6 @@
     display: none;
   }
 
-  .etime {
-    font-size: 0.6rem;
-  }
 }
 
 @media (max-width: 480px) {

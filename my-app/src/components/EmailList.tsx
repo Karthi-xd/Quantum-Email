@@ -5,18 +5,6 @@ import { emailService } from '../services/emailService';
 import type { Email, Account } from '../types';
 import './EmailList.css';
 
-function fmtTime(ts: string): string {
-  if (!ts) return '';
-  const d = new Date(ts.replace(' ', 'T') + 'Z');
-  const now = new Date();
-  const diff = now.getTime() - d.getTime();
-  if (diff < 60000) return 'Just now';
-  if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
-  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
-  if (diff < 604800000) return `${Math.floor(diff / 86400000)}d ago`;
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-}
-
 export function EmailList() {
   const {
     activeCategory,
@@ -316,7 +304,6 @@ export function EmailList() {
                 <span className="esubj">{e.subject}</span>
                 <span className="eprev"> — {e.preview}</span>
               </div>
-              <div className="etime" title={e.time}>{fmtTime(e.time)}</div>
               {e.attachment && <span className="attachment-indicator" aria-label="Has attachment">📎</span>}
             </div>
           ))
