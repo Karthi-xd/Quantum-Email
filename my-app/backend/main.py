@@ -389,7 +389,7 @@ def _fmt_ts(ts):
     return ts.isoformat() if hasattr(ts, 'isoformat') else str(ts)
 
 
-def _decrypt_email_row(row: dict, user: dict, password: str, conn, peer_col: str) -> dict:
+def _decrypt_email_row(row: dict, user: dict, conn, peer_col: str) -> dict:
     email_data = {
         "id": row['id'],
         "from": row['from_email'],
@@ -470,7 +470,7 @@ def get_emails(req: EmailFetchRequest):
     user_row = cur.fetchone()
     user = dict(user_row) if user_row else None
 
-    result = [_decrypt_email_row(r, user, req.password, conn, 'from_email') for r in rows]
+    result = [_decrypt_email_row(r, user, conn, 'from_email') for r in rows]
 
     cur.close()
     conn.close()
@@ -492,7 +492,7 @@ def get_sent_emails(req: EmailFetchRequest):
     user_row = cur.fetchone()
     user = dict(user_row) if user_row else None
 
-    result = [_decrypt_email_row(r, user, req.password, conn, 'to_email') for r in rows]
+    result = [_decrypt_email_row(r, user, conn, 'to_email') for r in rows]
 
     cur.close()
     conn.close()

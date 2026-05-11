@@ -12,21 +12,11 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric.x25519 import X25519PrivateKey, X25519PublicKey
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat, PrivateFormat, NoEncryption
-from argon2 import PasswordHasher, Type
 import os
 import hashlib
 
 # --- Constants ---
 KYBER_CT_LEN = 1088
-
-_ph = PasswordHasher(
-    time_cost=2,
-    memory_cost=65536,
-    parallelism=1,
-    hash_len=32,
-    type=Type.ID,
-)
-
 
 def _derive_key(master: str) -> bytes:
     return hashlib.pbkdf2_hmac('sha256', master.encode(), salt=b'q-mail-pqc-v2', iterations=600000, dklen=32)
