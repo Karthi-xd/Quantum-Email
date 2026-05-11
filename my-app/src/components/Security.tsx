@@ -11,6 +11,7 @@ export function Security() {
     setSecurity,
     updatePassword,
     clearAllData,
+    activeAccount,
   } = useEmailStore();
 
   const [quantumEncryption, setQuantumEncryption] = useState(security.quantumEncryption);
@@ -226,6 +227,22 @@ export function Security() {
                     </div>
                   </div>
                 )}
+              </div>
+            </section>
+
+            <section className="sec-section">
+              <div className="sec-section-header">
+                <span className="section-icon">🛡</span>
+                <h3>Key Fingerprint</h3>
+              </div>
+              <div className="fingerprint-card">
+                <div className="fingerprint-label">Hybrid PQC Identity</div>
+                <code className="fingerprint-hash">
+                  {activeAccount?.fingerprint || 'Not available'}
+                </code>
+                <div className="fingerprint-sub">
+                  Kyber768 + X25519 · Dilithium3 + Ed25519
+                </div>
               </div>
             </section>
 

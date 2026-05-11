@@ -19,7 +19,6 @@ import {
   AboutQP,
   CustomCursor,
   Security,
-  Preferences,
 } from './components';
 import type { Account } from './types';
 
@@ -80,6 +79,9 @@ export default function Root() {
         password,
         kyberPub: data.kyber_pub || '',
         diliPub: data.dili_pub || '',
+        x25519Pub: data.x25519_pub || '',
+        ed25519Pub: data.ed25519_pub || '',
+        fingerprint: data.fingerprint || '',
         smtpHost: 'smtp.gmail.com',
         smtpPort: 587,
         imapHost: 'imap.gmail.com',

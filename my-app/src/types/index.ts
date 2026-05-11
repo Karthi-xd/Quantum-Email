@@ -23,6 +23,9 @@ export interface Account {
   password?: string;
   kyberPub?: string;
   diliPub?: string;
+  x25519Pub?: string;
+  ed25519Pub?: string;
+  fingerprint?: string;
   avatar?: string;
   color?: string;
 }
