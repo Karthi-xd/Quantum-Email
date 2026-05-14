@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useEmailStore } from '../store/emailStore';
 import { emailService } from '../services/emailService';
+import type { Email } from '../types';
 import './Compose.css';
 import './Buttons.css';
 
@@ -18,11 +19,11 @@ export function Compose() {
     activeAccount,
     setShowAccountSwitcher,
     addSentEmail,
-    setActiveCategory,
   } = useEmailStore();
 
   const [errors, setErrors] = useState<{ to?: string; subject?: string; body?: string }>({});
   const [touched, setTouched] = useState<{ to?: boolean }>({});
+  const [sending, setSending] = useState(false);
 
   if (!composing) return null;
 
@@ -47,6 +48,7 @@ export function Compose() {
   };
 
   const handleSend = async () => {
+    if (sending) return;
     setTouched({ to: true });
     const validationErrors = validateForm();
     setErrors(validationErrors);
@@ -58,16 +60,27 @@ export function Compose() {
       return;
     }
 
+    setSending(true);
     const result = await emailService.sendEmail(activeAccount, {
       toEmail: composeData.to,
       subject: composeData.subject,
       body: composeData.body,
     });
+    setSending(false);
 
-    if (result.success && result.email) {
-      addSentEmail(result.email);
+    if (result.success) {
+      const sentEmail: Email = {
+        id: result.id || crypto.randomUUID(),
+        from: activeAccount.email,
+        to: composeData.to,
+        subject: composeData.subject,
+        preview: composeData.body.slice(0, 100),
+        time: new Date().toISOString(),
+        read: true,
+        body: composeData.body,
+      };
+      addSentEmail(sentEmail);
       clearCompose();
-      setActiveCategory('sent');
     }
   };
 
@@ -128,8 +141,8 @@ export function Compose() {
           </div>
         </div>
         <div className="compose-actions">
-          <button className="btn-prime" onClick={handleSend}>
-            Send Transmission
+          <button className="btn-prime" onClick={handleSend} disabled={sending}>
+            {sending ? 'Transmitting...' : 'Send Transmission'}
           </button>
           <button className="btn-ghost" onClick={clearCompose}>
             Cancel

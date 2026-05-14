@@ -26,7 +26,10 @@ export function EmailList() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [accountSearch, setAccountSearch] = useState('');
   const [syncing, setSyncing] = useState(false);
+  const syncingRef = useRef(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const activeAccountRef = useRef(activeAccount);
+  activeAccountRef.current = activeAccount;
   const currentEmails = emails[activeCategory] || [];
   const filteredEmails = getFilteredEmails(currentEmails, searchQuery);
   const filteredAccounts = accounts.filter(acc => 
@@ -35,32 +38,29 @@ export function EmailList() {
   );
 
   const handleSync = useCallback(async () => {
-    if (!activeAccount || syncing) return;
+    const acc = activeAccountRef.current;
+    if (!acc || syncingRef.current) return;
+    syncingRef.current = true;
     setSyncing(true);
 
-    const [inboxResult, sentResult, imapResult] = await Promise.all([
-      emailService.fetchEmails(activeAccount),
-      emailService.fetchSentEmails(activeAccount),
-      emailService.fetchImapEmails(activeAccount),
+    const [inboxResult, sentResult] = await Promise.all([
+      emailService.fetchEmails(acc),
+      emailService.fetchSentEmails(acc),
     ]);
 
     const inboxEmails = [...(inboxResult.emails || [])];
-    if (imapResult.success && imapResult.emails) {
-      for (const imap of imapResult.emails) {
-        if (!inboxEmails.some((e: Email) => e.id === imap.id)) {
-          inboxEmails.push(imap);
-        }
-      }
-    }
+
+    emailService.fetchImapEmails(acc);
 
     setEmails({
       inbox: inboxEmails,
       all: inboxEmails,
-      sent: [...(sentResult.emails || []), ...(emails.sent || [])],
-      spam: emails.spam || [],
+      sent: sentResult.emails || [],
+      spam: [],
     });
+    syncingRef.current = false;
     setSyncing(false);
-  }, [activeAccount, syncing, setEmails, emails.sent, emails.spam]);
+  }, [setEmails]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -75,7 +75,7 @@ export function EmailList() {
   useEffect(() => {
     if (!activeAccount) return;
     handleSync();
-    const interval = setInterval(handleSync, 30000);
+    const interval = setInterval(handleSync, 15000);
     return () => clearInterval(interval);
   }, [activeAccount, handleSync]);
 

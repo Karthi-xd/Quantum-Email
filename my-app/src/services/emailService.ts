@@ -6,47 +6,31 @@ export const emailService = {
   async sendEmail(
     account: Account,
     payload: { toEmail: string; subject: string; body: string }
-  ): Promise<{ success: boolean; email?: Email; error?: string }> {
-    const body = JSON.stringify({
-      from_email: account.email,
-      to_email: payload.toEmail,
-      subject: payload.subject,
-      body: payload.body,
-      account_password: account.password || '',
-      smtp_host: account.smtpHost,
-      smtp_port: account.smtpPort,
-      smtp_password: account.password || '',
-    });
-
+  ): Promise<{ success: boolean; id?: string; email?: Email; error?: string }> {
     try {
       const res = await fetch(`${API_BASE}/send-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body,
+        body: JSON.stringify({
+          from_email: account.email,
+          to_email: payload.toEmail,
+          subject: payload.subject,
+          body: payload.body,
+          account_password: account.password || '',
+          smtp_host: account.smtpHost,
+          smtp_port: account.smtpPort,
+          smtp_password: account.smtpPassword || '',
+        }),
       });
       if (!res.ok) {
         const data = await res.json();
         return { success: false, error: data.detail || 'Failed to send' };
       }
+      const data = await res.json();
+      return { success: true, id: data.id };
     } catch {
-      console.log('Email saved locally (server unavailable)');
+      return { success: false, error: 'Unable to connect to server' };
     }
-
-    const now = new Date();
-    const newEmail: Email = {
-      id: crypto.randomUUID(),
-      from: account.email,
-      to: payload.toEmail,
-      subject: payload.subject,
-      preview: `[Sent] ${payload.body.substring(0, 80)}...`,
-      time: now.toISOString().replace('T', ' ').slice(0, 19),
-      read: true,
-      body: payload.body,
-      encrypted: false,
-      verified: false,
-    };
-
-    return { success: true, email: newEmail };
   },
 
   async fetchEmails(account: Account): Promise<{ success: boolean; emails?: Email[]; error?: string }> {
@@ -115,6 +99,21 @@ export const emailService = {
       return { success: true, emails };
     } catch {
       return { success: false, error: 'Unable to connect to IMAP server' };
+    }
+  },
+
+  async deleteEmail(emailId: string): Promise<{ success: boolean; error?: string }> {
+    try {
+      const res = await fetch(`${API_BASE}/emails/${encodeURIComponent(emailId)}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        return { success: false, error: data.detail || 'Failed to delete' };
+      }
+      return { success: true };
+    } catch {
+      return { success: false, error: 'Unable to connect to server' };
     }
   },
 

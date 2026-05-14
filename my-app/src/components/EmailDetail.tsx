@@ -1,4 +1,5 @@
 import { useEmailStore } from '../store/emailStore';
+import { emailService } from '../services/emailService';
 import './EmailDetail.css';
 import './Buttons.css';
 
@@ -40,7 +41,8 @@ export function EmailDetail() {
     setSelectedEmail(null);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
+    await emailService.deleteEmail(selectedEmail.id);
     deleteEmail(selectedEmail.id);
   };
 

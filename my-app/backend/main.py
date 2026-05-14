@@ -405,7 +405,7 @@ def _decrypt_email_row(row: dict, user: dict, conn, peer_col: str) -> dict:
 
     if row.get('encrypted_body') and row.get('signature') and row.get('ed25519_sig'):
         email_data["encrypted"] = True
-        if user and user.get('kyber_private_key_enc') and user.get('x25519_private_key_enc') and password:
+        if user and user.get('kyber_private_key_enc') and user.get('x25519_private_key_enc'):
             try:
                 cur2 = conn.cursor()
                 cur2.execute(f"SELECT * FROM users WHERE email = ?", (row[peer_col],))
@@ -520,6 +520,20 @@ def get_public_keys(email: str):
         "ed25519_pub": result['ed25519_public_key'],
         "fingerprint": result['fingerprint'],
     }
+
+
+@app.delete("/emails/{email_id}")
+def delete_email(email_id: str):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM emails WHERE id = ?", (email_id,))
+    deleted = cur.rowcount
+    conn.commit()
+    cur.close()
+    conn.close()
+    if deleted == 0:
+        raise HTTPException(status_code=404, detail="Email not found")
+    return {"message": "Email deleted", "id": email_id}
 
 
 @app.post("/fetch-imap")

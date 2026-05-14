@@ -18,6 +18,7 @@ export interface Account {
   displayName: string;
   smtpHost: string;
   smtpPort: number;
+  smtpPassword?: string;
   imapHost: string;
   imapPort: number;
   password?: string;

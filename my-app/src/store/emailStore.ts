@@ -282,8 +282,9 @@ export const useEmailStore = create<EmailStore>()(
       name: 'qmail-storage',
       partialize: (state) => {
         const stripPassword = (account: Account) => {
-          const { password: _password, ...rest } = account;
+          const { password: _password, smtpPassword: _smtpPassword, ...rest } = account;
           void _password;
+          void _smtpPassword;
           return rest;
         };
         return {
