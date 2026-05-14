@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css';
 import { useEmailStore } from './store/emailStore';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
@@ -26,13 +26,24 @@ const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000';
 
 function EmailApp() {
   useKeyboardShortcuts();
+  const refreshing = useEmailStore((s) => s.refreshing);
+  const [showBar, setShowBar] = useState(false);
 
   useEffect(() => {
     document.documentElement.className = 'theme-quantum font-medium';
   }, []);
 
+  useEffect(() => {
+    if (refreshing) {
+      const t = setTimeout(() => setShowBar(true), 200);
+      return () => clearTimeout(t);
+    }
+    setShowBar(false);
+  }, [refreshing]);
+
   return (
     <div className="app-wrap">
+      <div className={`refresh-bar ${showBar ? 'visible' : ''}`} />
       <div className="app">
         <Sidebar />
         <EmailList />

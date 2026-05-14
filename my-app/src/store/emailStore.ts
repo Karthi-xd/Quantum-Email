@@ -20,6 +20,7 @@ interface EmailStore {
   activeAccount: Account | null;
   composeData: { to: string; subject: string; body: string };
   searchQuery: string;
+  refreshing: boolean;
   preferences: {
     notifications: boolean;
     soundEffects: boolean;
@@ -65,6 +66,7 @@ interface EmailStore {
   addSentEmail: (email: Email) => void;
   setEmails: (emails: Record<string, Email[]>) => void;
   setSearchQuery: (query: string) => void;
+  setRefreshing: (refreshing: boolean) => void;
   logout: () => void;
   clearAllData: () => void;
 }
@@ -97,6 +99,7 @@ export const useEmailStore = create<EmailStore>()(
       activeAccount: null,
       composeData: { to: '', subject: '', body: '' },
       searchQuery: '',
+      refreshing: false,
       preferences: {
         notifications: true,
         soundEffects: false,
@@ -258,6 +261,7 @@ export const useEmailStore = create<EmailStore>()(
       setEmails: (emails) => set({ emails }),
 
       setSearchQuery: (query) => set({ searchQuery: query }),
+      setRefreshing: (refreshing) => set({ refreshing }),
 
       logout: () =>
         set({
@@ -288,6 +292,7 @@ export const useEmailStore = create<EmailStore>()(
           return rest;
         };
         return {
+          page: state.page,
           accounts: state.accounts.map(stripPassword),
           activeAccount: state.activeAccount ? stripPassword(state.activeAccount) : null,
           emails: state.emails,

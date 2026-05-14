@@ -1511,6 +1511,30 @@ body {
   .init-btn { min-height: 48px; min-width: 120px; padding: 0.85rem 2.2rem; }
 }
 
+.refresh-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2), var(--pink), var(--accent));
+  background-size: 300% 100%;
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+
+.refresh-bar.visible {
+  opacity: 1;
+  animation: refreshBar 1.5s ease-in-out infinite;
+}
+
+@keyframes refreshBar {
+  0% { background-position: 100% 0; }
+  100% { background-position: 0% 0; }
+}
+
 /* Theme Classes */
 .theme-quantum {
   --accent: #00aaff;

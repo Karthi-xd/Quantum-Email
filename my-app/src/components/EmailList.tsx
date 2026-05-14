@@ -21,11 +21,12 @@ export function EmailList() {
     removeAccount,
     logout,
     setEmails,
+    refreshing,
+    setRefreshing,
   } = useEmailStore();
 
   const [showDropdown, setShowDropdown] = useState(false);
   const [accountSearch, setAccountSearch] = useState('');
-  const [syncing, setSyncing] = useState(false);
   const syncingRef = useRef(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const activeAccountRef = useRef(activeAccount);
@@ -41,7 +42,7 @@ export function EmailList() {
     const acc = activeAccountRef.current;
     if (!acc || syncingRef.current) return;
     syncingRef.current = true;
-    setSyncing(true);
+    setRefreshing(true);
 
     const [inboxResult, sentResult] = await Promise.all([
       emailService.fetchEmails(acc),
@@ -59,8 +60,8 @@ export function EmailList() {
       spam: [],
     });
     syncingRef.current = false;
-    setSyncing(false);
-  }, [setEmails]);
+    setRefreshing(false);
+  }, [setEmails, setRefreshing]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -109,7 +110,7 @@ export function EmailList() {
             aria-label="Search emails"
           />
         </div>
-        <button className={`sync-btn ${syncing ? 'syncing' : ''}`} onClick={handleSync} aria-label="Sync emails" title="Sync emails">
+        <button className={`sync-btn ${refreshing ? 'syncing' : ''}`} onClick={handleSync} aria-label="Sync emails" title="Sync emails">
           <span className="sync-icon">⟳</span>
         </button>
         <div className="account-dropdown-wrap" ref={dropdownRef}>
