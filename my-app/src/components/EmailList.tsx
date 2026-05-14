@@ -50,13 +50,14 @@ export function EmailList() {
     ]);
 
     const inboxEmails = [...(inboxResult.emails || [])];
+    const sentEmails = sentResult.emails || [];
 
     emailService.fetchImapEmails(acc);
 
     setEmails({
       inbox: inboxEmails,
-      all: inboxEmails,
-      sent: sentResult.emails || [],
+      all: [...inboxEmails, ...sentEmails],
+      sent: sentEmails,
       spam: [],
     });
     syncingRef.current = false;
