@@ -18,8 +18,8 @@ import hashlib
 # --- Constants ---
 KYBER_CT_LEN = 1088
 
-def _derive_key(master: str) -> bytes:
-    return hashlib.pbkdf2_hmac('sha256', master.encode(), salt=b'q-mail-pqc-v2', iterations=600000, dklen=32)
+def _derive_key(master: str, salt: bytes) -> bytes:
+    return hashlib.pbkdf2_hmac('sha256', master.encode(), salt=salt, iterations=600000, dklen=32)
 
 
 def _combine_shares(*shares: bytes) -> bytes:
@@ -140,8 +140,8 @@ def decrypt_email_body(encrypted_body_b64: str, dili_sig_b64: str, ed25519_sig_b
     return {"body": body.decode('utf-8'), "verified": True}
 
 
-def encrypt_private_key(key_bytes: bytes, password_hash: str) -> str:
-    aes_key = _derive_key(password_hash)
+def encrypt_private_key(key_bytes: bytes, password: str, salt: bytes) -> str:
+    aes_key = _derive_key(password, salt)
     iv = os.urandom(12)
     cipher = Cipher(algorithms.AES(aes_key), modes.GCM(iv))
     encryptor = cipher.encryptor()
@@ -150,8 +150,8 @@ def encrypt_private_key(key_bytes: bytes, password_hash: str) -> str:
     return b64encode(iv + tag + ct).decode()
 
 
-def decrypt_private_key(encrypted_b64: str, password_hash: str) -> bytes:
-    aes_key = _derive_key(password_hash)
+def decrypt_private_key(encrypted_b64: str, password: str, salt: bytes) -> bytes:
+    aes_key = _derive_key(password, salt)
     data = b64decode(encrypted_b64)
     iv, tag, ct = data[:12], data[12:28], data[28:]
     cipher = Cipher(algorithms.AES(aes_key), modes.GCM(iv, tag))

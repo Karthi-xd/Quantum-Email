@@ -9,6 +9,8 @@ import email as email_lib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import uuid
+import os
+from base64 import b64encode, b64decode
 from datetime import datetime
 from contextlib import asynccontextmanager
 import bcrypt
@@ -90,7 +92,7 @@ def migrate_db():
     new_user_cols = [
         "x25519_public_key", "x25519_private_key_enc",
         "ed25519_public_key", "ed25519_private_key_enc",
-        "fingerprint",
+        "fingerprint", "kdf_salt",
     ]
     for col in new_user_cols:
         if not column_exists(cur, "users", col):
@@ -148,6 +150,9 @@ def register(user: UserCreate):
     email = user.email.strip().lower()
     hashed = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
+    kdf_salt = os.urandom(16)
+    kdf_salt_b64 = b64encode(kdf_salt).decode()
+
     pqc_keys = generate_quantum_keys()
     key_pairs = [
         ("kyber_priv", pqc_keys['kyber_priv']),
@@ -157,7 +162,7 @@ def register(user: UserCreate):
     ]
     encrypted = {}
     for name, val in key_pairs:
-        encrypted[name] = encrypt_private_key(val.encode('utf-8'), hashed)
+        encrypted[name] = encrypt_private_key(val.encode('utf-8'), user.password, kdf_salt)
 
     conn = get_db()
     cur = conn.cursor()
@@ -168,17 +173,17 @@ def register(user: UserCreate):
                 kyber_public_key, dilithium_public_key, kyber_private_key_enc, dilithium_private_key_enc,
                 x25519_public_key, x25519_private_key_enc,
                 ed25519_public_key, ed25519_private_key_enc,
-                fingerprint)
+                fingerprint, kdf_salt)
                VALUES (?, ?, ?,
                        ?, ?, ?, ?,
                        ?, ?,
                        ?, ?,
-                       ?)""",
+                       ?, ?)""",
             (username, email, hashed,
              pqc_keys['kyber_pub'], pqc_keys['dili_pub'], encrypted['kyber_priv'], encrypted['dili_priv'],
              pqc_keys['x25519_pub'], encrypted['x25519_priv'],
              pqc_keys['ed25519_pub'], encrypted['ed25519_priv'],
-             pqc_keys['fingerprint'])
+             pqc_keys['fingerprint'], kdf_salt_b64)
         )
         conn.commit()
         return {
@@ -230,7 +235,8 @@ def login(user: UserCreate):
     needs_regenerate = not result.get('x25519_public_key') or not result.get('fingerprint')
     if needs_regenerate:
         pqc_keys = generate_quantum_keys()
-        hashed = result['password_hash']
+        kdf_salt = os.urandom(16)
+        kdf_salt_b64 = b64encode(kdf_salt).decode()
         key_pairs = [
             ("kyber_priv", pqc_keys['kyber_priv']),
             ("dili_priv", pqc_keys['dili_priv']),
@@ -239,7 +245,7 @@ def login(user: UserCreate):
         ]
         encrypted = {}
         for name, val in key_pairs:
-            encrypted[name] = encrypt_private_key(val.encode('utf-8'), hashed)
+            encrypted[name] = encrypt_private_key(val.encode('utf-8'), user.password, kdf_salt)
 
         cur.execute(
             """UPDATE users SET
@@ -247,13 +253,13 @@ def login(user: UserCreate):
                kyber_private_key_enc=?, dilithium_private_key_enc=?,
                x25519_public_key=?, x25519_private_key_enc=?,
                ed25519_public_key=?, ed25519_private_key_enc=?,
-               fingerprint=?
+               fingerprint=?, kdf_salt=?
                WHERE email=?""",
             (pqc_keys['kyber_pub'], pqc_keys['dili_pub'],
              encrypted['kyber_priv'], encrypted['dili_priv'],
              pqc_keys['x25519_pub'], encrypted['x25519_priv'],
              pqc_keys['ed25519_pub'], encrypted['ed25519_priv'],
-             pqc_keys['fingerprint'], email)
+             pqc_keys['fingerprint'], kdf_salt_b64, email)
         )
         conn.commit()
         resp['kyber_pub'] = pqc_keys['kyber_pub']
@@ -292,12 +298,12 @@ def send_email(email: EmailSend):
 
         if has_pqc_keys:
             try:
-                sender_hash = sender['password_hash']
+                sender_salt = b64decode(sender['kdf_salt'])
                 dili_priv_bytes = decrypt_private_key(
-                    sender['dilithium_private_key_enc'], sender_hash
+                    sender['dilithium_private_key_enc'], email.account_password, sender_salt
                 )
                 ed25519_priv_bytes = decrypt_private_key(
-                    sender['ed25519_private_key_enc'], sender_hash
+                    sender['ed25519_private_key_enc'], email.account_password, sender_salt
                 )
 
                 recipient_pub = {
@@ -349,9 +355,9 @@ def send_email(email: EmailSend):
                     from_row = cur.fetchone()
                     from_user = dict(from_row) if from_row else None
                     if from_user:
-                        f_hash = from_user['password_hash']
-                        fdili = decrypt_private_key(from_user['dilithium_private_key_enc'], f_hash)
-                        fed = decrypt_private_key(from_user['ed25519_private_key_enc'], f_hash)
+                        f_salt = b64decode(from_user['kdf_salt'])
+                        fdili = decrypt_private_key(from_user['dilithium_private_key_enc'], email.account_password, f_salt)
+                        fed = decrypt_private_key(from_user['ed25519_private_key_enc'], email.account_password, f_salt)
                         rpub = {
                             'kyber_pub_b64': to_user['kyber_public_key'],
                             'x25519_pub_b64': to_user['x25519_public_key'],
@@ -389,7 +395,7 @@ def _fmt_ts(ts):
     return ts.isoformat() if hasattr(ts, 'isoformat') else str(ts)
 
 
-def _decrypt_email_row(row: dict, user: dict, conn, peer_col: str) -> dict:
+def _decrypt_email_row(row: dict, user: dict, conn, peer_col: str, password: str) -> dict:
     email_data = {
         "id": row['id'],
         "from": row['from_email'],
@@ -405,7 +411,11 @@ def _decrypt_email_row(row: dict, user: dict, conn, peer_col: str) -> dict:
 
     if row.get('encrypted_body') and row.get('signature') and row.get('ed25519_sig'):
         email_data["encrypted"] = True
-        if user and user.get('kyber_private_key_enc') and user.get('x25519_private_key_enc'):
+        password_ok = bool(
+            user and password
+            and bcrypt.checkpw(password.encode('utf-8'), user['password_hash'].encode('utf-8'))
+        )
+        if password_ok and user.get('kyber_private_key_enc') and user.get('x25519_private_key_enc'):
             try:
                 cur2 = conn.cursor()
                 cur2.execute(f"SELECT * FROM users WHERE email = ?", (row[peer_col],))
@@ -415,12 +425,12 @@ def _decrypt_email_row(row: dict, user: dict, conn, peer_col: str) -> dict:
                 peer = dict(peer_row) if peer_row else None
 
                 if peer and peer.get('dilithium_public_key') and peer.get('ed25519_public_key'):
-                    password_hash = user['password_hash']
+                    user_salt = b64decode(user['kdf_salt'])
                     kyber_priv_bytes = decrypt_private_key(
-                        user['kyber_private_key_enc'], password_hash
+                        user['kyber_private_key_enc'], password, user_salt
                     )
                     x25519_priv_bytes = decrypt_private_key(
-                        user['x25519_private_key_enc'], password_hash
+                        user['x25519_private_key_enc'], password, user_salt
                     )
 
                     recipient_priv = {
@@ -447,7 +457,11 @@ def _decrypt_email_row(row: dict, user: dict, conn, peer_col: str) -> dict:
                 email_data["preview"] = "[Encrypted]"
                 email_data["verified"] = False
         else:
-            email_data["body"] = "[Encrypted - provide password to decrypt]"
+            email_data["body"] = (
+                "[Encrypted - provide password to decrypt]"
+                if not password_ok
+                else "[Encrypted - keys unavailable]"
+            )
             email_data["preview"] = "[Encrypted]"
     else:
         email_data["preview"] = (row['body'] or "")[:100]
@@ -470,7 +484,7 @@ def get_emails(req: EmailFetchRequest):
     user_row = cur.fetchone()
     user = dict(user_row) if user_row else None
 
-    result = [_decrypt_email_row(r, user, conn, 'from_email') for r in rows]
+    result = [_decrypt_email_row(r, user, conn, 'from_email', req.password) for r in rows]
 
     cur.close()
     conn.close()
@@ -492,7 +506,7 @@ def get_sent_emails(req: EmailFetchRequest):
     user_row = cur.fetchone()
     user = dict(user_row) if user_row else None
 
-    result = [_decrypt_email_row(r, user, conn, 'to_email') for r in rows]
+    result = [_decrypt_email_row(r, user, conn, 'to_email', req.password) for r in rows]
 
     cur.close()
     conn.close()
