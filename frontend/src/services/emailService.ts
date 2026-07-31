@@ -102,10 +102,12 @@ export const emailService = {
     }
   },
 
-  async deleteEmail(emailId: string): Promise<{ success: boolean; error?: string }> {
+  async deleteEmail(emailId: string, email: string, password: string): Promise<{ success: boolean; error?: string }> {
     try {
       const res = await fetch(`${API_BASE}/emails/${encodeURIComponent(emailId)}`, {
         method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       });
       if (!res.ok) {
         const data = await res.json();
