@@ -4,7 +4,7 @@ import './EmailDetail.css';
 import './Buttons.css';
 
 export function EmailDetail() {
-  const { selectedEmail, setSelectedEmail, deleteEmail, setComposeData, setComposing } = useEmailStore();
+  const { selectedEmail, setSelectedEmail, deleteEmail, setComposeData, setComposing, activeAccount } = useEmailStore();
 
   if (!selectedEmail) return null;
 
@@ -42,7 +42,8 @@ export function EmailDetail() {
   };
 
   const handleDelete = async () => {
-    await emailService.deleteEmail(selectedEmail.id);
+    if (!activeAccount) return;
+    await emailService.deleteEmail(selectedEmail.id, activeAccount.email, activeAccount.password);
     deleteEmail(selectedEmail.id);
   };
 
