@@ -285,9 +285,17 @@ export const useEmailStore = create<EmailStore>()(
     {
       name: 'qmail-storage',
       partialize: (state) => {
+        // Never write passwords to localStorage in plain text — strip them
+        // before persisting. They're kept in memory only and have to be
+        // re-entered after a page reload.
+        const stripSecrets = (acc: typeof state.activeAccount) => {
+          if (!acc) return acc;
+          const { password: _password, smtpPassword: _smtpPassword, ...rest } = acc;
+          return rest;
+        };
         return {
-          accounts: state.accounts,
-          activeAccount: state.activeAccount,
+          accounts: state.accounts.map(stripSecrets),
+          activeAccount: stripSecrets(state.activeAccount),
           emails: state.emails,
           preferences: state.preferences,
           security: state.security,
