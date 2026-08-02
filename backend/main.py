@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Header, Depends
+from fastapi import FastAPI, HTTPException, Header, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, List
@@ -75,6 +75,33 @@ def _require_session(authorization: Optional[str] = Header(None)) -> dict:
         raise HTTPException(status_code=401, detail="Session expired, please log in again")
     session["expires"] = time.time() + SESSION_TTL_SECONDS  # sliding expiry
     return session
+
+
+# --- Rate limiting (brute-force protection) ---
+# In-memory only, same caveat as SESSIONS: fine for a single process, move to
+# Redis/DB if you scale to multiple backend workers.
+_rate_buckets: dict[str, list[float]] = {}
+
+
+def _client_ip(request: Request) -> str:
+    return request.client.host if request.client else "unknown"
+
+
+def _too_many_attempts(key: str, max_attempts: int, window_seconds: int) -> bool:
+    now = time.time()
+    bucket = _rate_buckets.setdefault(key, [])
+    cutoff = now - window_seconds
+    while bucket and bucket[0] < cutoff:
+        bucket.pop(0)
+    return len(bucket) >= max_attempts
+
+
+def _record_attempt(key: str) -> None:
+    _rate_buckets.setdefault(key, []).append(time.time())
+
+
+def _reset_attempts(key: str) -> None:
+    _rate_buckets.pop(key, None)
 
 
 def get_db():
@@ -172,7 +199,15 @@ def init_db():
 
 
 @app.post("/register")
-def register(user: UserCreate):
+def register(user: UserCreate, request: Request):
+    ip_key = f"register-ip:{_client_ip(request)}"
+    if _too_many_attempts(ip_key, max_attempts=5, window_seconds=3600):
+        raise HTTPException(
+            status_code=429,
+            detail="Too many registration attempts from this network. Please try again later.",
+        )
+    _record_attempt(ip_key)
+
     username = user.username or user.email.split('@')[0]
     email = user.email.strip().lower()
     hashed = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
@@ -231,8 +266,22 @@ def register(user: UserCreate):
 
 
 @app.post("/login")
-def login(user: UserCreate):
+def login(user: UserCreate, request: Request):
     email = user.email.strip().lower()
+    email_key = f"login-email:{email}"
+    ip_key = f"login-ip:{_client_ip(request)}"
+
+    # Per-email lockout stops targeted guessing of one account; per-IP
+    # lockout stops one source spraying many emails. Both must be checked
+    # before touching the DB so a locked-out caller can't even probe
+    # whether an email exists.
+    if _too_many_attempts(email_key, max_attempts=5, window_seconds=900) or \
+       _too_many_attempts(ip_key, max_attempts=20, window_seconds=900):
+        raise HTTPException(
+            status_code=429,
+            detail="Too many login attempts. Please try again in a few minutes.",
+        )
+
     conn = get_db()
     cur = conn.cursor()
     cur.execute("SELECT * FROM users WHERE email = ?", (email,))
@@ -240,12 +289,19 @@ def login(user: UserCreate):
     if not row:
         cur.close()
         conn.close()
+        _record_attempt(email_key)
+        _record_attempt(ip_key)
         raise HTTPException(status_code=401, detail="Invalid credentials")
     password_match = bcrypt.checkpw(user.password.encode('utf-8'), row['password_hash'].encode('utf-8'))
     if not password_match:
         cur.close()
         conn.close()
+        _record_attempt(email_key)
+        _record_attempt(ip_key)
         raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    _reset_attempts(email_key)
+    _reset_attempts(ip_key)
 
     result = dict(row)
     token = _create_session(email, user.password)
