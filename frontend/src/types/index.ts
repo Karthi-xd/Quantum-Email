@@ -22,6 +22,7 @@ export interface Account {
   imapHost: string;
   imapPort: number;
   password?: string;
+  token?: string;
   kyberPub?: string;
   diliPub?: string;
   x25519Pub?: string;
