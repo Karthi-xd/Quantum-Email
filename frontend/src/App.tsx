@@ -88,6 +88,7 @@ export default function Root() {
         email,
         displayName,
         password,
+        token: data.token || '',
         kyberPub: data.kyber_pub || '',
         diliPub: data.dili_pub || '',
         x25519Pub: data.x25519_pub || '',
