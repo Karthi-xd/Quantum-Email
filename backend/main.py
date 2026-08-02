@@ -41,7 +41,7 @@ app = FastAPI(title="Q-Mail Backend", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[o.strip() for o in settings.ALLOWED_ORIGINS.split(",") if o.strip()],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -155,6 +155,10 @@ def migrate_db():
     for col in new_email_cols:
         if not column_exists(cur, "emails", col):
             cur.execute(f"ALTER TABLE emails ADD COLUMN {col} TEXT")
+    new_email_flag_cols = ["deleted_by_sender", "deleted_by_recipient"]
+    for col in new_email_flag_cols:
+        if not column_exists(cur, "emails", col):
+            cur.execute(f"ALTER TABLE emails ADD COLUMN {col} INTEGER DEFAULT 0")
     conn.commit()
     cur.close()
     conn.close()
@@ -626,7 +630,7 @@ def get_emails(session: dict = Depends(_require_session)):
         conn.close()
         raise
     cur.execute(
-        "SELECT * FROM emails WHERE to_email = ? ORDER BY timestamp DESC",
+        "SELECT * FROM emails WHERE to_email = ? AND deleted_by_recipient = 0 ORDER BY timestamp DESC",
         (email,)
     )
     rows = [dict(r) for r in cur.fetchall()]
@@ -650,7 +654,7 @@ def get_sent_emails(session: dict = Depends(_require_session)):
         conn.close()
         raise
     cur.execute(
-        "SELECT * FROM emails WHERE from_email = ? ORDER BY timestamp DESC",
+        "SELECT * FROM emails WHERE from_email = ? AND deleted_by_sender = 0 ORDER BY timestamp DESC",
         (email,)
     )
     rows = [dict(r) for r in cur.fetchall()]
@@ -691,18 +695,36 @@ def delete_email(email_id: str, session: dict = Depends(_require_session)):
     conn = get_db()
     cur = conn.cursor()
 
-    cur.execute("SELECT from_email, to_email FROM emails WHERE id = ?", (email_id,))
+    cur.execute(
+        "SELECT from_email, to_email, deleted_by_sender, deleted_by_recipient FROM emails WHERE id = ?",
+        (email_id,)
+    )
     row = cur.fetchone()
     if not row:
         cur.close()
         conn.close()
         raise HTTPException(status_code=404, detail="Email not found")
-    if row['from_email'] != email and row['to_email'] != email:
+
+    is_sender = row['from_email'] == email
+    is_recipient = row['to_email'] == email
+    if not is_sender and not is_recipient:
         cur.close()
         conn.close()
         raise HTTPException(status_code=403, detail="Not your email")
 
-    cur.execute("DELETE FROM emails WHERE id = ?", (email_id,))
+    deleted_by_sender = 1 if is_sender else row['deleted_by_sender']
+    deleted_by_recipient = 1 if is_recipient else row['deleted_by_recipient']
+
+    if deleted_by_sender and deleted_by_recipient:
+        # Both sides are done with it — safe to actually remove the row now.
+        cur.execute("DELETE FROM emails WHERE id = ?", (email_id,))
+    else:
+        # Only hide it from the caller's own view; the other party still has theirs.
+        cur.execute(
+            "UPDATE emails SET deleted_by_sender = ?, deleted_by_recipient = ? WHERE id = ?",
+            (deleted_by_sender, deleted_by_recipient, email_id)
+        )
+
     conn.commit()
     cur.close()
     conn.close()

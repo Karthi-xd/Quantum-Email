@@ -1,12 +1,9 @@
 fastapi
 uvicorn
-psycopg[binary]
 pydantic
 pydantic-settings
 python-multipart
-python-dotenv
 kyber-py
 dilithium-py
 bcrypt
 cryptography
-argon2-cffi
