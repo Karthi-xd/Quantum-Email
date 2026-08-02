@@ -1,10 +1,12 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, List
 import sqlite3
 import os
 import base64
+import secrets
+import time
 import smtplib
 import imaplib
 import email as email_lib
@@ -45,6 +47,35 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# --- Sessions ---
+# In-memory only: tokens are lost on server restart, which is fine since
+# they're short-lived and re-issued on login. Not shared across processes -
+# if you run multiple backend workers, move this to Redis/DB.
+SESSION_TTL_SECONDS = 30 * 60  # 30 minutes, sliding expiry
+SESSIONS: dict[str, dict] = {}
+
+
+def _create_session(email: str, password: str) -> str:
+    token = secrets.token_urlsafe(32)
+    SESSIONS[token] = {
+        "email": email,
+        "password": password,
+        "expires": time.time() + SESSION_TTL_SECONDS,
+    }
+    return token
+
+
+def _require_session(authorization: Optional[str] = Header(None)) -> dict:
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Missing or invalid Authorization header")
+    token = authorization.split(" ", 1)[1].strip()
+    session = SESSIONS.get(token)
+    if not session or session["expires"] < time.time():
+        SESSIONS.pop(token, None)
+        raise HTTPException(status_code=401, detail="Session expired, please log in again")
+    session["expires"] = time.time() + SESSION_TTL_SECONDS  # sliding expiry
+    return session
+
 
 def get_db():
     conn = sqlite3.connect(settings.DATABASE_PATH)
@@ -65,20 +96,9 @@ class EmailSend(BaseModel):
     to_email: str
     subject: str
     body: str
-    account_password: str = ""
     smtp_host: str = "smtp.gmail.com"
     smtp_port: int = 587
     smtp_password: str = ""
-
-
-class EmailFetchRequest(BaseModel):
-    email: str
-    password: str
-
-
-class EmailDeleteRequest(BaseModel):
-    email: str
-    password: str
 
 
 class ImapFetch(BaseModel):
@@ -192,8 +212,10 @@ def register(user: UserCreate):
              pqc_keys['fingerprint'], key_salt)
         )
         conn.commit()
+        token = _create_session(email, user.password)
         return {
             "message": "User registered successfully",
+            "token": token,
             "username": username,
             "kyber_pub": pqc_keys['kyber_pub'],
             "dili_pub": pqc_keys['dili_pub'],
@@ -226,9 +248,11 @@ def login(user: UserCreate):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     result = dict(row)
+    token = _create_session(email, user.password)
 
     resp = {
         "message": "Login successful",
+        "token": token,
         "email": email,
         "username": result['username'],
         "kyber_pub": result.get('kyber_public_key') or "",
@@ -279,14 +303,24 @@ def login(user: UserCreate):
     return resp
 
 
+@app.post("/logout")
+def logout(authorization: Optional[str] = Header(None)):
+    if authorization and authorization.startswith("Bearer "):
+        SESSIONS.pop(authorization.split(" ", 1)[1].strip(), None)
+    return {"message": "Logged out"}
+
+
 @app.post("/send-email")
-def send_email(email: EmailSend):
+def send_email(email: EmailSend, session: dict = Depends(_require_session)):
+    if email.from_email.strip().lower() != session["email"]:
+        raise HTTPException(status_code=403, detail="Cannot send as another account")
+    account_password = session["password"]
     conn = get_db()
     cur = conn.cursor()
 
     email_id = str(uuid.uuid4())
 
-    if email.account_password:
+    if account_password:
         cur.execute("SELECT * FROM users WHERE email = ?", (email.from_email,))
         sender_row = cur.fetchone()
         cur.execute("SELECT * FROM users WHERE email = ?", (email.to_email,))
@@ -294,7 +328,7 @@ def send_email(email: EmailSend):
         sender = dict(sender_row) if sender_row else None
         recipient = dict(recipient_row) if recipient_row else None
 
-        if sender and not bcrypt.checkpw(email.account_password.encode('utf-8'), sender['password_hash'].encode('utf-8')):
+        if sender and not bcrypt.checkpw(account_password.encode('utf-8'), sender['password_hash'].encode('utf-8')):
             cur.close()
             conn.close()
             raise HTTPException(status_code=401, detail="Invalid account password")
@@ -311,10 +345,10 @@ def send_email(email: EmailSend):
             try:
                 sender_salt = base64.b64decode(sender['key_salt'])
                 dili_priv_bytes = decrypt_private_key(
-                    sender['dilithium_private_key_enc'], email.account_password, sender_salt
+                    sender['dilithium_private_key_enc'], account_password, sender_salt
                 )
                 ed25519_priv_bytes = decrypt_private_key(
-                    sender['ed25519_private_key_enc'], email.account_password, sender_salt
+                    sender['ed25519_private_key_enc'], account_password, sender_salt
                 )
 
                 recipient_pub = {
@@ -357,7 +391,7 @@ def send_email(email: EmailSend):
     if email.smtp_password:
         try:
             smtp_body = email.body
-            if email.account_password:
+            if account_password:
                 cur.execute("SELECT * FROM users WHERE email = ?", (email.to_email,))
                 to_row = cur.fetchone()
                 to_user = dict(to_row) if to_row else None
@@ -367,8 +401,8 @@ def send_email(email: EmailSend):
                     from_user = dict(from_row) if from_row else None
                     if from_user:
                         f_salt = base64.b64decode(from_user['key_salt'])
-                        fdili = decrypt_private_key(from_user['dilithium_private_key_enc'], email.account_password, f_salt)
-                        fed = decrypt_private_key(from_user['ed25519_private_key_enc'], email.account_password, f_salt)
+                        fdili = decrypt_private_key(from_user['dilithium_private_key_enc'], account_password, f_salt)
+                        fed = decrypt_private_key(from_user['ed25519_private_key_enc'], account_password, f_salt)
                         rpub = {
                             'kyber_pub_b64': to_user['kyber_public_key'],
                             'x25519_pub_b64': to_user['x25519_public_key'],
@@ -501,12 +535,12 @@ def _authenticate(cur, email: str, password: str) -> dict:
 
 
 @app.post("/emails")
-def get_emails(req: EmailFetchRequest):
-    email = req.email.strip().lower()
+def get_emails(session: dict = Depends(_require_session)):
+    email = session["email"]
     conn = get_db()
     cur = conn.cursor()
     try:
-        user = _authenticate(cur, email, req.password)
+        user = _authenticate(cur, email, session["password"])
     except HTTPException:
         cur.close()
         conn.close()
@@ -517,7 +551,7 @@ def get_emails(req: EmailFetchRequest):
     )
     rows = [dict(r) for r in cur.fetchall()]
 
-    result = [_decrypt_email_row(r, user, req.password, conn, 'from_email') for r in rows]
+    result = [_decrypt_email_row(r, user, session["password"], conn, 'from_email') for r in rows]
 
     cur.close()
     conn.close()
@@ -525,12 +559,12 @@ def get_emails(req: EmailFetchRequest):
 
 
 @app.post("/emails/sent")
-def get_sent_emails(req: EmailFetchRequest):
-    email = req.email.strip().lower()
+def get_sent_emails(session: dict = Depends(_require_session)):
+    email = session["email"]
     conn = get_db()
     cur = conn.cursor()
     try:
-        user = _authenticate(cur, email, req.password)
+        user = _authenticate(cur, email, session["password"])
     except HTTPException:
         cur.close()
         conn.close()
@@ -541,7 +575,7 @@ def get_sent_emails(req: EmailFetchRequest):
     )
     rows = [dict(r) for r in cur.fetchall()]
 
-    result = [_decrypt_email_row(r, user, req.password, conn, 'to_email') for r in rows]
+    result = [_decrypt_email_row(r, user, session["password"], conn, 'to_email') for r in rows]
 
     cur.close()
     conn.close()
@@ -572,16 +606,10 @@ def get_public_keys(email: str):
 
 
 @app.delete("/emails/{email_id}")
-def delete_email(email_id: str, req: EmailDeleteRequest):
-    email = req.email.strip().lower()
+def delete_email(email_id: str, session: dict = Depends(_require_session)):
+    email = session["email"]
     conn = get_db()
     cur = conn.cursor()
-    try:
-        _authenticate(cur, email, req.password)
-    except HTTPException:
-        cur.close()
-        conn.close()
-        raise
 
     cur.execute("SELECT from_email, to_email FROM emails WHERE id = ?", (email_id,))
     row = cur.fetchone()
