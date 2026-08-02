@@ -135,6 +135,11 @@ class ImapFetch(BaseModel):
     imap_port: int = 993
 
 
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+
+
 def column_exists(cur, table, col):
     cur.execute(f"PRAGMA table_info({table})")
     return any(row[1] == col for row in cur.fetchall())
@@ -368,6 +373,69 @@ def logout(authorization: Optional[str] = Header(None)):
     if authorization and authorization.startswith("Bearer "):
         SESSIONS.pop(authorization.split(" ", 1)[1].strip(), None)
     return {"message": "Logged out"}
+
+
+@app.post("/change-password")
+def change_password(req: ChangePasswordRequest, session: dict = Depends(_require_session)):
+    if len(req.new_password) < 6:
+        raise HTTPException(status_code=400, detail="New password must be at least 6 characters")
+
+    email = session["email"]
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM users WHERE email = ?", (email,))
+    row = cur.fetchone()
+    if not row:
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=404, detail="User not found")
+    user = dict(row)
+
+    if not bcrypt.checkpw(req.current_password.encode('utf-8'), user['password_hash'].encode('utf-8')):
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=401, detail="Current password is incorrect")
+
+    # Unlock every private key with the OLD password + its stored salt,
+    # then re-lock all of them with the NEW password + a fresh salt.
+    old_salt = base64.b64decode(user['key_salt']) if user.get('key_salt') else None
+    new_salt_bytes = os.urandom(16)
+    new_salt = base64.b64encode(new_salt_bytes).decode('utf-8')
+    new_hash = bcrypt.hashpw(req.new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+    key_cols = [
+        "kyber_private_key_enc", "dilithium_private_key_enc",
+        "x25519_private_key_enc", "ed25519_private_key_enc",
+    ]
+    try:
+        re_encrypted = {}
+        for col in key_cols:
+            if not user.get(col) or not old_salt:
+                continue
+            plain = decrypt_private_key(user[col], req.current_password, old_salt)
+            re_encrypted[col] = encrypt_private_key(plain, req.new_password, new_salt_bytes)
+    except Exception:
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=500, detail="Could not re-encrypt keys with the new password")
+
+    set_clauses = ["password_hash = ?", "key_salt = ?"]
+    params = [new_hash, new_salt]
+    for col, val in re_encrypted.items():
+        set_clauses.append(f"{col} = ?")
+        params.append(val)
+    params.append(email)
+
+    cur.execute(f"UPDATE users SET {', '.join(set_clauses)} WHERE email = ?", params)
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    # Keep the caller logged in — update the live session to the new password
+    # so future requests in this session decrypt with the right key.
+    session["password"] = req.new_password
+
+    return {"message": "Password changed successfully"}
 
 
 @app.post("/send-email")

@@ -57,7 +57,7 @@ interface EmailStore {
   setShowSecurity: (show: boolean) => void;
   setPreference: <K extends keyof EmailStore['preferences']>(key: K, value: EmailStore['preferences'][K]) => void;
   setSecurity: <K extends keyof EmailStore['security']>(key: K, value: EmailStore['security'][K]) => void;
-  updatePassword: (currentPassword: string, newPassword: string) => boolean;
+  updatePassword: (currentPassword: string, newPassword: string) => Promise<{ success: boolean; error?: string }>;
   updateAccount: (account: Account) => void;
   addAccount: (account: Account) => void;
   removeAccount: (accountId: string) => void;
@@ -183,16 +183,38 @@ export const useEmailStore = create<EmailStore>()(
           security: { ...state.security, [key]: value },
         })),
 
-      updatePassword: (currentPassword, newPassword) => {
+      updatePassword: async (currentPassword, newPassword) => {
         const state = get();
-        if (!state.activeAccount) return false;
-        if (currentPassword !== state.activeAccount.password) return false;
-        const updatedAccount = { ...state.activeAccount, password: newPassword };
+        if (!state.activeAccount) return { success: false, error: 'No active account' };
+        try {
+          const res = await fetch(`${API_BASE}/change-password`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${state.activeAccount.token || ''}`,
+            },
+            body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            return { success: false, error: data.detail || 'Could not change password' };
+          }
+        } catch {
+          return { success: false, error: 'Unable to reach the Q-Mail server' };
+        }
+
+        const updatedAccount = {
+          ...state.activeAccount,
+          password: newPassword,
+          smtpPassword: state.activeAccount.smtpPassword === state.activeAccount.password
+            ? newPassword
+            : state.activeAccount.smtpPassword,
+        };
         const updatedAccounts = state.accounts.map(a =>
           a.id === updatedAccount.id ? updatedAccount : a
         );
         set({ activeAccount: updatedAccount, accounts: updatedAccounts });
-        return true;
+        return { success: true };
       },
 
       updateAccount: (updatedAccount) => {

@@ -6,6 +6,8 @@ import './AccountsModal.css';
 import './Compose.css';
 import './Buttons.css';
 
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000';
+
 export function AccountsModal() {
   const {
     showAccounts,
@@ -31,6 +33,7 @@ export function AccountsModal() {
     password: '',
   });
   const [formError, setFormError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -56,7 +59,67 @@ export function AccountsModal() {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
-  const handleAddAccount = () => {
+  const authenticateNode = async (
+    email: string,
+    password: string
+  ): Promise<
+    | { success: true; token: string; keys: Pick<Account, 'kyberPub' | 'diliPub' | 'x25519Pub' | 'ed25519Pub' | 'fingerprint'> }
+    | { success: false; error: string }
+  > => {
+    try {
+      const loginRes = await fetch(`${API_BASE}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const loginData = await loginRes.json();
+      if (loginRes.ok) {
+        return {
+          success: true,
+          token: loginData.token || '',
+          keys: {
+            kyberPub: loginData.kyber_pub || '',
+            diliPub: loginData.dili_pub || '',
+            x25519Pub: loginData.x25519_pub || '',
+            ed25519Pub: loginData.ed25519_pub || '',
+            fingerprint: loginData.fingerprint || '',
+          },
+        };
+      }
+      if (loginRes.status !== 401) {
+        return { success: false, error: loginData.detail || 'Login failed' };
+      }
+
+      // No existing account with this password — try creating one.
+      const regRes = await fetch(`${API_BASE}/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const regData = await regRes.json();
+      if (regRes.ok) {
+        return {
+          success: true,
+          token: regData.token || '',
+          keys: {
+            kyberPub: regData.kyber_pub || '',
+            diliPub: regData.dili_pub || '',
+            x25519Pub: regData.x25519_pub || '',
+            ed25519Pub: regData.ed25519_pub || '',
+            fingerprint: regData.fingerprint || '',
+          },
+        };
+      }
+      if (regData.detail === 'Email already exists') {
+        return { success: false, error: 'Incorrect password for this Q-Mail address' };
+      }
+      return { success: false, error: regData.detail || 'Could not connect this node' };
+    } catch {
+      return { success: false, error: 'Unable to reach the Q-Mail server' };
+    }
+  };
+
+  const handleAddAccount = async () => {
     setFormError('');
     
     if (!addFormData.email || !addFormData.password) {
@@ -74,12 +137,27 @@ export function AccountsModal() {
       return;
     }
 
+    setSubmitting(true);
+    const auth = await authenticateNode(addFormData.email, addFormData.password);
+    setSubmitting(false);
+
+    if (!auth.success) {
+      setFormError(auth.error);
+      return;
+    }
+
     const newAccount: Account = {
       id: crypto.randomUUID(),
       email: addFormData.email,
       displayName: addFormData.displayName || addFormData.email.split('@')[0],
       password: addFormData.password,
       smtpPassword: addFormData.password,
+      token: auth.token,
+      kyberPub: auth.keys.kyberPub,
+      diliPub: auth.keys.diliPub,
+      x25519Pub: auth.keys.x25519Pub,
+      ed25519Pub: auth.keys.ed25519Pub,
+      fingerprint: auth.keys.fingerprint,
       smtpHost: addFormData.smtpHost || 'smtp.gmail.com',
       smtpPort: parseInt(addFormData.smtpPort) || 587,
       imapHost: addFormData.imapHost || 'imap.gmail.com',
@@ -113,7 +191,7 @@ export function AccountsModal() {
     });
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (!editingAccount) return;
     
     setFormError('');
@@ -121,6 +199,28 @@ export function AccountsModal() {
     if (!addFormData.email || !validateEmail(addFormData.email)) {
       setFormError('Please enter a valid email address');
       return;
+    }
+
+    let token = editingAccount.token;
+    let keys: Pick<Account, 'kyberPub' | 'diliPub' | 'x25519Pub' | 'ed25519Pub' | 'fingerprint'> = {
+      kyberPub: editingAccount.kyberPub,
+      diliPub: editingAccount.diliPub,
+      x25519Pub: editingAccount.x25519Pub,
+      ed25519Pub: editingAccount.ed25519Pub,
+      fingerprint: editingAccount.fingerprint,
+    };
+
+    const passwordChanged = addFormData.password && addFormData.password !== editingAccount.password;
+    if (passwordChanged || addFormData.email !== editingAccount.email) {
+      setSubmitting(true);
+      const auth = await authenticateNode(addFormData.email, addFormData.password || editingAccount.password || '');
+      setSubmitting(false);
+      if (!auth.success) {
+        setFormError(auth.error);
+        return;
+      }
+      token = auth.token;
+      keys = auth.keys;
     }
 
     const updatedAccount: Account = {
@@ -133,6 +233,8 @@ export function AccountsModal() {
       smtpPort: parseInt(addFormData.smtpPort) || 587,
       imapHost: addFormData.imapHost,
       imapPort: parseInt(addFormData.imapPort) || 993,
+      token,
+      ...keys,
     };
 
     updateAccount(updatedAccount);
@@ -277,10 +379,10 @@ export function AccountsModal() {
       {formError && <div className="form-error">{formError}</div>}
 
       <div className="add-account-actions">
-        <button className="btn-prime" onClick={editingAccount ? handleSaveEdit : handleAddAccount}>
-          {editingAccount ? 'Save Changes' : 'Connect Node'}
+        <button className="btn-prime" onClick={editingAccount ? handleSaveEdit : handleAddAccount} disabled={submitting}>
+          {submitting ? 'Connecting…' : editingAccount ? 'Save Changes' : 'Connect Node'}
         </button>
-        <button className="btn-ghost" onClick={handleCancelForm}>
+        <button className="btn-ghost" onClick={handleCancelForm} disabled={submitting}>
           Cancel
         </button>
       </div>

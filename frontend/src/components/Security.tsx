@@ -24,6 +24,7 @@ export function Security() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [changingPassword, setChangingPassword] = useState(false);
 
   useEffect(() => {
     setQuantumEncryption(security.quantumEncryption);
@@ -73,7 +74,7 @@ export function Security() {
     toast.success(`Auto-lock set to ${time} minutes`);
   };
 
-  const handlePasswordChange = () => {
+  const handlePasswordChange = async () => {
     setPasswordError('');
     
     if (!currentPassword || !newPassword || !confirmPassword) {
@@ -91,16 +92,18 @@ export function Security() {
       return;
     }
     
-    const success = updatePassword(currentPassword, newPassword);
-    
-    if (success) {
+    setChangingPassword(true);
+    const result = await updatePassword(currentPassword, newPassword);
+    setChangingPassword(false);
+
+    if (result.success) {
       toast.success('Decoherence key updated successfully');
       setShowChangePassword(false);
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
     } else {
-      setPasswordError('Current key is incorrect');
+      setPasswordError(result.error || 'Current key is incorrect');
     }
   };
 
@@ -301,8 +304,8 @@ export function Security() {
                   {passwordError && (
                     <div className="password-error">{passwordError}</div>
                   )}
-                  <button className="sec-btn primary" onClick={handlePasswordChange}>
-                    Update Key
+                  <button className="sec-btn primary" onClick={handlePasswordChange} disabled={changingPassword}>
+                    {changingPassword ? 'Updating…' : 'Update Key'}
                   </button>
                 </div>
               )}
