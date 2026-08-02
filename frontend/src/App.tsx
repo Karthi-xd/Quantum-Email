@@ -66,7 +66,6 @@ export default function Root() {
   const { page, setPage, addAccount } = useEmailStore();
 
   const handleLogin = async (email: string, password: string) => {
-    console.log('Attempting login for:', email);
     try {
       const response = await fetch(`${API_BASE}/login`, {
         method: 'POST',
@@ -74,9 +73,7 @@ export default function Root() {
         body: JSON.stringify({ email, password }),
       });
 
-      console.log('Login response status:', response.status);
       const data = await response.json();
-      console.log('Login response data:', data);
 
       if (!response.ok) {
         return { success: false, error: data.detail || 'Invalid credentials' };
@@ -102,8 +99,7 @@ export default function Root() {
       addAccount(newAccount);
       setPage('app');
       return { success: true };
-    } catch (err) {
-      console.error('Login error:', err);
+    } catch {
       return { success: false, error: 'Login failed. Check your credentials or ensure the backend is running.' };
     }
   };
