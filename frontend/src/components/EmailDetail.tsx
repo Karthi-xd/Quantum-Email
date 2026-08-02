@@ -43,7 +43,7 @@ export function EmailDetail() {
 
   const handleDelete = async () => {
     if (!activeAccount) return;
-    await emailService.deleteEmail(selectedEmail.id, activeAccount.email, activeAccount.password);
+    await emailService.deleteEmail(selectedEmail.id, activeAccount.token || '');
     deleteEmail(selectedEmail.id);
   };
 
