@@ -10,13 +10,15 @@ export const emailService = {
     try {
       const res = await fetch(`${API_BASE}/send-email`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${account.token || ''}`,
+        },
         body: JSON.stringify({
           from_email: account.email,
           to_email: payload.toEmail,
           subject: payload.subject,
           body: payload.body,
-          account_password: account.password || '',
           smtp_host: account.smtpHost,
           smtp_port: account.smtpPort,
           smtp_password: account.smtpPassword || '',
@@ -37,11 +39,10 @@ export const emailService = {
     try {
       const response = await fetch(`${API_BASE}/emails`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: account.email,
-          password: account.password || '',
-        }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${account.token || ''}`,
+        },
       });
 
       if (!response.ok) {
@@ -60,11 +61,10 @@ export const emailService = {
     try {
       const response = await fetch(`${API_BASE}/emails/sent`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: account.email,
-          password: account.password || '',
-        }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${account.token || ''}`,
+        },
       });
 
       if (!response.ok) {
@@ -102,12 +102,14 @@ export const emailService = {
     }
   },
 
-  async deleteEmail(emailId: string, email: string, password: string): Promise<{ success: boolean; error?: string }> {
+  async deleteEmail(emailId: string, token: string): Promise<{ success: boolean; error?: string }> {
     try {
       const res = await fetch(`${API_BASE}/emails/${encodeURIComponent(emailId)}`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token || ''}`,
+        },
       });
       if (!res.ok) {
         const data = await res.json();
