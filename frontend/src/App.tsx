@@ -108,8 +108,9 @@ export default function Root() {
     }
   };
 
-  const handleRegisterSuccess = () => {
-    setPage('login');
+  const handleRegisterSuccess = (account: Account) => {
+    addAccount(account);
+    setPage('app');
   };
 
   useEffect(() => {

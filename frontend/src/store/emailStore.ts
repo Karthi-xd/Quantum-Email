@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Email, Account, Page } from '../types';
 
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000';
+
 interface EmailStore {
   page: Page;
   activeCategory: string;
@@ -263,7 +265,16 @@ export const useEmailStore = create<EmailStore>()(
       setSearchQuery: (query) => set({ searchQuery: query }),
       setRefreshing: (refreshing) => set({ refreshing }),
 
-      logout: () =>
+      logout: () => {
+        const token = get().activeAccount?.token;
+        if (token) {
+          fetch(`${API_BASE}/logout`, {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${token}` },
+          }).catch(() => {
+            // best-effort: token will simply expire server-side if this fails
+          });
+        }
         set({
           page: 'landing',
           activeCategory: 'inbox',
@@ -275,7 +286,8 @@ export const useEmailStore = create<EmailStore>()(
           showSecurity: false,
           composeData: { to: '', subject: '', body: '' },
           searchQuery: '',
-        }),
+        });
+      },
 
       clearAllData: () => {
         localStorage.clear();

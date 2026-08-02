@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { MatrixRain } from './MatrixRain';
+import type { Account } from '../types';
 import './Login.css';
 
 const API_BASE = 'http://localhost:8000';
 
 interface RegisterProps {
-  onRegisterSuccess: () => void;
+  onRegisterSuccess: (account: Account) => void;
   onGoToLogin: () => void;
 }
 
@@ -41,12 +42,30 @@ export function Register({ onRegisterSuccess, onGoToLogin }: RegisterProps) {
         }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const data = await response.json();
         throw new Error(data.detail || 'Registration failed');
       }
 
-      onRegisterSuccess();
+      const newAccount: Account = {
+        id: '',
+        email: formData.email,
+        displayName: formData.username,
+        password: formData.password,
+        token: data.token || '',
+        kyberPub: data.kyber_pub || '',
+        diliPub: data.dili_pub || '',
+        x25519Pub: data.x25519_pub || '',
+        ed25519Pub: data.ed25519_pub || '',
+        fingerprint: data.fingerprint || '',
+        smtpHost: 'smtp.gmail.com',
+        smtpPort: 587,
+        imapHost: 'imap.gmail.com',
+        imapPort: 993,
+      };
+
+      onRegisterSuccess(newAccount);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Quantum handshake failed');
       setRegistering(false);
