@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useEmailStore } from '../store/emailStore';
+import { useToastStore } from '../store/toastStore';
 import { emailService } from '../services/emailService';
 import type { Email } from '../types';
 import './Compose.css';
@@ -19,7 +20,9 @@ export function Compose() {
     activeAccount,
     setShowAccountSwitcher,
     addSentEmail,
+    logout,
   } = useEmailStore();
+  const addToast = useToastStore((s) => s.addToast);
 
   const [errors, setErrors] = useState<{ to?: string; subject?: string; body?: string }>({});
   const [touched, setTouched] = useState<{ to?: boolean }>({});
@@ -81,6 +84,11 @@ export function Compose() {
       };
       addSentEmail(sentEmail);
       clearCompose();
+    } else if (result.authError) {
+      logout();
+      addToast({ type: 'warning', message: 'Your session expired — please log in again.' });
+    } else {
+      addToast({ type: 'error', message: result.error || 'Failed to send the message.' });
     }
   };
 

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useEmailStore, getFilteredEmails } from '../store/emailStore';
+import { useToastStore } from '../store/toastStore';
 import { NAV_ITEMS } from '../types';
 import { emailService } from '../services/emailService';
 import type { Email, Account } from '../types';
@@ -38,6 +39,8 @@ export function EmailList() {
     acc.displayName.toLowerCase().includes(accountSearch.toLowerCase())
   );
 
+  const addToast = useToastStore((s) => s.addToast);
+
   const handleSync = useCallback(async () => {
     const acc = activeAccountRef.current;
     if (!acc || syncingRef.current) return;
@@ -48,6 +51,14 @@ export function EmailList() {
       emailService.fetchEmails(acc),
       emailService.fetchSentEmails(acc),
     ]);
+
+    if (inboxResult.authError || sentResult.authError) {
+      syncingRef.current = false;
+      setRefreshing(false);
+      logout();
+      addToast({ type: 'warning', message: 'Your session expired — please log in again.' });
+      return;
+    }
 
     const inboxEmails = [...(inboxResult.emails || [])];
     const sentEmails = sentResult.emails || [];
@@ -62,7 +73,7 @@ export function EmailList() {
     });
     syncingRef.current = false;
     setRefreshing(false);
-  }, [setEmails, setRefreshing]);
+  }, [setEmails, setRefreshing, logout, addToast]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {

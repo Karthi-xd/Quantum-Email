@@ -6,7 +6,7 @@ export const emailService = {
   async sendEmail(
     account: Account,
     payload: { toEmail: string; subject: string; body: string }
-  ): Promise<{ success: boolean; id?: string; email?: Email; error?: string }> {
+  ): Promise<{ success: boolean; id?: string; email?: Email; error?: string; authError?: boolean }> {
     try {
       const res = await fetch(`${API_BASE}/send-email`, {
         method: 'POST',
@@ -26,7 +26,7 @@ export const emailService = {
       });
       if (!res.ok) {
         const data = await res.json();
-        return { success: false, error: data.detail || 'Failed to send' };
+        return { success: false, error: data.detail || 'Failed to send', authError: res.status === 401 };
       }
       const data = await res.json();
       return { success: true, id: data.id };
@@ -35,7 +35,7 @@ export const emailService = {
     }
   },
 
-  async fetchEmails(account: Account): Promise<{ success: boolean; emails?: Email[]; error?: string }> {
+  async fetchEmails(account: Account): Promise<{ success: boolean; emails?: Email[]; error?: string; authError?: boolean }> {
     try {
       const response = await fetch(`${API_BASE}/emails`, {
         method: 'POST',
@@ -47,7 +47,7 @@ export const emailService = {
 
       if (!response.ok) {
         const data = await response.json();
-        return { success: false, error: data.detail || 'Failed to fetch emails' };
+        return { success: false, error: data.detail || 'Failed to fetch emails', authError: response.status === 401 };
       }
 
       const emails: Email[] = await response.json();
@@ -57,7 +57,7 @@ export const emailService = {
     }
   },
 
-  async fetchSentEmails(account: Account): Promise<{ success: boolean; emails?: Email[]; error?: string }> {
+  async fetchSentEmails(account: Account): Promise<{ success: boolean; emails?: Email[]; error?: string; authError?: boolean }> {
     try {
       const response = await fetch(`${API_BASE}/emails/sent`, {
         method: 'POST',
@@ -69,7 +69,7 @@ export const emailService = {
 
       if (!response.ok) {
         const data = await response.json();
-        return { success: false, error: data.detail || 'Failed to fetch sent emails' };
+        return { success: false, error: data.detail || 'Failed to fetch sent emails', authError: response.status === 401 };
       }
 
       const emails: Email[] = await response.json();
@@ -102,7 +102,7 @@ export const emailService = {
     }
   },
 
-  async deleteEmail(emailId: string, token: string): Promise<{ success: boolean; error?: string }> {
+  async deleteEmail(emailId: string, token: string): Promise<{ success: boolean; error?: string; authError?: boolean }> {
     try {
       const res = await fetch(`${API_BASE}/emails/${encodeURIComponent(emailId)}`, {
         method: 'DELETE',
@@ -113,7 +113,7 @@ export const emailService = {
       });
       if (!res.ok) {
         const data = await res.json();
-        return { success: false, error: data.detail || 'Failed to delete' };
+        return { success: false, error: data.detail || 'Failed to delete', authError: res.status === 401 };
       }
       return { success: true };
     } catch {

@@ -1,10 +1,12 @@
 import { useEmailStore } from '../store/emailStore';
+import { useToastStore } from '../store/toastStore';
 import { emailService } from '../services/emailService';
 import './EmailDetail.css';
 import './Buttons.css';
 
 export function EmailDetail() {
-  const { selectedEmail, setSelectedEmail, deleteEmail, setComposeData, setComposing, activeAccount } = useEmailStore();
+  const { selectedEmail, setSelectedEmail, deleteEmail, setComposeData, setComposing, activeAccount, logout } = useEmailStore();
+  const addToast = useToastStore((s) => s.addToast);
 
   if (!selectedEmail) return null;
 
@@ -43,8 +45,15 @@ export function EmailDetail() {
 
   const handleDelete = async () => {
     if (!activeAccount) return;
-    await emailService.deleteEmail(selectedEmail.id, activeAccount.token || '');
-    deleteEmail(selectedEmail.id);
+    const result = await emailService.deleteEmail(selectedEmail.id, activeAccount.token || '');
+    if (result.success) {
+      deleteEmail(selectedEmail.id);
+    } else if (result.authError) {
+      logout();
+      addToast({ type: 'warning', message: 'Your session expired — please log in again.' });
+    } else {
+      addToast({ type: 'error', message: result.error || 'Failed to delete the email.' });
+    }
   };
 
   return (
