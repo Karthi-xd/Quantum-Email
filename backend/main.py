@@ -151,7 +151,7 @@ def migrate_db():
     for col in new_user_cols:
         if not column_exists(cur, "users", col):
             cur.execute(f"ALTER TABLE users ADD COLUMN {col} TEXT")
-    new_email_cols = ["ed25519_sig"]
+    new_email_cols = ["ed25519_sig", "encrypted_body_self", "signature_self", "ed25519_sig_self"]
     for col in new_email_cols:
         if not column_exists(cur, "emails", col):
             cur.execute(f"ALTER TABLE emails ADD COLUMN {col} TEXT")
@@ -418,12 +418,26 @@ def send_email(email: EmailSend, session: dict = Depends(_require_session)):
 
                 result = encrypt_email_body(email.body, recipient_pub, sender_priv)
 
+                self_result = None
+                if sender.get('kyber_public_key') and sender.get('x25519_public_key'):
+                    # Same body, sealed to our own public key instead of the
+                    # recipient's, so we can decrypt our own Sent copy later.
+                    sender_pub_as_recipient = {
+                        'kyber_pub_b64': sender['kyber_public_key'],
+                        'x25519_pub_b64': sender['x25519_public_key'],
+                    }
+                    self_result = encrypt_email_body(email.body, sender_pub_as_recipient, sender_priv)
+
                 cur.execute(
                     """INSERT INTO emails
-                       (id, from_email, to_email, subject, encrypted_body, signature, ed25519_sig)
-                       VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                       (id, from_email, to_email, subject, encrypted_body, signature, ed25519_sig,
+                        encrypted_body_self, signature_self, ed25519_sig_self)
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                     (email_id, email.from_email, email.to_email, email.subject,
-                     result['encrypted_body'], result['dili_sig'], result['ed25519_sig'])
+                     result['encrypted_body'], result['dili_sig'], result['ed25519_sig'],
+                     self_result['encrypted_body'] if self_result else None,
+                     self_result['dili_sig'] if self_result else None,
+                     self_result['ed25519_sig'] if self_result else None)
                 )
             except Exception as e:
                 print(f"PQC encryption error (saving plaintext fallback): {e}")
@@ -528,7 +542,16 @@ def _decrypt_email_row(row: dict, user: dict, password: str, conn, peer_col: str
         "verified": False,
     }
 
-    if row.get('encrypted_body') and row.get('signature') and row.get('ed25519_sig'):
+    # In the Sent view (peer_col == 'to_email'), the row is our own outgoing
+    # mail: it was sealed to the recipient's public key, which we can't open
+    # with our own private key. Use the self-sealed copy instead, and verify
+    # against our own public key since we signed both copies.
+    is_own_copy = peer_col == 'to_email'
+    body_col = 'encrypted_body_self' if is_own_copy else 'encrypted_body'
+    sig_col = 'signature_self' if is_own_copy else 'signature'
+    ed_col = 'ed25519_sig_self' if is_own_copy else 'ed25519_sig'
+
+    if row.get(body_col) and row.get(sig_col) and row.get(ed_col):
         email_data["encrypted"] = True
         if user and user.get('kyber_private_key_enc') and user.get('x25519_private_key_enc'):
             try:
@@ -538,8 +561,9 @@ def _decrypt_email_row(row: dict, user: dict, password: str, conn, peer_col: str
                 cur2.close()
 
                 peer = dict(peer_row) if peer_row else None
+                pub_source = user if is_own_copy else peer
 
-                if peer and peer.get('dilithium_public_key') and peer.get('ed25519_public_key'):
+                if pub_source and pub_source.get('dilithium_public_key') and pub_source.get('ed25519_public_key'):
                     key_salt = base64.b64decode(user['key_salt'])
                     kyber_priv_bytes = decrypt_private_key(
                         user['kyber_private_key_enc'], password, key_salt
@@ -553,14 +577,14 @@ def _decrypt_email_row(row: dict, user: dict, password: str, conn, peer_col: str
                         'x25519_priv_b64': x25519_priv_bytes.decode('utf-8'),
                     }
                     sender_pub = {
-                        'dili_pub_b64': peer['dilithium_public_key'],
-                        'ed25519_pub_b64': peer['ed25519_public_key'],
+                        'dili_pub_b64': pub_source['dilithium_public_key'],
+                        'ed25519_pub_b64': pub_source['ed25519_public_key'],
                     }
 
                     decrypted = decrypt_email_body(
-                        row['encrypted_body'],
-                        row['signature'],
-                        row['ed25519_sig'],
+                        row[body_col],
+                        row[sig_col],
+                        row[ed_col],
                         recipient_priv,
                         sender_pub,
                     )
