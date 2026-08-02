@@ -133,7 +133,7 @@ export function Security() {
                 <div className="enc-status">
                   <div className={`enc-badge ${quantumEncryption ? 'active' : 'inactive'}`}>
                     <span className="enc-icon">◈</span>
-                    <span>{quantumEncryption ? '256-Qubit Encrypted' : 'Standard Encryption'}</span>
+                    <span>{quantumEncryption ? 'Post-Quantum Encrypted' : 'Standard Encryption'}</span>
                   </div>
                   <span className="enc-timestamp">Last verified: Just now</span>
                 </div>
@@ -143,7 +143,11 @@ export function Security() {
                 <div className="enc-details">
                   <span className="enc-detail-item">
                     <span className="det-icon">◉</span>
-                    Quantum Key Distribution: {quantumEncryption ? 'Active' : 'Disabled'}
+                    Key Exchange: Kyber768 + X25519
+                  </span>
+                  <span className="enc-detail-item">
+                    <span className="det-icon">◉</span>
+                    Signatures: Dilithium3 + Ed25519
                   </span>
                   <span className="enc-detail-item">
                     <span className="det-icon">◉</span>
