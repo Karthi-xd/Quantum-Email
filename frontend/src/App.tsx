@@ -38,7 +38,8 @@ function EmailApp() {
       const t = setTimeout(() => setShowBar(true), 200);
       return () => clearTimeout(t);
     }
-    setShowBar(false);
+    const t = setTimeout(() => setShowBar(false), 0);
+    return () => clearTimeout(t);
   }, [refreshing]);
 
   return (

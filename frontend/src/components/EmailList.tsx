@@ -31,7 +31,6 @@ export function EmailList() {
   const syncingRef = useRef(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const activeAccountRef = useRef(activeAccount);
-  activeAccountRef.current = activeAccount;
   const currentEmails = emails[activeCategory] || [];
   const filteredEmails = getFilteredEmails(currentEmails, searchQuery);
   const filteredAccounts = accounts.filter(acc => 
@@ -74,6 +73,10 @@ export function EmailList() {
     syncingRef.current = false;
     setRefreshing(false);
   }, [setEmails, setRefreshing, logout, addToast]);
+
+  useEffect(() => {
+    activeAccountRef.current = activeAccount;
+  }, [activeAccount]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {

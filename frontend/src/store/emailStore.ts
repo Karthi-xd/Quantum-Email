@@ -324,7 +324,9 @@ export const useEmailStore = create<EmailStore>()(
         // re-entered after a page reload.
         const stripSecrets = (acc: typeof state.activeAccount) => {
           if (!acc) return acc;
-          const { password: _password, smtpPassword: _smtpPassword, ...rest } = acc;
+          const rest = { ...acc };
+          delete rest.password;
+          delete rest.smtpPassword;
           return rest;
         };
         return {
