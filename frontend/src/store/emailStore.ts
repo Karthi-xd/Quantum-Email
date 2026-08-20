@@ -231,7 +231,11 @@ export const useEmailStore = create<EmailStore>()(
       addAccount: (account) => {
         const existing = get().accounts.find((a) => a.email === account.email);
         if (existing) {
-          set({ activeAccount: existing });
+          const updated = { ...existing, ...account, id: existing.id, color: existing.color };
+          set((state) => ({
+            accounts: state.accounts.map(a => a.email === account.email ? updated : a),
+            activeAccount: updated,
+          }));
           return;
         }
         const colorIndex = get().accounts.length % AVATAR_COLORS.length;

@@ -111,6 +111,20 @@ export default function Root() {
   };
 
   useEffect(() => {
+    const unsub = useEmailStore.persist.onFinishHydration(() => {
+      const state = useEmailStore.getState();
+      if (state.page === 'landing' && state.accounts.length > 0) {
+        setPage('app');
+      }
+    });
+    const state = useEmailStore.getState();
+    if (state.accounts.length > 0 && state.page === 'landing') {
+      setPage('app');
+    }
+    return unsub;
+  }, []);
+
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         useEmailStore.getState().setSelectedEmail(null);
