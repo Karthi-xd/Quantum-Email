@@ -3,7 +3,6 @@ from functools import lru_cache
 import os
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = ""
     DATABASE_PATH: str = ""
     ALLOWED_ORIGINS: str = "http://localhost:5173"
     
